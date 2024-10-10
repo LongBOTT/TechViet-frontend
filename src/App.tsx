@@ -2,6 +2,7 @@ import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import './App.css'
 import NavBar from './customer/components/NavBar'
+import { Login } from '@mui/icons-material'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -9,6 +10,7 @@ function App() {
   return (
     <div>
       <NavBar/>
+      <div><Login/></div>
       
     </div>
   )
