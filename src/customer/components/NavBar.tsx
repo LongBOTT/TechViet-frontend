@@ -93,8 +93,10 @@ function NavBar() {
     null
   );
 
-  const [loggedIn, setLoggedIn] = useState(false); // Trạng thái đăng nhập
+
   const [openLoginDialog, setOpenLoginDialog] = useState(false); // Trạng thái mở hộp thoại đăng nhập
+
+  const [loggedIn, setLoggedIn] = useState(false); // Trạng thái đăng nhập
 
   // Mở menu navigation
 
@@ -106,15 +108,16 @@ function NavBar() {
     setAnchorElNav(null);
   };
 
-   // Hàm gọi khi đăng nhập thành công
-   const handleLoginSuccess = () => {
+  
+  // Hàm gọi khi đăng nhập thành công
+  const handleLoginSuccess = () => {
     setLoggedIn(true); // Cập nhật trạng thái đăng nhập
     setOpenLoginDialog(false); // Đóng hộp thoại đăng nhập
   };
 
   // Mở menu user hoặc hộp thoại đăng nhập
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
-    console.log("Logged in status:", loggedIn);
+
     if (!loggedIn) {
       setOpenLoginDialog(true); // Mở hộp thoại đăng nhập nếu chưa đăng nhập
     } else {
