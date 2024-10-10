@@ -1,25 +1,24 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import './App.css'
-import NavBar from './customer/components/NavBar'
-import { Login } from '@mui/icons-material'
+import { useState } from "react";
+import reactLogo from "./assets/react.svg";
+import "./App.css";
+import NavBar from "./customer/components/NavBar";
+import Login from "./customer/pages/Login";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0);
 
   return (
     <div>
-      <NavBar/>
-      <div><Login/></div>
-      
+      <NavBar />
+     
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
 
-
-      {/* <div>
+{
+  /* <div>
         <a href="https://vitejs.dev" target="_blank">
           <img src="/vite.svg" className="logo" alt="Vite logo" />
         </a>
@@ -38,4 +37,5 @@ export default App
       </div>
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
-      </p> */}
+      </p> */
+}
