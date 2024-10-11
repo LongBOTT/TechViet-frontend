@@ -8,7 +8,7 @@ import { Box } from '@mui/material'
 import Footer from './customer/components/Footer'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0);
 
   return (
     <div>
@@ -25,7 +25,8 @@ function App() {
       {/* Footer */}
       <Footer/>
     </div>
-  )
+  );
 }
 
 export default App
+
