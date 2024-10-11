@@ -1,0 +1,16 @@
+node -v
+npm -v
+
+npx create-react-app . --template typescript 
+
+npm install -D tailwindcss
+npx tailwindcss init
+ 
+npm install @mui/material @emotion/react @emotion/styled
+npm install @mui/material @mui/styled-engine-sc styled-components
+npm install @mui/icons-material @mui/material @emotion/styled @emotion/react
+
+npm i vite@4.1.0
+
+npm i --save-dev @types/react-slick
+

@@ -115,7 +115,7 @@ function NavBar() {
             >
               {categories.map((category, index) => (
                 <MenuItem key={index} onClick={handleCloseNavMenu}>
-                  <category.icon />
+                  <category.icon sx={{ paddingRight:'5px'}}/>
                   <Typography sx={{ textAlign: 'center' }}>{category.name}</Typography>
                 </MenuItem>
               ))}
@@ -149,12 +149,6 @@ function NavBar() {
             </Box>
           </Box>
 
-          {/* Hotline
-          <IconButton>
-            <PhoneInTalk sx={{height:'30px', width:'30px'}}/>
-          </IconButton>
-          <Link href="tel:18003355" sx={{color: 'white', fontSize:'15px'}}>18003355</Link> */}
-          
           {/* Icon profile */}
           <Box sx={{marginRight:'5px', marginLeft:'15px'}}>
             <Tooltip title="Open settings">
@@ -199,6 +193,8 @@ function NavBar() {
         </Toolbar>
       </Container>
     </AppBar>
+
+
   );
 }
 
