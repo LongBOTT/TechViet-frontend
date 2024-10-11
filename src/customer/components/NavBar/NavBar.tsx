@@ -108,20 +108,25 @@ function NavBar() {
     setAnchorElNav(null);
   };
 
+   // Hàm gọi khi đăng xuất
+   const handleLogout = () => {
+    setLoggedIn(false); 
+    setAnchorElUser(null);
+  };
   
   // Hàm gọi khi đăng nhập thành công
   const handleLoginSuccess = () => {
-    setLoggedIn(true); // Cập nhật trạng thái đăng nhập
-    setOpenLoginDialog(false); // Đóng hộp thoại đăng nhập
+    setLoggedIn(true); 
+    setOpenLoginDialog(false); 
   };
 
   // Mở menu user hoặc hộp thoại đăng nhập
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
 
     if (!loggedIn) {
-      setOpenLoginDialog(true); // Mở hộp thoại đăng nhập nếu chưa đăng nhập
+      setOpenLoginDialog(true); 
     } else {
-      setAnchorElUser(event.currentTarget); // Mở menu user nếu đã đăng nhập
+      setAnchorElUser(event.currentTarget); 
     }
   };
 
@@ -256,7 +261,9 @@ function NavBar() {
                 {/* Hiện menu khi click */}
                 {settings.map((setting) => (
                   <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                    <Typography sx={{ textAlign: "center", fontSize: "15px" }}>
+                    <Typography sx={{ textAlign: "center", fontSize: "15px" }}
+                     onClick={setting === "Đăng xuất" ? handleLogout : handleCloseUserMenu}
+                    >
                       {setting}
                     </Typography>
                   </MenuItem>
@@ -264,10 +271,10 @@ function NavBar() {
               </Menu>
             ) : (
               // Nếu chưa đăng nhập, mở hộp thoại đăng nhập
-              <Login 
-              open={openLoginDialog} 
-              onClose={handleCloseLoginDialog} 
-              onLoginSuccess={handleLoginSuccess} // Truyền hàm callback
+              <Login
+              open={openLoginDialog}
+              onClose={handleCloseLoginDialog}
+              onLoginSuccess={handleLoginSuccess} // Được gọi khi mã SMS hợp lệ
             />
             )}
           </Box>
