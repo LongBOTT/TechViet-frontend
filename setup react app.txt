@@ -14,3 +14,5 @@ npm i vite@4.1.0
 
 npm i --save-dev @types/react-slick
 
+ npm instal axios --save   
+

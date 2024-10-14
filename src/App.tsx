@@ -1,12 +1,15 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import './App.css'
-import NavBar from './customer/components/NavBar/NavBar'
-import { Banner } from './customer/pages/Home/Banner'
-import CategoryMenu from './customer/pages/Home/CategoryMenu'
-import { Box } from '@mui/material'
-import Footer from './customer/components/Footer/Footer'
-import Home from './customer/pages/Home/Home'
+import { useState } from "react";
+import reactLogo from "./assets/react.svg";
+import "./App.css";
+import NavBar from "./customer/components/NavBar/NavBar";
+import { Banner } from "./customer/pages/Home/Banner";
+import CategoryMenu from "./customer/pages/Home/CategoryMenu";
+import { Box } from "@mui/material";
+import Footer from "./customer/components/Footer/Footer";
+import Home from "./customer/pages/Home/Home";
+import ListBrandComponent from "./admin/components/ListBrandComponent";
+import Drawer from "./admin/components/Drawer";
+
 
 function App() {
   const [count, setCount] = useState(0);
@@ -14,16 +17,16 @@ function App() {
   return (
     <div>
       {/* Header */}
-      <NavBar/>
+      {/* <NavBar/> */}
       {/* Home */}
-      <Home/>
-
+      {/* <Home/> */}
 
       {/* Footer */}
-      <Footer/>
+      {/* <Footer/> */}
+      <Drawer />
+
     </div>
   );
 }
 
-export default App
-
+export default App;
