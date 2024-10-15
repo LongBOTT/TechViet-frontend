@@ -111,7 +111,7 @@ export default function PermanentDrawerLeft() {
                 marginLeft: 3,
               }}
             >
-              TechViet
+              TECH VIET
             </Typography>
           </Box>
         </Toolbar>
