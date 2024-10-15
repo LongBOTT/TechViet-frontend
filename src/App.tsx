@@ -8,22 +8,22 @@ import { Box } from '@mui/material'
 import Footer from './components/Footer/Footer'
 import Home from './pages/Home/Home'
 
+
 function App() {
   const [count, setCount] = useState(0);
 
   return (
     <div>
       {/* Header */}
-      <NavBar/>
+      {/* <NavBar/> */}
       {/* Home */}
-      <Home/>
-
+      {/* <Home/> */}
 
       {/* Footer */}
-      <Footer/>
+      {/* <Footer/> */}
+      <HomePage />
     </div>
   );
 }
 
-export default App
-
+export default App;
