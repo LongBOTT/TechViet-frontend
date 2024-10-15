@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import './App.css'
-import NavBar from './customer/components/NavBar/NavBar'
-import { Banner } from './customer/pages/Home/Banner'
-import CategoryMenu from './customer/pages/Home/CategoryMenu'
+import NavBar from './components/NavBar/NavBar'
+import { Banner } from './pages/Home/Banner'
+import CategoryMenu from './pages/Home/CategoryMenu'
 import { Box } from '@mui/material'
-import Footer from './customer/components/Footer/Footer'
-import Home from './customer/pages/Home/Home'
+import Footer from './components/Footer/Footer'
+import Home from './pages/Home/Home'
 
 function App() {
   const [count, setCount] = useState(0);

@@ -3,6 +3,10 @@ import React from 'react'
 import Banner from './Banner'
 import CategoryMenu from './CategoryMenu'
 import { HotSale } from './HotSale'
+import { Phone } from './Phone'
+import { Laptop } from './Laptop'
+import { Tablet } from './Tablet'
+import { Watch } from './Watch'
 
 export const Home = () => {
   return (
@@ -18,8 +22,17 @@ export const Home = () => {
         {/* Hot sales */}
         <HotSale/>
         
-        {/* <Box sx={{height:'1000px'}}> */}
-        {/* </Box> */}
+        {/* Phone */}
+        <Phone/>
+
+        {/* Laptop */}
+        <Laptop/>
+
+        {/* Tablet */}
+        <Tablet/>
+
+        {/* Watch */}
+        <Watch/>
     </Box>
   )
 }

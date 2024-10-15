@@ -30,7 +30,7 @@ import {
   Watch,
 } from "@mui/icons-material";
 import { useState } from "react";
-import Login from "../../pages/Login"; // Import component Login
+import Login from "../../pages/Login/Login"; // Import component Login
 
 const categories = [
   { name: "Điện thoại", icon: PhoneAndroid },

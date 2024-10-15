@@ -7,7 +7,7 @@ export const CategoryMenu = () => {
     <Box sx={{  display:'block',
                 justifyContent: 'center',
                 alignItems: 'center'}}>
-        <Typography variant="h5" sx={{ textAlign: 'center'}}>Danh mục sản phẩm</Typography>
+        <Typography variant="h4" fontWeight="bold" sx={{ color: '#000000', textAlign: 'center' }}>DANH MỤC SẢN PHẨM</Typography>
         <Container  sx={{ textAlign: 'center', 
                     height: '252px'}}>
             <CategoryMenuSlider/>
