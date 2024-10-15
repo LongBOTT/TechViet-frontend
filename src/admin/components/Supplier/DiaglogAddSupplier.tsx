@@ -31,7 +31,7 @@ const AddSupplierDialog: React.FC<AddSupplierDialogProps> = ({
   onAddSupplier,
 }) => {
   const [formData, setFormData] = useState<Supplier>({
-    id: 0, // Giả định ID sẽ tự động sinh sau khi thêm vào cơ sở dữ liệu
+    id: 0,
     name: "",
     email: "",
     phone: "",
@@ -48,7 +48,7 @@ const AddSupplierDialog: React.FC<AddSupplierDialogProps> = ({
 
   const handleAddSupplier = () => {
     onAddSupplier(formData);
-    onClose(); // Đóng dialog sau khi thêm nhà cung cấp
+    onClose(); 
   };
 
   return (

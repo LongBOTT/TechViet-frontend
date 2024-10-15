@@ -2,12 +2,12 @@
 import React from 'react';
 import Button from '@mui/material/Button';
 import { SxProps } from '@mui/system';
-import { grey } from '@mui/material/colors'; // Màu cho icon
+import { grey } from '@mui/material/colors'; 
 
 interface FileButtonProps {
-  icon: React.ReactNode; // Biểu tượng truyền vào
-  text: string;          // Chuỗi tiêu đề truyền vào
-  onClick?: () => void;  // Hàm khi click (không bắt buộc)
+  icon: React.ReactNode; 
+  text: string;         
+  onClick?: () => void;  
 }
 
 const fileButtonStyles: SxProps = {
