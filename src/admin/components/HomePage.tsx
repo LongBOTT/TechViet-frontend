@@ -12,6 +12,7 @@ import ListItemText from "@mui/material/ListItemText";
 import DashboardIcon from "@mui/icons-material/Dashboard"; // Icon cho Tổng quan
 import ReceiptLongIcon from "@mui/icons-material/ReceiptLong"; // Icon cho Đơn hàng
 import CategoryIcon from "@mui/icons-material/Category"; // Icon cho Sản phẩm
+import LocalShippingIcon from "@mui/icons-material/LocalShipping"; // Icon cho Nhà cung cấp
 import GppGoodIcon from "@mui/icons-material/GppGood"; // Icon cho Bảo hành
 import PeopleIcon from "@mui/icons-material/People"; // Icon cho Khách hàng
 import LocalOfferIcon from "@mui/icons-material/LocalOffer"; // Icon cho Giảm giá
@@ -24,6 +25,7 @@ import GuaranteeComponent from "./GuaranteeComponent";
 import CustomerComponent from "./CustomerComponent";
 import DiscountComponent from "./DiscountComponent";
 import DashboardComponent from "./DashboardComponent";
+import SupplierComponent from "./Supplier/SupplierComponent";
 import HeaderAdmin from "./HeaderAdmin";
 const drawerWidth = 240;
 
@@ -32,6 +34,7 @@ export default function PermanentDrawerLeft() {
     "Tổng quan": <DashboardIcon />,
     "Đơn hàng": <ReceiptLongIcon />,
     "Sản phẩm": <CategoryIcon />,
+    "Nhà cung cấp": <LocalShippingIcon />,
     "Bảo hành": <GppGoodIcon />,
     "Khách hàng": <PeopleIcon />,
     "Giảm giá": <LocalOfferIcon />,
@@ -49,6 +52,8 @@ export default function PermanentDrawerLeft() {
         return <OrderComponent />;
       case "Sản phẩm":
         return <ProductComponent />;
+      case "Nhà cung cấp":
+        return <SupplierComponent />;
       case "Bảo hành":
         return <GuaranteeComponent />;
       case "Khách hàng":
@@ -116,6 +121,7 @@ export default function PermanentDrawerLeft() {
             "Tổng quan",
             "Đơn hàng",
             "Sản phẩm",
+            "Nhà cung cấp",
             "Bảo hành",
             "Khách hàng",
             "Giảm giá",

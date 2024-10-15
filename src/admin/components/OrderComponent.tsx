@@ -20,7 +20,7 @@ export default function OrderComponent() {
         height: 64,
         display: "flex",
         backgroundColor: "rgb(255, 25, 123)",
-        width: "70%",
+        width: "100%",
       }}>
 
       </Box>

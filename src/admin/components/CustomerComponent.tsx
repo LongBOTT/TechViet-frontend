@@ -2,7 +2,7 @@ import * as React from "react";
 import Box from "@mui/material/Box";
 import { Typography } from "@mui/material";
 
-export default function OrderComponent() {
+export default function CustomerComponent() {
     return (
       <Box
         sx={{
@@ -20,7 +20,7 @@ export default function OrderComponent() {
         height: 64,
         display: "flex",
         backgroundColor: "rgb(255, 25, 123)",
-        width: "70%",
+        width: "100%",
       }}>
 
       </Box>

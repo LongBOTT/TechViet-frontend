@@ -8,7 +8,8 @@ import { Box } from "@mui/material";
 import Footer from "./customer/components/Footer/Footer";
 import Home from "./customer/pages/Home/Home";
 import ListBrandComponent from "./admin/components/ListBrandComponent";
-import Drawer from "./admin/components/Drawer";
+import HomePage from "./admin/components/HomePage";
+import AddSupplierComponent from "./admin/components/Supplier/DiaglogAddSupplier";
 
 
 function App() {
@@ -23,8 +24,7 @@ function App() {
 
       {/* Footer */}
       {/* <Footer/> */}
-      <Drawer />
-
+      <HomePage />
     </div>
   );
 }

@@ -20,7 +20,7 @@ export default function OverviewComponent() {
         height: 64,
         display: "flex",
         backgroundColor: "rgb(255, 123, 123)",
-        width: "70%",
+        width: "100%",
       }}>
 
       </Box>
