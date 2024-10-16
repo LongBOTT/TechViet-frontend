@@ -37,7 +37,7 @@ const CustomDialog: React.FC<CustomDialogProps> = ({
         {title}
       </DialogTitle>
       <DialogContent>{children}</DialogContent>
-      <DialogActions  sx={{ justifyContent: "center", padding: 3}}> 
+      <DialogActions  sx={{ justifyContent: "center"}}> 
         <SaveButton icon={<SaveIcon />} text="Lưu" onClick={onSave} />
       </DialogActions>
     </Dialog>

@@ -1,7 +1,6 @@
 // AddSupplierButton.tsx
 import React from 'react';
 import Button from '@mui/material/Button';
-import AddCircleIcon from '@mui/icons-material/AddCircle'; // Import icon "AddCircle"
 import { SxProps } from '@mui/system';
 
 interface AddButtonProps {
