@@ -3,13 +3,13 @@ import React from 'react';
 import Button from '@mui/material/Button';
 import { SxProps } from '@mui/system';
 
-interface AddButtonProps {
+interface ButtonProps {
   icon: React.ReactNode; 
   text: string;         
   onClick?: () => void; 
 }
 
-const addButtonStyles: SxProps = {
+const ButtonStyles: SxProps = {
   color: 'white',
   backgroundColor: 'rgb(0, 136, 255)',
   border: '1px solid transparent',
@@ -24,11 +24,11 @@ const addButtonStyles: SxProps = {
   padding: '5px 20px',
 };
 
-const CustomButton: React.FC<AddButtonProps> = ({ icon, text, onClick }) => {
+const CustomButton: React.FC<ButtonProps> = ({ icon, text, onClick }) => {
   return (
     <Button
       startIcon={icon}
-      sx={addButtonStyles}
+      sx={ButtonStyles}
       onClick={onClick}
       disableRipple
     >
