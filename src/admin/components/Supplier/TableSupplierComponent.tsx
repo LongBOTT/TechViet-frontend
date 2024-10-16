@@ -11,7 +11,7 @@ import {
   TablePagination,
   Typography,
 } from "@mui/material";
-import DialogUpdateSupplier from "./DialogUpdateSupplier"; 
+import DialogUpdateSupplier from "./EditSupplierDialog"; 
 
 interface Supplier {
   id: number;

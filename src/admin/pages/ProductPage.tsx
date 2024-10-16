@@ -1,15 +1,15 @@
 import * as React from "react";
 import Box from "@mui/material/Box";
 import { Typography } from "@mui/material";
-import Tab from "./TabComponent";
-import Pagination from "../Util/PaginationComponent";
-import FileButton from "../Util/FileButton";
+import Tab from "../components/Product/TabComponent";
+import Pagination from "../components/Util/PaginationComponent";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
-import AddSupplierButton from "../Util/AddButton";
+import AddProductButton from "../components/Util/CustomButton";
+import FileButton from "../components/Util/FileButton";
 
-export default function SupplierComponent() {
+export default function ProductComponent() {
   const handleExport = () => {
     console.log("Xuất file");
   };
@@ -18,7 +18,7 @@ export default function SupplierComponent() {
     console.log("Nhập file");
   };
 
-  const handleAddSupplier = () => {
+  const handleAddProduct = () => {
     console.log("Thêm nhà cung cấp");
   };
   return (
@@ -38,7 +38,7 @@ export default function SupplierComponent() {
           display: "flex",
           width: "100%",
           justifyContent: "space-between",
-          alignItems: "center", // Căn giữa theo chiều dọc
+          alignItems: "center",
         }}
       >
         <Typography
@@ -46,13 +46,11 @@ export default function SupplierComponent() {
           component="div"
           sx={{ fontWeight: "bold", padding: 2 }}
         >
-          Nhà cung cấp
+          Danh sách sản phẩm
         </Typography>
         <Box sx={{ marginLeft: "auto", marginRight: "10px" }}>
-          {" "}
-          {/* Đẩy CustomButton sang bên phải */}
           <Box sx={{ display: "flex", alignItems: "center" }}>
-            <FileButton
+          <FileButton
               icon={<CloudUploadIcon />}
               text="Xuất file"
               onClick={handleExport}
@@ -62,10 +60,10 @@ export default function SupplierComponent() {
               text="Nhập file"
               onClick={handleImport}
             />
-            <AddSupplierButton
+            <AddProductButton
               icon={<AddCircleIcon />}
-              text="Thêm nhà cung cấp"
-              onClick={handleAddSupplier}
+              text="Thêm sản phẩm"
+              onClick={handleAddProduct}
             />
           </Box>
         </Box>
@@ -75,7 +73,7 @@ export default function SupplierComponent() {
           height: "100%",
           margin: "20px",
           backgroundColor: "rgb(255, 255, 255)",
-          boxShadow: "0 0 3px 0 rgba(0, 0, 0, 0.3)", // Đổ bóng rất nhẹ
+          boxShadow: "0 0 3px 0 rgba(0, 0, 0, 0.3)",
         }}
       >
         <Tab />

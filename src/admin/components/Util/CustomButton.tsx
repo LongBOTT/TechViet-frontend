@@ -22,9 +22,10 @@ const addButtonStyles: SxProps = {
   },
   fontFamily: 'Roboto, sans-serif',
   textTransform: 'none',
+  padding: '5px 20px',
 };
 
-const AddButton: React.FC<AddButtonProps> = ({ icon, text, onClick }) => {
+const CustomButton: React.FC<AddButtonProps> = ({ icon, text, onClick }) => {
   return (
     <Button
       startIcon={icon}
@@ -37,4 +38,4 @@ const AddButton: React.FC<AddButtonProps> = ({ icon, text, onClick }) => {
   );
 };
 
-export default AddButton;
+export default CustomButton;

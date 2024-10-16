@@ -1,26 +1,22 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import './App.css'
-import NavBar from './components/NavBar/NavBar'
-import { Banner } from './pages/Home/Banner'
-import CategoryMenu from './pages/Home/CategoryMenu'
-import { Box } from '@mui/material'
-import Footer from './components/Footer/Footer'
-import Home from './pages/Home/Home'
-
+import { useState } from "react";
+import reactLogo from "./assets/react.svg";
+import "./App.css";
+import HomePage from "./admin/pages/HomePage";
+import NavBar from "./components/NavBar/NavBar";
+import Home from "./pages/Home/Home";
+import Footer from "./components/Footer/Footer";
 
 function App() {
   const [count, setCount] = useState(0);
 
   return (
     <div>
-      {/* Header */}
-      {/* <NavBar/> */}
-      {/* Home */}
-      {/* <Home/> */}
+      {/* <NavBar />
 
-      {/* Footer */}
-      {/* <Footer/> */}
+      <Home />
+
+      <Footer /> */}
+      
       <HomePage />
     </div>
   );
