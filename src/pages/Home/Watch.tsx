@@ -1,29 +1,30 @@
 import { Box, Container, Typography } from '@mui/material'
-import React from 'react'
+import React, { useRef } from 'react'
 import WatchSlider from './WatchSlider'
 import PreviousButton from '../../assets/utils/PreviousButton'
 import ForwardButton from '../../assets/utils/ForwardButton'
 
 export const Watch = () => {
-  return (
-    <Box sx={{  display:'flex',
-                // justifyContent: 'center',
-                // alignItems: 'center',
-                marginTop:'20px',
-                background:'red'}}>
-        <Box>
-          <PreviousButton/>
-        </Box>
-        <Container  sx={{ textAlign: 'center',background:'yellow'
+  // Tạo tham chiếu tới slider
+  const sliderRef = useRef<any>(null);
 
-          
-        }}>
-            <PreviousButton/>
-            <WatchSlider/>
-        </Container>
-        <Box sx={{display:'block', alignItems:'center', background:'pink'}}>
-          <ForwardButton/>
-        </Box>
+  return (
+    <Box sx={{ display: 'flex', marginTop: '20px' }}>
+      {/* Nút Previous */}
+      <Box sx={{ display: 'flex', width: '100%', justifyContent: 'right', alignItems: 'center', marginTop: '40px' }}>
+        <PreviousButton onClick={() => sliderRef.current.slickPrev()} /> {/* Sự kiện onClick */}
+      </Box>
+
+      {/* Container chứa Slider */}
+      <Container sx={{ textAlign: 'center' }}>
+        <WatchSlider sliderRef={sliderRef} /> {/* Truyền ref vào slider */}
+      </Container>
+
+      {/* Nút Next */}
+      <Box sx={{ display: 'flex', width: '100%', justifyContent: 'left', alignItems: 'center', marginTop: '40px' }}>
+        <ForwardButton onClick={() => sliderRef.current.slickNext()} /> {/* Sự kiện onClick */}
+      </Box>
     </Box>
   )
 }
+

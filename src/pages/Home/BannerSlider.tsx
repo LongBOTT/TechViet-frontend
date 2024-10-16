@@ -11,7 +11,11 @@ const banners = [
     { src: "src/assets/banners/banner4.png", alt: "Banner 4" }
 ];
 
-const BannerSlider = () => {
+interface WatchSliderProps {
+  sliderRef: React.RefObject<Slider>; // Định nghĩa kiểu prop là RefObject của Slider
+}
+
+const BannerSlider: React.FC<WatchSliderProps> = ({ sliderRef }) => {
     const settings = {
         dots: true,
         infinite: true,
@@ -19,12 +23,13 @@ const BannerSlider = () => {
         slidesToShow: 1,
         slidesToScroll: 1,
         autoplay: true,
-        autoplaySpeed: 4000
+        autoplaySpeed: 4000,
+        arrows: false
     };
 
     return (
         <Box sx={{ maxWidth: '1200px', margin: '0 auto', padding: '45px' }}>
-            <Slider {...settings}>
+    <Slider ref={sliderRef} {...settings}>
                 {banners.map((banner, index) => (
                     <Box key={index} sx={{ position: 'relative' }}>
                         <img src={banner.src} alt={banner.alt} style={{ width: '100%', borderRadius: '10px' }} />

@@ -2,6 +2,7 @@ import { Box, Grid, Typography } from '@mui/material';
 import Slider from "react-slick";
 
 import React from 'react'
+import { flushSync } from 'react-dom';
 
 
 const categories = [
@@ -24,21 +25,26 @@ const categories = [
     { name: 'PC lắp ráp', imgSrc: 'src/assets/products/product17.png' },
 ];
 
-const CategoryMenuSlider = () => {
+interface WatchSliderProps {
+  sliderRef: React.RefObject<Slider>; // Định nghĩa kiểu prop là RefObject của Slider
+}
+
+const CategoryMenuSlider: React.FC<WatchSliderProps> = ({ sliderRef }) => {
     const settings = {
         dots: true,
         infinite: true,
         speed: 500,
         slidesToShow: 5,
         slidesToScroll: 5,
-        rows: 2
+        rows: 2,
+        arrows: false
     };
 
     return (
         <Box sx={{  background: '#f3f4f6', 
                     width: '100%', 
                     height: '100%'}}>
-            <Slider {...settings}>
+    <Slider ref={sliderRef} {...settings}>
                 {categories.map((category, index) => (
                     <Grid item xs={2} key={index}>
                          <Box

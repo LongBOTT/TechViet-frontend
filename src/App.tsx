@@ -7,6 +7,7 @@ import CategoryMenu from './pages/Home/CategoryMenu'
 import { Box } from '@mui/material'
 import Footer from './components/Footer/Footer'
 import Home from './pages/Home/Home'
+import HomePage from './admin/components/HomePage'
 
 
 function App() {
@@ -14,14 +15,10 @@ function App() {
 
   return (
     <div>
-      {/* Header */}
-      {/* <NavBar/> */}
-      {/* Home */}
-      {/* <Home/> */}
-
-      {/* Footer */}
-      {/* <Footer/> */}
-      <HomePage />
+      <NavBar/>
+      <Home/>
+      <Footer/>
+      {/* <HomePage /> */}
     </div>
   );
 }

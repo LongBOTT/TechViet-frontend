@@ -53,7 +53,11 @@ const products = [
 ];
 
 
-const HotSaleSlider = () => {
+interface WatchSliderProps {
+  sliderRef: React.RefObject<Slider>; // Định nghĩa kiểu prop là RefObject của Slider
+}
+
+const HotSaleSlider: React.FC<WatchSliderProps> = ({ sliderRef }) => {
   // Slider settings
   const settings = {
     dots: true,
@@ -61,6 +65,7 @@ const HotSaleSlider = () => {
     speed: 500,
     slidesToShow: 4,
     slidesToScroll: 1,
+    arrows: false,
     responsive: [
       {
         breakpoint: 1024,
@@ -86,8 +91,6 @@ const HotSaleSlider = () => {
     ]
   };
 
-  
-
   return (
     <Box sx={{padding: '30px', borderRadius:'10px', backgroundSize: '100% 100%',
                 backgroundPosition: 'center',
@@ -96,7 +99,7 @@ const HotSaleSlider = () => {
       <Typography variant="subtitle1" sx={{ color: '#fff0bf', textAlign: 'center' }}>
         Kết thúc sau: <strong>02 : 07 : 12 : 38</strong>
       </Typography>
-      <Slider {...settings}>
+      <Slider ref={sliderRef} {...settings}>
         {products.map((product, index) => (
           <HotSaleCard
             key={index} 

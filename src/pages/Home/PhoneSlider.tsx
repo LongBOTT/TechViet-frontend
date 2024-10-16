@@ -95,8 +95,11 @@ const products = [
   },
 ];
 
+interface WatchSliderProps {
+  sliderRef: React.RefObject<Slider>; // Định nghĩa kiểu prop là RefObject của Slider
+}
 
-const PhoneSlider = () => {
+const PhoneSlider: React.FC<WatchSliderProps> = ({ sliderRef }) => {
   // Slider settings
   const settings = {
     dots: true,
@@ -139,7 +142,7 @@ const PhoneSlider = () => {
       <Link sx={{ textDecoration: 'none', color: 'inherit', cursor: 'pointer'}}>
         <Typography variant="h4" fontWeight="bold" sx={{ color: '#000000', textAlign: 'center' }}>ĐIỆN THOẠI DI ĐỘNG</Typography>
       </Link>
-      <Slider {...settings}>
+    <Slider ref={sliderRef} {...settings}>
         {products.map((product, index) => (
           <ProductCard
             key={index} 
