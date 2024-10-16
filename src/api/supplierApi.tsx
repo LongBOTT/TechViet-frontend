@@ -17,6 +17,7 @@ export const deleteSupplier = async (id: number) => {
 };
 
 // Gọi API lấy danh sách nhà cung cấp
-export const fetchSuppliers = async () => {
-  return await axiosInstance.get("/suppliers");
+export const getSuppliers = async () => {
+  const response = await axiosInstance.get<Supplier[]>("/suppliers"); 
+  return response.data; 
 };
