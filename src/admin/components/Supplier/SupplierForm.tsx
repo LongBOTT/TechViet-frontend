@@ -1,81 +1,79 @@
-import React from 'react';
-import TextField from '@mui/material/TextField';
-import MenuItem from '@mui/material/MenuItem';
+import React from "react";
+import { TextField, MenuItem, Grid } from "@mui/material";
+import { Supplier } from "../../../types/supplier";
 
 interface SupplierFormProps {
-  data: {
-    id?: string;
-    name?: string;
-    phone?: string;
-    email?: string;
-    address?: string;
-    status?: string;
-  };
-  setData: React.Dispatch<React.SetStateAction<any>>;
+  data: Supplier;
+  setData: (supplier: Supplier) => void;
 }
 
 const SupplierForm: React.FC<SupplierFormProps> = ({ data, setData }) => {
-
+  // Hàm để cập nhật dữ liệu từ các trường nhập liệu
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setData((prevData) => ({ ...prevData, [name]: value }));
+    setData({
+      ...data,
+      [name]: value,
+    });
   };
 
   return (
-    <form>
-      <TextField
-        label="Mã nhà cung cấp"
-        name="id"
-        value={data.id || ''}
-        onChange={handleChange}
-        fullWidth
-        margin="normal"
-      />
-      <TextField
-        label="Tên nhà cung cấp"
-        name="name"
-        value={data.name || ''}
-        onChange={handleChange}
-        fullWidth
-        margin="normal"
-      />
-      <TextField
-        label="Số điện thoại"
-        name="phone"
-        value={data.phone || ''}
-        onChange={handleChange}
-        fullWidth
-        margin="normal"
-      />
-      <TextField
-        label="Email"
-        name="email"
-        value={data.email || ''}
-        onChange={handleChange}
-        fullWidth
-        margin="normal"
-      />
-      <TextField
-        label="Địa chỉ"
-        name="address"
-        value={data.address || ''}
-        onChange={handleChange}
-        fullWidth
-        margin="normal"
-      />
-      <TextField
-        select
-        label="Trạng thái"
-        name="status"
-        value={data.status || ''}
-        onChange={handleChange}
-        fullWidth
-        margin="normal"
-      >
-        <MenuItem value="Đang giao dịch">Đang giao dịch</MenuItem>
-        <MenuItem value="Ngưng giao dịch">Ngưng giao dịch</MenuItem>
-      </TextField>
-    </form>
+    <Grid container spacing={2}>
+      <Grid item xs={12}>
+        <TextField
+          fullWidth
+          label="Tên nhà cung cấp"
+          name="name"
+          value={data.name}
+          onChange={handleChange}
+          required
+        />
+      </Grid>
+      <Grid item xs={12}>
+        <TextField
+          fullWidth
+          label="Số điện thoại"
+          name="phone"
+          value={data.phone}
+          onChange={handleChange}
+          required
+        />
+      </Grid>
+      <Grid item xs={12}>
+        <TextField
+          fullWidth
+          label="Email"
+          name="email"
+          value={data.email}
+          onChange={handleChange}
+          required
+        />
+      </Grid>
+      <Grid item xs={12}>
+        <TextField
+          fullWidth
+          label="Địa chỉ"
+          name="address"
+          value={data.address}
+          onChange={handleChange}
+          required
+        />
+      </Grid>
+      <Grid item xs={12}>
+        <TextField
+          select
+          fullWidth
+          label="Trạng thái"
+          name="status"
+          value={data.status}
+          onChange={handleChange}
+          required
+        >
+          <MenuItem value="Đang giao dịch">Đang giao dịch</MenuItem>
+          <MenuItem value="Ngưng giao dịch">Ngưng giao dịch</MenuItem>
+        </TextField>
+      </Grid>
+    </Grid>
   );
 };
 

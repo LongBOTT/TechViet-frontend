@@ -1,18 +1,36 @@
 import React, { useState } from 'react';
 import CustomDialog from '../Util/CustomDialog';
 import SupplierForm from './SupplierForm';
+import { Supplier } from "../../../types/supplier";
+import { addSupplier } from '../../../api/supplierApi';
 
-interface SupplierDialogProps {
+interface AddSupplierDialogProps {
   open: boolean;
   onClose: () => void;
-  onSave: (data: any) => void; // Hàm xử lý lưu dữ liệu
+  onSave: (data: Supplier) => void; // Hàm callback sau khi lưu thành công, nhận dữ liệu nhà cung cấp
 }
 
-const SupplierDialog: React.FC<SupplierDialogProps> = ({ open, onClose, onSave }) => {
-  const [supplierData, setSupplierData] = useState({}); // Dữ liệu nhà cung cấp
+const AddSupplierDialog: React.FC<AddSupplierDialogProps> = ({
+  open,
+  onClose,
+  onSave,
+}) => {
+  const [supplierData, setSupplierData] = useState<Supplier>({
+    name: "",
+    phone: "",
+    email: "",
+    address: "",
+    status: "Đang giao dịch",
+  });
 
-  const handleSave = () => {
-    onSave(supplierData);  // Gọi hàm onSave để lưu dữ liệu
+  const handleSave = async () => {
+    try {
+      await addSupplier(supplierData); // Gọi API thêm nhà cung cấp
+      onSave(supplierData); // Gọi hàm callback với dữ liệu nhà cung cấp sau khi lưu thành công
+      onClose(); // Đóng dialog
+    } catch (error) {
+      console.error("Lỗi khi thêm nhà cung cấp:", error);
+    }
   };
 
   return (
@@ -27,4 +45,4 @@ const SupplierDialog: React.FC<SupplierDialogProps> = ({ open, onClose, onSave }
   );
 };
 
-export default SupplierDialog;
+export default AddSupplierDialog;

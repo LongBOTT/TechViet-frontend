@@ -137,13 +137,6 @@ const SupplierDialog: React.FC<SupplierFormProps> = ({
             }}>
               Cập nhật
             </Button>
-            <Button onClick={handleDelete} variant="outlined" color="error"
-            sx = {{
-              textTransform: 'none',
-              fontFamily: 'Roboto, sans-serif',
-            }}>
-              Xóa
-            </Button>
           </>
         )}
       </DialogActions>

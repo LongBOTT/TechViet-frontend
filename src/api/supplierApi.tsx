@@ -1,21 +1,22 @@
-import axios from 'axios';
+import axiosInstance from "./index";
+import { Supplier } from "../types/supplier";
 
-const API_URL = 'http://localhost:8088/api/suppliers';
+// Gọi API thêm nhà cung cấp
+export const addSupplier = async (supplier: Supplier) => {
+  return await axiosInstance.post("/suppliers", supplier);
+};
 
-export interface Supplier {
-  id?: string;
-  supplierCode?: string;
-  name: string;
-  phone: string;
-  email: string;
-  address: string;
-  status: string;
-}
+// Gọi API sửa nhà cung cấp
+export const updateSupplier = async (id: number, supplier: Supplier) => {
+  return await axiosInstance.put(`/suppliers/${id}`, supplier);
+};
 
-export const getAllSuppliers = () => axios.get<Supplier[]>(API_URL);
+// Gọi API xóa nhà cung cấp
+export const deleteSupplier = async (id: number) => {
+  return await axiosInstance.delete(`/suppliers/${id}`);
+};
 
-export const addSupplier = (supplier: Supplier) => axios.post(API_URL, supplier);
-
-export const updateSupplier = (id: string, supplier: Supplier) => axios.put(`${API_URL}/${id}`, supplier);
-
-export const deleteSupplier = (id: string) => axios.delete(`${API_URL}/${id}`);
+// Gọi API lấy danh sách nhà cung cấp
+export const fetchSuppliers = async () => {
+  return await axiosInstance.get("/suppliers");
+};

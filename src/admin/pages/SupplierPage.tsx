@@ -10,12 +10,12 @@ import AddCircleIcon from "@mui/icons-material/AddCircle";
 import AddSupplierButton from "../components/Util/CustomButton";
 import { useState } from "react";
 import AddSupplierDialog from "../components/Supplier/AddSupplierDialog";
+import type { Supplier } from "../../types/supplier";
 
 
 export default function Supplier() {
   const [openAddDialog, setOpenAddDialog] = useState(false);
-  const [openEditDialog, setOpenEditDialog] = useState(false);
-  const [currentSupplier, setCurrentSupplier] = useState(null); // Nhà cung cấp đang sửa
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]); // Danh sách nhà cung cấp
   const handleExport = () => {
     console.log("Xuất file");
   };
@@ -24,23 +24,18 @@ export default function Supplier() {
     setOpenAddDialog(true);
   };
 
-  const handleOpenEditDialog = (supplier: any) => {
-    setCurrentSupplier(supplier);
-    setOpenEditDialog(true);
-  };
-
   const handleCloseAddDialog = () => {
     setOpenAddDialog(false);
   };
 
-  const handleCloseEditDialog = () => {
-    setOpenEditDialog(false);
-  };
+  // const handleCloseEditDialog = () => {
+  //   setOpenEditDialog(false);
+  // };
 
-  const handleSaveSupplier = (data: any) => {
-    console.log("Thêm/Cập nhật nhà cung cấp:", data);
-    setOpenAddDialog(false);
-    setOpenEditDialog(false);
+  const handleSaveSupplier = (data: Supplier) => {
+    // Cập nhật danh sách nhà cung cấp sau khi thêm
+    setSuppliers((prevSuppliers) => [...prevSuppliers, data]); // Thêm nhà cung cấp mới vào danh sách
+    setOpenAddDialog(false); // Đóng dialog
   };
 
   const handleImport = () => {
