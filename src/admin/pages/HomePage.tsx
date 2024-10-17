@@ -152,8 +152,8 @@ export default function PermanentDrawerLeft() {
           height: "calc(100vh)",
           width: "100%",
           display: "flex",
-          overflow: "auto",
-          flexDirection: "column",
+          // overflow: "auto",
+          // flexDirection: "column",
         }}
       >
         {renderContent()}

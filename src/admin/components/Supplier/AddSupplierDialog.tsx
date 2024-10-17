@@ -27,7 +27,7 @@ const AddSupplierDialog: React.FC<AddSupplierDialogProps> = ({
     try {
       await addSupplier(supplierData); // Gọi API thêm nhà cung cấp
       onSave(supplierData); // Gọi hàm callback với dữ liệu nhà cung cấp sau khi lưu thành công
-      onClose(); // Đóng dialog
+      onClose(); 
     } catch (error) {
       console.error("Lỗi khi thêm nhà cung cấp:", error);
     }

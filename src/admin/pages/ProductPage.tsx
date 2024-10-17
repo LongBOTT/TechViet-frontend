@@ -2,7 +2,6 @@ import * as React from "react";
 import Box from "@mui/material/Box";
 import { Typography } from "@mui/material";
 import Tab from "../components/Product/TabComponent";
-import Pagination from "../components/Util/PaginationComponent";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
@@ -78,15 +77,7 @@ export default function ProductComponent() {
       >
         <Tab />
       </Box>
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          marginBottom: "10px",
-        }}
-      >
-        <Pagination />
-      </Box>
+     
     </Box>
   );
 }
