@@ -31,15 +31,8 @@ import {
 } from "@mui/icons-material";
 import { useState } from "react";
 import Login from "../../pages/Login/Login"; // Import component Login
+import NavLinks from "./NavLinks";
 
-const categories = [
-  { name: "Điện thoại", icon: PhoneAndroid },
-  { name: "Máy tính bảng", icon: Tablet },
-  { name: "Laptop", icon: Laptop },
-  { name: "Đồng hồ thông minh", icon: Watch },
-  { name: "Phụ kiện", icon: Headphones },
-  { name: "Điện máy", icon: BroadcastOnHome },
-];
 const settings = ["Thông tin", "Lịch sử mua hàng", "Đăng xuất"];
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -70,18 +63,6 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
     [theme.breakpoints.up("md")]: {
       width: "500px",
     },
-  },
-}));
-
-const ButtonCategory = styled(Button)(({ theme }) => ({
-  my: 2,
-  color: "white",
-  display: "flex",
-  marginRight: "5px",
-  fontSize: "12px",
-  borderRadius: "0px",
-  "&:hover": {
-    borderBottom: "2px solid white",
   },
 }));
 
@@ -180,12 +161,12 @@ function NavBar() {
               onClose={handleCloseNavMenu}
               sx={{ display: { xs: "block", md: "none" } }}
             >
-              {categories.map((category, index) => (
+              {/* {categories.map((category, index) => (
                 <MenuItem key={index} onClick={handleCloseNavMenu}>
                   <category.icon sx={{ paddingRight:'5px'}}/>
                   <Typography sx={{ textAlign: 'center' }}>{category.name}</Typography>
                 </MenuItem>
-              ))}
+              ))} */}
             </Menu>
           </Box>
 
@@ -210,7 +191,7 @@ function NavBar() {
             </Search>
 
             {/* Hiện danh sách thể loại trong md */}
-            <Box
+            {/* <Box
               sx={{
                 display: { xs: "none", md: "flex" },
                 marginTop: "10px",
@@ -218,16 +199,9 @@ function NavBar() {
                 alignItems: "center",
                 justifyContent: "center",
               }}
-            >
-              {categories.map((category, index) => (
-                <ButtonCategory key={index} onClick={handleCloseNavMenu}>
-                  <category.icon
-                    sx={{ paddingRight: "5px", display: "inline-flex" }}
-                  />
-                  {category.name}
-                </ButtonCategory>
-              ))}
-            </Box>
+            > */}
+              <NavLinks/>
+            {/* </Box> */}
           </Box>
           {/* Icon profile */}
           <Box sx={{ marginRight: "5px", marginLeft: "15px" }}>

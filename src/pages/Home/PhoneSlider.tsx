@@ -95,17 +95,20 @@ const products = [
   },
 ];
 
-interface WatchSliderProps {
+interface PhoneSliderProps {
   sliderRef: React.RefObject<Slider>; // Định nghĩa kiểu prop là RefObject của Slider
 }
 
-const PhoneSlider: React.FC<WatchSliderProps> = ({ sliderRef }) => {
+const PhoneSlider: React.FC<PhoneSliderProps> = ({ sliderRef }) => {
+  // Lấy số lượng sản phẩm
+  const productCount = products.length;
+  
   // Slider settings
   const settings = {
     dots: true,
     infinite: true,
     speed: 500,
-    slidesToShow: 4,
+    slidesToShow: productCount < 4 ? productCount : 4,  // Hiển thị tối đa số lượng sản phẩm
     slidesToScroll: 1,
     rows: 2,
     // nextArrow: <CustomNextArrow />,   // Thay nút forward

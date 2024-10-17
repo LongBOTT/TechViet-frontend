@@ -53,17 +53,20 @@ const products = [
 ];
 
 
-interface WatchSliderProps {
+interface HotSaleSliderProps {
   sliderRef: React.RefObject<Slider>; // Định nghĩa kiểu prop là RefObject của Slider
 }
 
-const HotSaleSlider: React.FC<WatchSliderProps> = ({ sliderRef }) => {
+const HotSaleSlider: React.FC<HotSaleSliderProps> = ({ sliderRef }) => {
+  // Lấy số lượng sản phẩm
+  const productCount = products.length;
+  
   // Slider settings
   const settings = {
     dots: true,
     infinite: true,
     speed: 500,
-    slidesToShow: 4,
+    slidesToShow: productCount < 4 ? productCount : 4,  // Hiển thị tối đa số lượng sản phẩm
     slidesToScroll: 1,
     arrows: false,
     responsive: [

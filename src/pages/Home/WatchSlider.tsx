@@ -103,12 +103,15 @@ interface WatchSliderProps {
 }
 
 const WatchSlider: React.FC<WatchSliderProps> = ({ sliderRef }) => {
+  // Lấy số lượng sản phẩm
+  const productCount = products.length;
+  
   // Slider settings
   const settings = {
     dots: true,
     infinite: true,
     speed: 500,
-    slidesToShow: 4,
+    slidesToShow: productCount < 4 ? productCount : 4,  // Hiển thị tối đa số lượng sản phẩm
     slidesToScroll: 1,
     rows: 2,
     arrows: false,  // Ẩn nút điều hướng mặc định của slider

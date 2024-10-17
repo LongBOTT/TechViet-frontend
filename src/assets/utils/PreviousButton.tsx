@@ -10,7 +10,7 @@ const PreviousButton = ({ onClick }: { onClick: () => void }) => (
       // left: '0%  ',
       // marginTop: '60px',
       // transform: 'translateY(-50%)',
-      backgroundColor: '#e0e0e0',
+      backgroundColor: 'white',
       color: '#000',
       '&:hover': {
         backgroundColor: '#bdbdbd',
