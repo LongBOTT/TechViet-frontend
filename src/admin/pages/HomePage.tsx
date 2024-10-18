@@ -1,8 +1,8 @@
 import * as React from "react";
+import { Typography } from "@mui/material";
 import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";
 import CssBaseline from "@mui/material/CssBaseline";
-import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
@@ -17,16 +17,18 @@ import GppGoodIcon from "@mui/icons-material/GppGood"; // Icon cho Bảo hành
 import PeopleIcon from "@mui/icons-material/People"; // Icon cho Khách hàng
 import LocalOfferIcon from "@mui/icons-material/LocalOffer"; // Icon cho Giảm giá
 import BarChartIcon from "@mui/icons-material/BarChart"; // Icon cho Báo cáo
-import { Divider, Typography } from "@mui/material";
-import ProductComponent from "./Product/ProductComponent";
-import OrderComponent from "./OrderComponent";
-import OverviewComponent from "./OverviewComponent";
-import GuaranteeComponent from "./GuaranteeComponent";
-import CustomerComponent from "./CustomerComponent";
-import DiscountComponent from "./DiscountComponent";
-import DashboardComponent from "./DashboardComponent";
-import SupplierComponent from "./Supplier/SupplierComponent";
-import HeaderAdmin from "./HeaderAdmin";
+
+import Customer from "./CustomerPage";
+import Discount from "./DiscountPage";
+import Dashboard from "./DashboardPage";
+import Supplier from "./SupplierPage";
+import Product from "./ProductPage";
+import Guarantee from "./GuaranteePage";
+import Order from "./OrderPage";
+import Overview from "./OverviewPage";
+
+import { SupplierProvider } from "../../context/SupplierContext";
+
 const drawerWidth = 240;
 
 export default function PermanentDrawerLeft() {
@@ -47,23 +49,27 @@ export default function PermanentDrawerLeft() {
   const renderContent = () => {
     switch (selectedMenu) {
       case "Tổng quan":
-        return <OverviewComponent />;
+        return <Overview />;
       case "Đơn hàng":
-        return <OrderComponent />;
+        return <Order />;
       case "Sản phẩm":
-        return <ProductComponent />;
+        return <Product />;
       case "Nhà cung cấp":
-        return <SupplierComponent />;
+        return (
+          <SupplierProvider>
+            <Supplier />
+          </SupplierProvider>
+        );
       case "Bảo hành":
-        return <GuaranteeComponent />;
+        return <Guarantee />;
       case "Khách hàng":
-        return <CustomerComponent />;
+        return <Customer />;
       case "Giảm giá":
-        return <DiscountComponent />;
+        return <Discount />;
       case "Báo cáo":
-        return <DashboardComponent/>;
+        return <Dashboard />;
       default:
-        return <OverviewComponent />;
+        return <Overview />;
     }
   };
   return (
@@ -152,24 +158,10 @@ export default function PermanentDrawerLeft() {
           height: "calc(100vh)",
           width: "100%",
           display: "flex",
-          overflow: "auto",
-          flexDirection: "column",
+          // overflow: "auto",
+          // flexDirection: "column",
         }}
       >
-        {/* <AppBar
-          position="fixed"
-          sx={{
-            width: `calc(100% - ${drawerWidth}px)`,
-            ml: `${drawerWidth}px`,
-            boxShadow: "none",
-            backgroundColor: "transparent",
-            borderBottom: "1px solid rgb(224, 224, 224)",
-          }}
-        >
-          <Box sx={{ width: "fit-content", marginLeft: "auto" }}>
-            <HeaderAdmin />
-          </Box>
-        </AppBar> */}
         {renderContent()}
       </Box>
     </Box>

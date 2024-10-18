@@ -2,8 +2,8 @@ import * as React from "react";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
-import SearchBox from "./Search";
-import CustomTable from "../Supplier/CustomTable";
+import SearchBox from "../Util/Search";
+import SupplierTable from "./SupplierTable";
 interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
@@ -53,24 +53,11 @@ export default function BasicTabs() {
             {...a11yProps(0)}
             sx={{ textTransform: "none", fontWeight: "bold", fontSize: "16px" }}
           />
-          <Tab
-            label="Đang giao dịch"
-            {...a11yProps(1)}
-            sx={{ textTransform: "none", fontWeight: "bold", fontSize: "16px" }}
-          />
-          <Tab
-            label="Ngưng giao dịch"
-            {...a11yProps(2)}
-            sx={{ textTransform: "none", fontWeight: "bold", fontSize: "16px" }}
-          />
         </Tabs>
       </Box>
       <CustomTabPanel value={value} index={0}>
-        <SearchBox />
-        <CustomTable />
+     
       </CustomTabPanel>
-      <CustomTabPanel value={value} index={1}></CustomTabPanel>
-      <CustomTabPanel value={value} index={2}></CustomTabPanel>
     </Box>
   );
 }

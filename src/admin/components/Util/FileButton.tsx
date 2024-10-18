@@ -12,6 +12,7 @@ interface FileButtonProps {
 
 const fileButtonStyles: SxProps = {
   color: 'black',
+  height: '40px',
   backgroundColor: 'rgb(249, 249, 249)',
   border: 'none',
   borderRadius: '5px',

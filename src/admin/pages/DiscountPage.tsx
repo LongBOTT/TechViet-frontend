@@ -2,7 +2,7 @@ import * as React from "react";
 import Box from "@mui/material/Box";
 import { Typography } from "@mui/material";
 
-export default function OverviewComponent() {
+export default function Discount() {
     return (
       <Box
         sx={{
@@ -10,7 +10,7 @@ export default function OverviewComponent() {
           flexGrow: 1,
           overflow: "auto",
           borderRadius: 1,
-          bgcolor: "rgb(25, 25, 234)",
+          bgcolor: "rgb(25, 255, 255)",
           margin: 0,
           padding: 0, 
         }}
@@ -19,7 +19,7 @@ export default function OverviewComponent() {
       sx ={{
         height: 64,
         display: "flex",
-        backgroundColor: "rgb(255, 123, 123)",
+        backgroundColor: "rgb(255, 255, 25)",
         width: "100%",
       }}>
 
@@ -27,4 +27,3 @@ export default function OverviewComponent() {
       </Box>
     );
 }
-

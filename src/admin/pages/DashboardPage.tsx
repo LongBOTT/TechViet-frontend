@@ -2,7 +2,7 @@ import * as React from "react";
 import Box from "@mui/material/Box";
 import { Typography } from "@mui/material";
 
-export default function CustomerComponent() {
+export default function Dashboard() {
     return (
       <Box
         sx={{
@@ -10,7 +10,7 @@ export default function CustomerComponent() {
           flexGrow: 1,
           overflow: "auto",
           borderRadius: 1,
-          bgcolor: "rgb(25, 255, 2)",
+          bgcolor: "rgb(25, 25, 234)",
           margin: 0,
           padding: 0, 
         }}
@@ -19,7 +19,7 @@ export default function CustomerComponent() {
       sx ={{
         height: 64,
         display: "flex",
-        backgroundColor: "rgb(255, 25, 123)",
+        backgroundColor: "rgb(255, 123, 123)",
         width: "100%",
       }}>
 
@@ -27,4 +27,3 @@ export default function CustomerComponent() {
       </Box>
     );
 }
-
