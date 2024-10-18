@@ -44,7 +44,7 @@ export const getSuppliers = async () => {
   }
 };
 
-// Gọi API tìm kiếm nhà cung cấp theo tên
+// Gọi API tìm kiếm nhà cung cấp theo tên gần đúng
 export const searchSupplierByName = async (query: string) => {
   try {
     const response = await axiosInstance.get<Supplier[]>(
@@ -53,6 +53,30 @@ export const searchSupplierByName = async (query: string) => {
     return response.data;
   } catch (error: any) {
     handleApiError(error, "tìm kiếm nhà cung cấp theo tên");
+  }
+};
+
+// Gọi API kiểm tra nhà cung cấp trùng lặp theo tên
+// supplierApi.tsx
+export const checkDuplicateSupplier = async (
+  name: string
+): Promise<boolean> => {
+  try {
+    const response = await axiosInstance.get<Supplier>(
+      `suppliers/search/name/exact?name=${name}`
+    );
+
+    if (response.data && response.data.name) {
+      console.log("Nhà cung cấp trùng:", response.data);
+      return true;
+    } else {
+      console.log("Không tìm thấy nhà cung cấp trùng");
+      return false;
+    }
+  } catch (error: any) {
+    console.log("Lỗi API kiểm tra trùng lặp:", error);
+    handleApiError(error, "kiểm tra trùng lặp nhà cung cấp");
+    return false;
   }
 };
 
@@ -68,27 +92,20 @@ export const filterSupplierByStatus = async (status: string) => {
   }
 };
 
-// Gọi API kiểm tra nhà cung cấp trùng lặp theo tên
-export const checkDuplicateSupplier = async (name: string): Promise<boolean> => {
-  try {
-    const response = await axiosInstance.get<Supplier[]>(
-      `/suppliers/search/name/exact?name=${name}`
-    );
-    return response.data.length > 0; // Trả về true nếu có nhà cung cấp trùng
-  } catch (error: any) {
-    handleApiError(error, "kiểm tra trùng lặp nhà cung cấp");
-    return false;
-  }
-};
-
 // Gọi API kiểm tra nhà cung cấp trùng lặp theo email
 export const checkDuplicateEmail = async (email: string): Promise<boolean> => {
   try {
-    const response = await axiosInstance.get<Supplier[]>(
-      `/suppliers/search/email/exact?email=${email}`
+    const response = await axiosInstance.get<Supplier>(
+      `suppliers/search/email/exact?email=${email}`
     );
-    return response.data.length > 0; // Trả về true nếu có nhà cung cấp trùng
+
+    if (response.data && response.data.email) {
+      return true;
+    } else {
+      return false;
+    }
   } catch (error: any) {
+    console.log("Lỗi API kiểm tra trùng lặp email:", error);
     handleApiError(error, "kiểm tra trùng lặp email nhà cung cấp");
     return false;
   }
@@ -97,11 +114,17 @@ export const checkDuplicateEmail = async (email: string): Promise<boolean> => {
 // Gọi API kiểm tra nhà cung cấp trùng lặp theo số điện thoại
 export const checkDuplicatePhone = async (phone: string): Promise<boolean> => {
   try {
-    const response = await axiosInstance.get<Supplier[]>(
-      `/suppliers/search/phone/exact?phone=${phone}`
+    const response = await axiosInstance.get<Supplier>(
+      `suppliers/search/phone/exact?phone=${phone}`
     );
-    return response.data.length > 0; // Trả về true nếu có nhà cung cấp trùng
+
+    if (response.data && response.data.phone) {
+      return true;
+    } else {
+      return false;
+    }
   } catch (error: any) {
+    console.log("Lỗi API kiểm tra trùng lặp số điện thoại:", error);
     handleApiError(error, "kiểm tra trùng lặp số điện thoại nhà cung cấp");
     return false;
   }

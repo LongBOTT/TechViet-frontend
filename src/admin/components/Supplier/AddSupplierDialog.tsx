@@ -41,25 +41,26 @@ const AddSupplierDialog: React.FC<AddSupplierDialogProps> = ({
     try {
       const isDuplicate = await checkDuplicateSupplier(supplierData.name);
       if (isDuplicate) {
+        console.log("Tên nhà cung cấp đã tồn tại.");
         setSnackbarMessage("Tên nhà cung cấp đã tồn tại.");
         setSnackbarOpen(true);
         setLoading(false);
         return;
       }
-      const isDuplicateEmail = await checkDuplicateEmail(supplierData.email);
-      if (isDuplicateEmail) {
-        setSnackbarMessage("Email đã tồn tại.");
-        setSnackbarOpen(true);
-        setLoading(false);
-        return;
-      }
-      const isDuplicatePhone = await checkDuplicatePhone(supplierData.phone);
-      if (isDuplicatePhone) {
-        setSnackbarMessage("Số điện thoại đã tồn tại.");
-        setSnackbarOpen(true);
-        setLoading(false);
-        return;
-      }
+      // const isDuplicateEmail = await checkDuplicateEmail(supplierData.email);
+      // if (isDuplicateEmail) {
+      //   setSnackbarMessage("Email đã tồn tại.");
+      //   setSnackbarOpen(true);
+      //   setLoading(false);
+      //   return;
+      // }
+      // const isDuplicatePhone = await checkDuplicatePhone(supplierData.phone);
+      // if (isDuplicatePhone) {
+      //   setSnackbarMessage("Số điện thoại đã tồn tại.");
+      //   setSnackbarOpen(true);
+      //   setLoading(false);
+      //   return;
+      // }
       await createSupplier(supplierData);
       setSnackbarMessage("Thêm nhà cung cấp thành công!");
     } catch (error) {
