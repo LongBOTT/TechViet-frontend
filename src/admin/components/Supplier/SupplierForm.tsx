@@ -1,8 +1,10 @@
+//src/admin/components/Supplier/SupplierForm.tsx
 import React from "react";
 import { TextField, MenuItem, Grid } from "@mui/material";
 import { Supplier } from "../../../types/supplier";
 
 interface SupplierFormProps {
+  
   data: Supplier;
   setData: (supplier: Supplier) => void;
 }

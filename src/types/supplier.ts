@@ -1,5 +1,6 @@
+// src/types/supplier.ts
 export interface Supplier {
-  id?: number;
+  id: number;
   name: string;
   phone: string;
   email: string;

@@ -1,148 +1,109 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import CustomDialog from "../Util/CustomDialog";
+import SupplierForm from "./SupplierForm";
+import { Supplier } from "../../../types/supplier";
+import { useSupplierContext } from "../../../context/SupplierContext";
+import LoadingSnackbar from "../Util/LoadingSnackbar"; // Import LoadingSnackbar
+import { validateSupplier } from "../Util/validation/supplierValidation";
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  TextField,
-  Box,
-  Typography,
-  IconButton,
-} from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close"; // Biểu tượng "X"
+  checkDuplicateEmail,
+  checkDuplicatePhone,
+  checkDuplicateSupplier,
+} from "../../../api/supplierApi";
 
-interface Supplier {
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-  address: string;
-  status: "Đang giao dịch" | "Ngưng giao dịch";
-}
-
-interface SupplierFormProps {
-  supplier: Supplier | null;
+interface EditSupplierDialogProps {
   open: boolean;
   onClose: () => void;
-  onUpdate: (updatedSupplier: Supplier) => void;
-  onDelete: (id: number) => void;
 }
 
-const SupplierDialog: React.FC<SupplierFormProps> = ({
-  supplier,
+const EditSupplierDialog: React.FC<EditSupplierDialogProps> = ({
   open,
   onClose,
-  onUpdate,
-  onDelete,
 }) => {
-  const [formData, setFormData] = useState<Supplier | null>(null);
+  const { selectedSupplier, editSupplier } = useSupplierContext();
+  const [supplierData, setSupplierData] = useState<Supplier | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
 
   useEffect(() => {
-    if (supplier) {
-      setFormData(supplier);
+    if (selectedSupplier) {
+      setSupplierData(selectedSupplier);
     }
-  }, [supplier]);
+  }, [selectedSupplier]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (formData) {
-      setFormData({
-        ...formData,
-        [e.target.name]: e.target.value,
-      });
+  const handleSave = async () => {
+    if (supplierData) {
+      const validationError = validateSupplier(supplierData);
+      if (validationError) {
+        setSnackbarMessage(validationError);
+        setSnackbarOpen(true);
+        return;
+      }
+
+      setLoading(true); // Bắt đầu loading
+      try {
+        const isDuplicate = await checkDuplicateSupplier(supplierData.name);
+        if (isDuplicate) {
+          setSnackbarMessage("Tên nhà cung cấp đã tồn tại.");
+          setSnackbarOpen(true);
+          setLoading(false);
+          return;
+        }
+        const isDuplicateEmail = await checkDuplicateEmail(supplierData.email);
+        if (isDuplicateEmail) {
+          setSnackbarMessage("Email đã tồn tại.");
+          setSnackbarOpen(true);
+          setLoading(false);
+          return;
+        }
+        const isDuplicatePhone = await checkDuplicatePhone(supplierData.phone);
+        if (isDuplicatePhone) {
+          setSnackbarMessage("Số điện thoại đã tồn tại.");
+          setSnackbarOpen(true);
+          setLoading(false);
+          return;
+        }
+        await editSupplier(supplierData.id, supplierData);
+        setSnackbarMessage("Cập nhật nhà cung cấp thành công!");
+      } catch (error) {
+        setSnackbarMessage("Cập nhật nhà cung cấp thất bại!");
+      } finally {
+        // Đợi 1 giây trước khi dừng loading
+        setTimeout(() => {
+          setLoading(false);
+          setSnackbarOpen(true);
+        }, 1000);
+      }
     }
   };
 
-  const handleUpdate = () => {
-    if (formData) {
-      onUpdate(formData);
-      onClose();
-    }
-  };
-
-  const handleDelete = () => {
-    if (formData) {
-      onDelete(formData.id);
-      onClose(); 
-    }
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
   };
 
   return (
-    <Dialog open={open} onClose={onClose}>
-        <IconButton
-        onClick={onClose}
-        sx={{ position: "absolute", right: 8, top: 8 }}
+    <>
+      <CustomDialog
+        open={open}
+        onClose={onClose}
+        title="Chi tiết Nhà Cung Cấp"
+        onSave={handleSave}
       >
-        <CloseIcon fontSize="large" /> {/* Đặt kích thước biểu tượng lớn */}
-      </IconButton>
-     
-      <DialogTitle>Thông tin nhà cung cấp</DialogTitle>
-      <DialogContent>
-        {formData ? (
+        {supplierData && (
           <>
-            <TextField
-              name="name"
-              label="Tên nhà cung cấp"
-              value={formData.name}
-              onChange={handleChange}
-              fullWidth
-              margin="normal"
-            />
-            <TextField
-              name="email"
-              label="Email"
-              value={formData.email}
-              onChange={handleChange}
-              fullWidth
-              margin="normal"
-            />
-            <TextField
-              name="phone"
-              label="Số điện thoại"
-              value={formData.phone}
-              onChange={handleChange}
-              fullWidth
-              margin="normal"
-            />
-            <TextField
-              name="address"
-              label="Địa chỉ"
-              value={formData.address}
-              onChange={handleChange}
-              fullWidth
-              margin="normal"
-            />
-            <TextField
-              name="status"
-              label="Trạng thái"
-              value={formData.status}
-              onChange={handleChange}
-              fullWidth
-              margin="normal"
+            <SupplierForm data={supplierData} setData={setSupplierData} />
+            <LoadingSnackbar
+              loading={loading}
+              snackbarOpen={snackbarOpen}
+              snackbarMessage={snackbarMessage}
+              onClose={handleSnackbarClose}
             />
           </>
-        ) : (
-          <Typography variant="body1">
-            Vui lòng chọn một nhà cung cấp để xem thông tin.
-          </Typography>
         )}
-      </DialogContent>
-      <DialogActions>
-        {formData && (
-          <>
-            <Button onClick={handleUpdate} variant="contained" color="primary"
-            sx = {{
-              textTransform: 'none',
-              fontFamily: 'Roboto, sans-serif',
-            }}>
-              Cập nhật
-            </Button>
-          </>
-        )}
-      </DialogActions>
-    </Dialog>
+      </CustomDialog>
+    </>
   );
 };
 
-export default SupplierDialog;
-;
+export default EditSupplierDialog;

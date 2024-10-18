@@ -1,36 +1,79 @@
-import React, { useState } from 'react';
-import CustomDialog from '../Util/CustomDialog';
-import SupplierForm from './SupplierForm';
+//src/admin/components/Supplier/AddSupplierDialog.tsx
+import React, { useState } from "react";
+import CustomDialog from "../Util/CustomDialog";
+import SupplierForm from "./SupplierForm";
 import { Supplier } from "../../../types/supplier";
-import { addSupplier } from '../../../api/supplierApi';
+import { useSupplierContext } from "../../../context/SupplierContext";
+import LoadingSnackbar from "../Util/LoadingSnackbar";
+import { validateSupplier } from "../Util/validation/supplierValidation";
+import { checkDuplicateEmail, checkDuplicatePhone, checkDuplicateSupplier } from "../../../api/supplierApi";
 
 interface AddSupplierDialogProps {
   open: boolean;
   onClose: () => void;
-  onSave: (data: Supplier) => void; // Hàm callback sau khi lưu thành công, nhận dữ liệu nhà cung cấp
 }
 
 const AddSupplierDialog: React.FC<AddSupplierDialogProps> = ({
   open,
   onClose,
-  onSave,
 }) => {
   const [supplierData, setSupplierData] = useState<Supplier>({
+    id: 0,
     name: "",
     phone: "",
     email: "",
     address: "",
     status: "Đang giao dịch",
   });
-
+  const [loading, setLoading] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const { createSupplier } = useSupplierContext();
   const handleSave = async () => {
-    try {
-      await addSupplier(supplierData); // Gọi API thêm nhà cung cấp
-      onSave(supplierData); // Gọi hàm callback với dữ liệu nhà cung cấp sau khi lưu thành công
-      onClose(); 
-    } catch (error) {
-      console.error("Lỗi khi thêm nhà cung cấp:", error);
+    // Kiểm tra dữ liệu nhà cung cấp trước khi gửi API
+    const validationError = validateSupplier(supplierData);
+    if (validationError) {
+      setSnackbarMessage(validationError);
+      setSnackbarOpen(true);
+      return;
     }
+    setLoading(true); // Bắt đầu loading
+    try {
+      const isDuplicate = await checkDuplicateSupplier(supplierData.name);
+      if (isDuplicate) {
+        setSnackbarMessage("Tên nhà cung cấp đã tồn tại.");
+        setSnackbarOpen(true);
+        setLoading(false);
+        return;
+      }
+      const isDuplicateEmail = await checkDuplicateEmail(supplierData.email);
+      if (isDuplicateEmail) {
+        setSnackbarMessage("Email đã tồn tại.");
+        setSnackbarOpen(true);
+        setLoading(false);
+        return;
+      }
+      const isDuplicatePhone = await checkDuplicatePhone(supplierData.phone);
+      if (isDuplicatePhone) {
+        setSnackbarMessage("Số điện thoại đã tồn tại.");
+        setSnackbarOpen(true);
+        setLoading(false);
+        return;
+      }
+      await createSupplier(supplierData);
+      setSnackbarMessage("Thêm nhà cung cấp thành công!");
+    } catch (error) {
+      setSnackbarMessage("Thêm nhà cung cấp thất bại!");
+    } finally {
+      // Đợi 1 giây trước khi dừng loading
+      setTimeout(() => {
+        setLoading(false);
+        setSnackbarOpen(true);
+      }, 1000);
+    }
+  };
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
   };
 
   return (
@@ -40,7 +83,15 @@ const AddSupplierDialog: React.FC<AddSupplierDialogProps> = ({
       title="Thêm Nhà Cung Cấp"
       onSave={handleSave}
     >
-      <SupplierForm data={supplierData} setData={setSupplierData} />
+      <>
+        <SupplierForm data={supplierData} setData={setSupplierData} />
+        <LoadingSnackbar
+          loading={loading}
+          snackbarOpen={snackbarOpen}
+          snackbarMessage={snackbarMessage}
+          onClose={handleSnackbarClose}
+        />
+      </>
     </CustomDialog>
   );
 };

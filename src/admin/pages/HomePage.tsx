@@ -27,6 +27,8 @@ import Guarantee from "./GuaranteePage";
 import Order from "./OrderPage";
 import Overview from "./OverviewPage";
 
+import { SupplierProvider } from "../../context/SupplierContext";
+
 const drawerWidth = 240;
 
 export default function PermanentDrawerLeft() {
@@ -53,7 +55,11 @@ export default function PermanentDrawerLeft() {
       case "Sản phẩm":
         return <Product />;
       case "Nhà cung cấp":
-        return <Supplier />;
+        return (
+          <SupplierProvider>
+            <Supplier />
+          </SupplierProvider>
+        );
       case "Bảo hành":
         return <Guarantee />;
       case "Khách hàng":
@@ -61,7 +67,7 @@ export default function PermanentDrawerLeft() {
       case "Giảm giá":
         return <Discount />;
       case "Báo cáo":
-        return <Dashboard/>;
+        return <Dashboard />;
       default:
         return <Overview />;
     }

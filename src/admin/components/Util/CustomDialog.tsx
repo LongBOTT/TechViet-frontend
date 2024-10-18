@@ -1,3 +1,4 @@
+// src/admin/components/Util/CustomDialog.tsx
 import React from "react";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
@@ -32,7 +33,7 @@ const CustomDialog: React.FC<CustomDialogProps> = ({
         <CloseIcon fontSize="large" />
       </IconButton>
       <DialogTitle
-        sx={{ textAlign: "center", fontWeight: "bold", marginTop: "30px" }}
+        sx={{ textAlign: "center", fontWeight: "bold", marginTop: "30px", marginBottom: "20px" }}
       >
         {title}
       </DialogTitle>

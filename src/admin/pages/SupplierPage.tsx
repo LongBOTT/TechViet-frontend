@@ -1,4 +1,4 @@
-import * as React from "react";
+// src/admin/pages/SupplierPage.tsx
 import Box from "@mui/material/Box";
 import { Paper, TableContainer, Typography } from "@mui/material";
 import FileButton from "../components/Util/FileButton";
@@ -13,19 +13,18 @@ import SearchBox from "../components/Util/Search";
 import SupplierTable from "../components/Supplier/SupplierTable";
 import FilterDropdown from "../components/Util/FilterDropdown";
 
+import { useSupplierContext } from "../../context/SupplierContext";
+
 export default function Supplier() {
   const [openAddDialog, setOpenAddDialog] = useState(false);
-  const [suppliers, setSuppliers] = useState<Supplier[]>([]); // Danh sách nhà cung cấp
+  const { searchSuppliersByName } = useSupplierContext();
+  const { filterSuppliersByStatus } = useSupplierContext();
 
   const supplierStatusOptions = [
     { value: "all", label: "Tất cả" },
     { value: "active", label: "Đang giao dịch" },
     { value: "inactive", label: "Ngưng giao dịch" },
   ];
-
-  const handleFilterChange = (status: string) => {
-    console.log("Lọc nhà cung cấp theo trạng thái:", status);
-  };
 
   const handleExport = () => {
     console.log("Xuất file");
@@ -39,22 +38,16 @@ export default function Supplier() {
     setOpenAddDialog(false);
   };
 
-  const handleSaveSupplier = (data: Supplier) => {
-    setSuppliers((prevSuppliers) => [...prevSuppliers, data]); // Thêm nhà cung cấp mới vào danh sách
-    setOpenAddDialog(false); // Đóng dialog
-  };
-
   const handleImport = () => {
     console.log("Nhập file");
   };
-  const handleSearch = (query: string) => {
-    console.log("Tìm kiếm nhà cung cấp:", query);
-  };
+
+ 
+
   return (
     <Box
       sx={{
         flexGrow: 1,
-        // overflow: "auto",
         borderRadius: 1,
         bgcolor: "rgb(249, 249, 249)",
         margin: 0,
@@ -68,7 +61,7 @@ export default function Supplier() {
           display: "flex",
           width: "100%",
           justifyContent: "space-between",
-          alignItems: "center", // Căn giữa theo chiều dọc
+          alignItems: "center",
         }}
       >
         <Typography
@@ -90,17 +83,15 @@ export default function Supplier() {
         >
           <SearchBox
             placeholder="Tìm kiếm nhà cung cấp"
-            onSearch={handleSearch}
+            onSearch={searchSuppliersByName}
           />
           <FilterDropdown
             label="Lọc nhà cung cấp"
             options={supplierStatusOptions}
-            onFilterChange={handleFilterChange}
+            onFilterChange={filterSuppliersByStatus}
           />
         </Box>
         <Box sx={{ marginLeft: "auto", marginRight: "10px" }}>
-          {" "}
-          {/* Đẩy CustomButton sang bên phải */}
           <Box sx={{ display: "flex", alignItems: "center" }}>
             <FileButton
               icon={<CloudUploadIcon />}
@@ -120,7 +111,6 @@ export default function Supplier() {
             <AddSupplierDialog
               open={openAddDialog}
               onClose={handleCloseAddDialog}
-              onSave={handleSaveSupplier}
             />
           </Box>
         </Box>
