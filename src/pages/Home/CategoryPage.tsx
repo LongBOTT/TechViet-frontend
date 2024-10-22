@@ -12,7 +12,7 @@ interface CategoryPageProps {
 }
 
 const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
-    const [itemsToShow, setItemsToShow] = useState(32);  // Số sản phẩm hiển thị ban đầu
+    const [itemsToShow, setItemsToShow] = useState(12);  // Số sản phẩm hiển thị ban đầu
     const [loadingMore, setLoadingMore] = useState(false);  // State để quản lý trạng thái loading khi nhấn "Xem thêm"
     const { categoryName } = useParams<{ categoryName: string }>();  // Lấy categoryName từ URL
     const safeCategoryName = categoryName || '';
@@ -70,7 +70,7 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
     const handleShowMore = () => {
         setLoadingMore(true);  // Bắt đầu loading
         setTimeout(() => {
-            setItemsToShow(prevItemsToShow => prevItemsToShow + 32);  // Tăng thêm 8 sản phẩm mỗi lần
+            setItemsToShow(prevItemsToShow => prevItemsToShow + 4);  // Tăng thêm 4 sản phẩm mỗi lần
             setLoadingMore(false);  // Kết thúc loading
         }, 1000);  // Giả lập thời gian chờ khi tải dữ liệu
     };
