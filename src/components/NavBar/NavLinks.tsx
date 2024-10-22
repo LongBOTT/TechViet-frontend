@@ -1,6 +1,11 @@
 import React, { useRef, useState } from "react";
 import { Menu, MenuItem, Box, Button, styled } from "@mui/material";
 import { links } from "./MyLinks"; // Adjust the import based on your file structure
+import { searchBrandByCategoryName } from "../../api/brandApi";
+import { Brand } from "../../types/brand";
+import { Apple } from "@mui/icons-material";
+import { searchProductsByBrand_Id } from "../../api/productApi";
+
 
 const ButtonCategory = styled(Button)(({ theme }) => ({
   my: 2,
@@ -25,24 +30,46 @@ const ClearBoxItems = (boxRef: React.RefObject<HTMLDivElement>) => {
 const NavLinks = () => {
   const firstButtonRef = useRef<HTMLButtonElement | null>(null);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [currentSubmenu, setCurrentSubmenu] = useState<any[]>([]);
+  const [currentSubmenu, setCurrentSubmenu] = useState<Brand[]>([]);
   const [selectedSubmenu, setSelectedSubmenu] = useState<any[]>([]);
   const [openCategory, setOpenCategory] = useState<boolean>(false);
   const [onMenu, setOnMenu] = useState<boolean>(false);
 
-  const handleOnClick = (event: React.MouseEvent<HTMLElement>, link: any) => {
+  const handleOnClick = async (event: React.MouseEvent<HTMLElement>, link: any) => {
     if (!firstButtonRef.current) {
       firstButtonRef.current = event.currentTarget as HTMLButtonElement;
     }
     setOpenCategory(true);
     setOnMenu(true);
     setAnchorEl(firstButtonRef.current);
-    setCurrentSubmenu(link.sublinks);
-    setSelectedSubmenu([]); // Reset selected submenu when new category is clicked
+    
+
+    try {
+        // Gọi API lấy danh sách Brand theo Category
+        const brands = await searchBrandByCategoryName(link.name); 
+        setCurrentSubmenu(brands ?? []); // Nếu brands là undefined, gán giá trị là mảng rỗng
+    } catch (error) {
+        console.error("Error fetching brands:", error);
+        setCurrentSubmenu([]); // Nếu có lỗi, gán giá trị là mảng rỗng
+    }
+
+    setSelectedSubmenu([]); // Reset selected submenu khi click vào category mới
   };
 
-  const handleMenuItemClick = (submenu: any[]) => {
-    setSelectedSubmenu(submenu); // Set the submenu to display
+  const handleMenuItemClick = async (brandId: number) => {
+    try {
+        // Gọi API lấy danh sách Product theo Brand
+        const products = await searchProductsByBrand_Id(brandId); 
+        if (products && products.length > 12) {
+            const limitedProducts = products.slice(0, 12); // Lấy tối đa 12 sản phẩm
+            setSelectedSubmenu(limitedProducts); // Truyền 12 sản phẩm vào setSelectedSubmenu
+        } else {
+            setSelectedSubmenu(products ?? []); // Nếu không có sản phẩm, gán mảng rỗng
+        }
+    } catch (error) {
+        console.error("Error fetching brands:", error);
+        setSelectedSubmenu([]); // Nếu có lỗi, gán giá trị là mảng rỗng
+    }
   };
 
   const handleClose = () => {
@@ -121,15 +148,17 @@ const NavLinks = () => {
           }}>
             {currentSubmenu.map((submenu) => (
               <MenuItem 
-                key={submenu.Head}
-                  onMouseEnter={() => {
+                key={submenu.name} 
+                onMouseEnter={() => {
                     // Clear the previous submenu items before displaying new ones
                     setSelectedSubmenu([]);  // Clear the previous submenu completely
                     setTimeout(() => {
-                      setSelectedSubmenu(submenu.sublinks);  // Set the new submenu items
+                    handleMenuItemClick(submenu.id);  // Set the new submenu items
                     }, 0);  // Timeout ensures the state clears before updating with new items
-                  }}
-                sx={{ 
+                }}
+
+                sx={{
+                  height:'50px',
                   "&:hover": {
                     transform: 'scale(1.02)',
                     fontWeight: 'bold',
@@ -137,10 +166,10 @@ const NavLinks = () => {
                   },
                 }}
               >
-                <submenu.icon
+                <Apple
                   sx={{ paddingRight: "5px", display: "inline-flex" }}
                 />
-                {submenu.Head}
+                {submenu.name}
               </MenuItem>
             ))}
           </Box>
@@ -153,14 +182,16 @@ const NavLinks = () => {
             overflowX: 'auto',
           }} ref={boxRef}>
             {/* Display selected submenu items */}
+            
             {selectedSubmenu.map((subitem) => (
                 <MenuItem key={subitem.name}
                   sx={{
+                    height:'50px',
                     display:'flex',
                   }}
                   onClick={handleClose}>
-                  <subitem.icon
-                    sx={{ paddingRight: "5px", display: "inline-flex" }}
+                  <Apple
+                  sx={{ paddingRight: "5px", display: "inline-flex" }}
                   />
                   {subitem.name}
                 </MenuItem>

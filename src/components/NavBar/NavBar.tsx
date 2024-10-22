@@ -14,7 +14,6 @@ import {
   Tooltip,
   Avatar,
   alpha,
-  Link,
 } from "@mui/material";
 import React from "react";
 import SearchIcon from "@mui/icons-material/Search";
@@ -32,6 +31,7 @@ import {
 import { useState } from "react";
 import Login from "../../pages/Login/Login"; // Import component Login
 import NavLinks from "./NavLinks";
+import { Link } from 'react-router-dom';
 
 const settings = ["Thông tin", "Lịch sử mua hàng", "Đăng xuất"];
 const Search = styled("div")(({ theme }) => ({
@@ -126,12 +126,15 @@ function NavBar() {
       <Container>
         <Toolbar sx={{ alignItems: "center", justifyContent: "center" }}>
           {/* Logo */}
+          <Link to={"/"} >
           <Box
             component="img"
             src="src/assets/logo.png"
             alt="Logo"
             sx={{ height: "100px", marginRight: "5px" }}
           />
+          </Link>
+          
 
           {/* Ẩn trong md */}
           <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>

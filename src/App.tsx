@@ -1,25 +1,26 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import './App.css'
-import NavBar from './components/NavBar/NavBar'
-import { Banner } from './pages/Home/Banner'
-import CategoryMenu from './pages/Home/CategoryMenu'
-import { Box } from '@mui/material'
-import Footer from './components/Footer/Footer'
-import Home from './pages/Home/Home'
-
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import NavBar from './components/NavBar/NavBar';
+import Footer from './components/Footer/Footer';
+import Home from './pages/Home/Home';
+import CategoryPage from './pages/Home/CategoryPage';
+import { BASE, CATEGORY_PAGE } from './constants/routeConstants';
+import { ProductProvider } from './context/ProductContex';
+import ScrollToTopButton from './components/Footer/ScrollToTopButton';
 
 function App() {
-  const [count, setCount] = useState(0);
-
   return (
-    <div>
-      <NavBar/>
-      <Home/>
+    <Router>
+      <NavBar />
+      <Routes>
+        <Route path={BASE} element={<Home/>} />
+        <Route path={CATEGORY_PAGE} element={
+          <ProductProvider>
+              <CategoryPage categoryName={CATEGORY_PAGE}/>
+          </ProductProvider>} />
+      </Routes>
       <Footer/>
-      {/* <HomePage /> */}
-
-    </div>
+        <ScrollToTopButton/>
+    </Router>
   );
 }
 

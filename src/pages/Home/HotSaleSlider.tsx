@@ -69,6 +69,7 @@ const HotSaleSlider: React.FC<HotSaleSliderProps> = ({ sliderRef }) => {
     slidesToShow: productCount < 4 ? productCount : 4,  // Hiển thị tối đa số lượng sản phẩm
     slidesToScroll: 1,
     arrows: false,
+    autoplay: true,
     responsive: [
       {
         breakpoint: 1024,

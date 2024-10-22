@@ -65,3 +65,15 @@ export const filterBrandByStatus = async (status: string) => {
     handleApiError(error, "lọc thương hiệu theo trạng thái");
   }
 };
+
+// Gọi API lấy danh sách thương hiệu theo thể loại sản phẩm
+export const searchBrandByCategoryName = async (name: string) => {
+  try {
+    const response = await axiosInstance.get<Brand[]>(
+      `/brands/search/category/exact?name=${name}`
+    );
+    return response.data;
+  } catch (error: any) {
+    handleApiError(error, "lọc thương hiệu theo thể loại");
+  }
+};
