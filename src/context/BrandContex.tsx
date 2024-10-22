@@ -7,6 +7,7 @@ import {
   getBrands,
   searchBrandByName,
   filterBrandByStatus,
+  searchBrandByCategoryName,
 } from "../api/brandApi";
 
 interface BrandContextType {
@@ -16,6 +17,7 @@ interface BrandContextType {
   editBrand: (id: number, brand: Brand) => Promise<void>;
   removeBrand: (id: number) => Promise<void>;
   searchBrandsByName: (query: string) => Promise<void>;
+  searchBrandByCategoryName: (name: string) => Promise<void>;
   filterBrandsByStatus: (status: string) => Promise<void>;
   loading: boolean;
   selectedBrand: Brand | null;
@@ -74,6 +76,18 @@ export const BrandProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  const searchBrandByCategoryName = async (name: string) => {
+    setLoading(true);
+    try {
+      const data = await searchBrandByName(name);
+      setBrands(data || []);
+    } catch (error) {
+      console.error("Error searching brands:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const filterBrandsByStatus = async (status: string) => {
     setLoading(true);
     try {
@@ -104,6 +118,7 @@ export const BrandProvider: React.FC<{ children: React.ReactNode }> = ({
         removeBrand,
         searchBrandsByName,
         filterBrandsByStatus,
+        searchBrandByCategoryName,
         loading,
       }}
     >

@@ -36,6 +36,7 @@ const ProductCard: FC<PropsType> = ({name, price, originalPrice, image, details}
         borderRadius: '10px',
         margin: '10px',
         height: '420px',
+        width: '249px',
         boxShadow: 'none',
         display: 'flex',
         flexDirection: 'column',

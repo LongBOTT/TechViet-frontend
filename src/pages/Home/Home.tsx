@@ -7,6 +7,9 @@ import { Phone } from './Phone'
 import { Laptop } from './Laptop'
 import { Tablet } from './Tablet'
 import { Watch } from './Watch'
+import { Sound } from './Sound'
+import { Other } from './Other'
+import { Viewed } from './Viewed'
 
 export const Home = () => {
   return (
@@ -33,6 +36,15 @@ export const Home = () => {
 
         {/* Watch */}
         <Watch/>
+
+        {/* Sound */}
+        <Sound/>
+
+        {/* Other */}
+        <Other/>
+
+        {/* Viewed */}
+        <Viewed/>
     </Box>
   )
 }

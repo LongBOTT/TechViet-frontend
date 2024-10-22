@@ -1,23 +1,23 @@
 import { IconButton } from '@mui/material';
-import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+import { ArrowBackIosNew} from '@mui/icons-material';
 
-const PreviousButton = () => (
+const PreviousButton = ({ onClick }: { onClick: () => void }) => (
   <IconButton
-    // onClick={onClick}
+    onClick={onClick}
     sx={{
       // position: 'absolute',
       // top: '50%',
       // left: '0%  ',
-      marginTop: '60px',
+      // marginTop: '60px',
       // transform: 'translateY(-50%)',
-      backgroundColor: '#e0e0e0',
+      backgroundColor: 'white',
       color: '#000',
       '&:hover': {
         backgroundColor: '#bdbdbd',
       },
     }}
   >
-    <ArrowBackIosIcon/>
+    <ArrowBackIosNew/>
   </IconButton>
 );
 

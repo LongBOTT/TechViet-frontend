@@ -53,14 +53,23 @@ const products = [
 ];
 
 
-const HotSaleSlider = () => {
+interface HotSaleSliderProps {
+  sliderRef: React.RefObject<Slider>; // Định nghĩa kiểu prop là RefObject của Slider
+}
+
+const HotSaleSlider: React.FC<HotSaleSliderProps> = ({ sliderRef }) => {
+  // Lấy số lượng sản phẩm
+  const productCount = products.length;
+  
   // Slider settings
   const settings = {
     dots: true,
     infinite: true,
     speed: 500,
-    slidesToShow: 4,
+    slidesToShow: productCount < 4 ? productCount : 4,  // Hiển thị tối đa số lượng sản phẩm
     slidesToScroll: 1,
+    arrows: false,
+    autoplay: true,
     responsive: [
       {
         breakpoint: 1024,
@@ -86,8 +95,6 @@ const HotSaleSlider = () => {
     ]
   };
 
-  
-
   return (
     <Box sx={{padding: '30px', borderRadius:'10px', backgroundSize: '100% 100%',
                 backgroundPosition: 'center',
@@ -96,7 +103,7 @@ const HotSaleSlider = () => {
       <Typography variant="subtitle1" sx={{ color: '#fff0bf', textAlign: 'center' }}>
         Kết thúc sau: <strong>02 : 07 : 12 : 38</strong>
       </Typography>
-      <Slider {...settings}>
+      <Slider ref={sliderRef} {...settings}>
         {products.map((product, index) => (
           <HotSaleCard
             key={index} 

@@ -40,3 +40,8 @@
 .read-the-docs {
   color: #888;
 } */
+ 
+.no-underline {
+  text-decoration: none;
+  color: inherit;
+}

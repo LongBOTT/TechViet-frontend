@@ -96,13 +96,20 @@ const products = [
 ];
 
 
-const TabletSlider = () => {
+interface TabletSliderProps {
+  sliderRef: React.RefObject<Slider>; // Định nghĩa kiểu prop là RefObject của Slider
+}
+
+const TabletSlider: React.FC<TabletSliderProps> = ({ sliderRef }) => {
+  // Lấy số lượng sản phẩm
+  const productCount = products.length;
+  
   // Slider settings
   const settings = {
     dots: true,
     infinite: true,
     speed: 500,
-    slidesToShow: 4,
+    slidesToShow: productCount < 4 ? productCount : 4,  // Hiển thị tối đa số lượng sản phẩm
     slidesToScroll: 1,
     rows: 2,
     // nextArrow: <CustomNextArrow />,   // Thay nút forward
@@ -139,7 +146,7 @@ const TabletSlider = () => {
       <Link sx={{ textDecoration: 'none', color: 'inherit', cursor: 'pointer'}}>
         <Typography variant="h4" fontWeight="bold" sx={{ color: '#000000', textAlign: 'center' }}>MÁY TÍNH BẢNG</Typography>
       </Link>
-      <Slider {...settings}>
+    <Slider ref={sliderRef} {...settings}>
         {products.map((product, index) => (
           <ProductCard
             key={index} 

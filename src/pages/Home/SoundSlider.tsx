@@ -7,6 +7,8 @@ import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
 import ProductCard from '../../components/Cards/ProductCard';
 import { Padding } from '@mui/icons-material';
+import ForwardButton from '../../assets/utils/ForwardButton';
+import PreviousButton from '../../assets/utils/PreviousButton';
 
 const products = [
   {
@@ -14,7 +16,7 @@ const products = [
     price: 15990000,
     originalPrice: 19990000,
     discount: 20,
-    image: "src/assets/products/gigabyte_g5_2023_f201031d46.png",
+    image: "src/assets/products/samsung_galaxy_buds_3_silver_51b7138bfa.png",
     details: "Giá mới chỉ có tại CellphoneS",
   },
   {
@@ -22,7 +24,7 @@ const products = [
     price: 430000,
     originalPrice: 500000,
     discount: 14,
-    image: "src/assets/products/gigabyte_g5_2023_f201031d46.png",
+    image: "src/assets/products/samsung_galaxy_buds_3_silver_51b7138bfa.png",
     details: "",
   },
   {
@@ -30,7 +32,7 @@ const products = [
     price: 10190000,
     originalPrice: 12690000,
     discount: 20,
-    image: "src/assets/products/gigabyte_g5_2023_f201031d46.png",
+    image: "src/assets/products/samsung_galaxy_buds_3_silver_51b7138bfa.png",
     details: "Không phí chuyển đổi khi trả góp 0%",
   },
   {
@@ -39,7 +41,7 @@ const products = [
     originalPrice: 9990000,
     discount: 5,
     rating: 5,
-    image: "src/assets/products/gigabyte_g5_2023_f201031d46.png",
+    image: "src/assets/products/samsung_galaxy_buds_3_silver_51b7138bfa.png",
     details: "Không phí chuyển đổi khi trả góp 0%",
   },
   {
@@ -48,7 +50,7 @@ const products = [
     originalPrice: 4490000,
     discount: 16,
     rating: 5,
-    image: "src/assets/products/gigabyte_g5_2023_f201031d46.png",
+    image: "src/assets/products/samsung_galaxy_buds_3_silver_51b7138bfa.png",
     details: "",
   },
   {
@@ -56,7 +58,7 @@ const products = [
     price: 15990000,
     originalPrice: 19990000,
     discount: 20,
-    image: "src/assets/products/gigabyte_g5_2023_f201031d46.png",
+    image: "src/assets/products/samsung_galaxy_buds_3_silver_51b7138bfa.png",
     details: "Giá mới chỉ có tại CellphoneS",
   },
   {
@@ -64,7 +66,7 @@ const products = [
     price: 430000,
     originalPrice: 500000,
     discount: 14,
-    image: "src/assets/products/gigabyte_g5_2023_f201031d46.png",
+    image: "src/assets/products/samsung_galaxy_buds_3_silver_51b7138bfa.png",
     details: "",
   },
   {
@@ -72,7 +74,7 @@ const products = [
     price: 10190000,
     originalPrice: 12690000,
     discount: 20,
-    image: "src/assets/products/gigabyte_g5_2023_f201031d46.png",
+    image: "src/assets/products/samsung_galaxy_buds_3_silver_51b7138bfa.png",
     details: "Không phí chuyển đổi khi trả góp 0%",
   },
   {
@@ -81,7 +83,7 @@ const products = [
     originalPrice: 9990000,
     discount: 5,
     rating: 5,
-    image: "src/assets/products/gigabyte_g5_2023_f201031d46.png",
+    image: "src/assets/products/samsung_galaxy_buds_3_silver_51b7138bfa.png",
     details: "Không phí chuyển đổi khi trả góp 0%",
   },
   {
@@ -90,17 +92,17 @@ const products = [
     originalPrice: 4490000,
     discount: 16,
     rating: 5,
-    image: "src/assets/products/gigabyte_g5_2023_f201031d46.png",
+    image: "src/assets/products/samsung_galaxy_buds_3_silver_51b7138bfa.png",
     details: "",
   },
 ];
 
-interface LaptopSliderProps {
+
+interface SoundSliderProps {
   sliderRef: React.RefObject<Slider>; // Định nghĩa kiểu prop là RefObject của Slider
 }
 
-
-const LaptopSlider: React.FC<LaptopSliderProps> = ({ sliderRef }) => {
+const SoundSlider: React.FC<SoundSliderProps> = ({ sliderRef }) => {
   // Lấy số lượng sản phẩm
   const productCount = products.length;
   
@@ -111,9 +113,8 @@ const LaptopSlider: React.FC<LaptopSliderProps> = ({ sliderRef }) => {
     speed: 500,
     slidesToShow: productCount < 4 ? productCount : 4,  // Hiển thị tối đa số lượng sản phẩm
     slidesToScroll: 1,
-    rows: 2,
-    // nextArrow: <CustomNextArrow />,   // Thay nút forward
-    // prevArrow: <CustomPrevArrow />,   // Thay nút back
+    rows: 1,
+    arrows: false,  // Ẩn nút điều hướng mặc định của slider
     responsive: [
       {
         breakpoint: 1024,
@@ -139,12 +140,10 @@ const LaptopSlider: React.FC<LaptopSliderProps> = ({ sliderRef }) => {
     ]
   };
 
-  
-
   return (
     <Box sx={{padding: '30px', borderRadius:'10px', background:'white'}}>
       <Link sx={{ textDecoration: 'none', color: 'inherit', cursor: 'pointer'}}>
-        <Typography variant="h4" fontWeight="bold" sx={{ color: '#000000', textAlign: 'center' }}>LAPTOP</Typography>
+        <Typography variant="h4" fontWeight="bold" sx={{ color: '#000000', textAlign: 'center' }}>ÂM THANH</Typography>
       </Link>
     <Slider ref={sliderRef} {...settings}>
         {products.map((product, index) => (
@@ -162,4 +161,4 @@ const LaptopSlider: React.FC<LaptopSliderProps> = ({ sliderRef }) => {
   );
 };
 
-export default LaptopSlider;
+export default SoundSlider;
