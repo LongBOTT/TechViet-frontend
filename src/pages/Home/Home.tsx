@@ -10,7 +10,6 @@ import { Watch } from './Watch'
 import { Sound } from './Sound'
 import { Other } from './Other'
 import { Viewed } from './Viewed'
-import HomePage from '../../admin/pages/HomePage'
 
 export const Home = () => {
   return (
@@ -46,9 +45,8 @@ export const Home = () => {
 
         {/* Viewed */}
         <Viewed/>
-        {/* <HomePage/> */}
+
     </Box>
-    
   )
 }
 

@@ -56,15 +56,16 @@ export const searchCategoryByName = async (query: string) => {
   }
 };
 
-// Gọi API tìm kiếm thể loại theo id
-export const searchCategoryBy_Id = async (id: number) => {
+// Gọi API kiểm tra thể loại trùng lặp theo tên
+export const checkDuplicateCategory = async (name: string) : Promise<Category | null> => {
   try {
     const response = await axiosInstance.get<Category>(
-      `/categories/${id}`
+      `/categories/search/name/exact?name=${name}`
     );
-    return response.data;
+    return response.data ? response.data : null;
   } catch (error: any) {
-    handleApiError(error, "tìm kiếm thể loại theo id");
+    handleApiError(error, "kiểm tra thể loại trùng lặp theo tên");
+    return null;
   }
 };
 

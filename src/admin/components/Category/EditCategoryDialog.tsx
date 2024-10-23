@@ -2,18 +2,18 @@ import React, { useEffect, useState } from "react";
 import CustomDialog from "../Util/CustomDialog";
 import EntityForm from "../Util/EntityForm"; 
 import LoadingSnackbar from "../Util/LoadingSnackbar";
-import { validateBrand } from "../Util/validation/brandValidation";
-import { checkDuplicateBrand, updateBrand } from "../../../api/brandApi";
+import { validateCategory } from "../Util/validation/categoryValidation";
+import { checkDuplicateCategory } from "../../../api/categoryApi";
 import { Brand } from "../../../types/brand";
 import { useBrandContext } from "../../../context/BrandContex";
 
-interface EditBrandDialogProps {
+interface EditCategoryDialogProps {
   open: boolean;
   onClose: () => void;
 }
 
-const EditBrandDialog: React.FC<EditBrandDialogProps> = ({ open, onClose }) => {
-  const { selectedBrand, editBrand } = useBrandContext();
+const EditCategoryDialog: React.FC<EditCategoryDialogProps> = ({ open, onClose }) => {
+  const { selectedCategory, editBrand } = useBrandContext();
   const [brandData, setBrandData] = useState<Brand | null>(null);
   const [loading, setLoading] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -21,10 +21,10 @@ const EditBrandDialog: React.FC<EditBrandDialogProps> = ({ open, onClose }) => {
 
   // Cập nhật dữ liệu khi thương hiệu được chọn thay đổi
   useEffect(() => {
-    if (selectedBrand) {
-      setBrandData(selectedBrand);
+    if (selectedCategory) {
+      setBrandData(selectedCategory);
     }
-  }, [selectedBrand]);
+  }, [selectedCategory]);
 
   // Hàm hiển thị thông báo lỗi
   const showSnackbar = (message: string) => {
@@ -101,4 +101,4 @@ const EditBrandDialog: React.FC<EditBrandDialogProps> = ({ open, onClose }) => {
   );
 };
 
-export default EditBrandDialog;
+export default EditCategoryDialog;
