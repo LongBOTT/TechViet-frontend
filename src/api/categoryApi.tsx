@@ -56,6 +56,19 @@ export const searchCategoryByName = async (query: string) => {
   }
 };
 
+// Gọi API kiểm tra thể loại trùng lặp theo tên
+export const checkDuplicateCategory = async (name: string) : Promise<Category | null> => {
+  try {
+    const response = await axiosInstance.get<Category>(
+      `/categories/search/name/exact?name=${name}`
+    );
+    return response.data ? response.data : null;
+  } catch (error: any) {
+    handleApiError(error, "kiểm tra thể loại trùng lặp theo tên");
+    return null;
+  }
+};
+
 // Gọi API lọc thể loại theo trạng thái
 export const filterCategoryByStatus = async (status: string) => {
   try {

@@ -1,6 +1,7 @@
 import axiosInstance from "./index";
 import { Variant } from "../types/variant";
 import { handleApiError } from "./errorHandler"; // Hàm xử lý lỗi
+import { Product } from "../types/product";
 
 // Gọi API thêm phiên bản
 export const addVariant = async (variant: Variant) => {
@@ -63,6 +64,28 @@ export const filterVariantByPrice = async (minPrice: number, maxPrice: number) =
     return response.data;
   } catch (error: any) {
     handleApiError(error, "lọc phiên bản theo khoảng giá");
+  }
+};
+
+export const searchVariantByProductsAndPrice = async (
+  products: Product[], 
+  minPrice: number,   
+  maxPrice: number     
+) => {
+  try {
+    const response = await axiosInstance.post<Variant[]>(
+      `/variants/search`,
+      products,          
+      {
+        params: {
+          minPrice: minPrice,
+          maxPrice: maxPrice
+        }
+      }
+    );
+    return response.data; // Trả về danh sách phiên bản (Variant)
+  } catch (error: any) {
+    handleApiError(error, "tìm kiếm phiên bản theo mảng sản phẩm và khoảng giá");
   }
 };
 

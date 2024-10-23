@@ -6,7 +6,8 @@ import CategoryPage from './pages/Home/CategoryPage';
 import { BASE, CATEGORY_PAGE } from './constants/routeConstants';
 import { ProductProvider } from './context/ProductContex';
 import ScrollToTopButton from './components/Footer/ScrollToTopButton';
-import TestComponent from './TestComponent';
+
+
 
 function App() {
   return (
@@ -22,10 +23,8 @@ function App() {
       <Footer/>
         <ScrollToTopButton/>
     </Router>
-    // <Home/>
-   
-    // <TestComponent />
-  );
+   );
+ 
 }
 
 export default App;

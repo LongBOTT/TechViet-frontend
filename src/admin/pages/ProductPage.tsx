@@ -2,23 +2,23 @@ import * as React from "react";
 import Box from "@mui/material/Box";
 import { Typography } from "@mui/material";
 import Tab from "../components/Product/TabComponent";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
-import AddCircleIcon from "@mui/icons-material/AddCircle";
-import AddProductButton from "../components/Util/CustomButton";
-import FileButton from "../components/Util/FileButton";
+import EntityTabs from "../components/Util/EntityTabs";
+import EntityActions from "../components/Util/EntityActions";
 
 export default function ProductComponent() {
+  const [openAddDialog, setOpenAddDialog] = React.useState(false);
   const handleExport = () => {
     console.log("Xuất file");
   };
-
+  const handleOpenAddDialog = () => {
+    setOpenAddDialog(true);
+  };
   const handleImport = () => {
     console.log("Nhập file");
   };
 
   const handleAddProduct = () => {
-    console.log("Thêm nhà cung cấp");
+    
   };
   return (
     <Box
@@ -48,23 +48,12 @@ export default function ProductComponent() {
           Danh sách sản phẩm
         </Typography>
         <Box sx={{ marginLeft: "auto", marginRight: "10px" }}>
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-          <FileButton
-              icon={<CloudUploadIcon />}
-              text="Xuất file"
-              onClick={handleExport}
-            />
-            <FileButton
-              icon={<CloudDownloadIcon />}
-              text="Nhập file"
-              onClick={handleImport}
-            />
-            <AddProductButton
-              icon={<AddCircleIcon />}
-              text="Thêm sản phẩm"
-              onClick={handleAddProduct}
-            />
-          </Box>
+        <EntityActions
+            onExport={handleExport}
+            onImport={handleImport}
+            onOpenAddDialog={handleOpenAddDialog}
+            entityName="sản phẩm"
+          />
         </Box>
       </Box>
       <Box
@@ -75,7 +64,8 @@ export default function ProductComponent() {
           boxShadow: "0 0 3px 0 rgba(0, 0, 0, 0.3)",
         }}
       >
-        <Tab />
+        {/* <Tab /> */}
+        <EntityTabs tabs={[{ label: "Sản phẩm", content: <></> },{label:"Thể loại",content: <></> },{label:"Thương hiệu",content: <></> }]}  />
       </Box>
      
     </Box>
