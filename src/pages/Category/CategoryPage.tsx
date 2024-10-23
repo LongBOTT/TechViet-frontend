@@ -159,16 +159,38 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
 
                     {/* Bộ lọc giá cho mọi danh mục */}
                     <MenuRadioSection
-                      title="Giá"
+                      title="Mức giá"
                       onChange={handlePriceRangeChange}
                       data={[
+                        { id: 'Tất cả', label: 'Tất cả', value: [5000000, 10000000] },
                         { id: 'under5', label: 'Dưới 5 triệu', value: [0, 5000000] },
                         { id: '5to10', label: '5 - 10 triệu', value: [5000000, 10000000] },
                         { id: 'above10', label: 'Trên 10 triệu', value: [10000000, Infinity] }
                       ]}
                     />      
 
-                    
+                    {/* Bộ lọc giá cho mọi danh mục */}
+                    <MenuRadioSection
+                      title="Hệ điều hành"
+                      onChange={handlePriceRangeChange}
+                      data={[
+                        { id: 'Tất cả', label: 'Tất cả', value: [5000000, 10000000] },
+                        { id: 'ios', label: 'iOS', value: [0, 5000000] },
+                        { id: 'andoir', label: 'Android', value: [10000000, Infinity] }
+                      ]}
+                    />      
+
+                    {/* Bộ lọc giá cho mọi danh mục */}
+                    <MenuRadioSection
+                      title="Hỗ trợ mạng"
+                      onChange={handlePriceRangeChange}
+                      data={[
+                        { id: 'Tất cả', label: 'Tất cả', value: [5000000, 10000000] },
+                        { id: '4g', label: '4G', value: [0, 5000000] },
+                        { id: '5', label: '5G', value: [10000000, Infinity] }
+                      ]}
+                    />
+                          
                   </Box>     
                 </Grid>
 

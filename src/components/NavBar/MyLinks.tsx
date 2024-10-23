@@ -126,7 +126,7 @@ export const links = [
     // ],
   },
   {
-    id: 2,
+    id: 3,
     name: "MÁY TÍNH BẢNG",
     submenu: true, icon: Tablet,
     link:"/",
@@ -151,7 +151,7 @@ export const links = [
     // ],
   },
   {
-    id: 3,
+    id: 2,
     name: "LAPTOP",
     submenu: true, icon: Laptop,
     link:"/",

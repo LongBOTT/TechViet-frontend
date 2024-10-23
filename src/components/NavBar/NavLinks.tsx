@@ -6,6 +6,8 @@ import { Brand } from "../../types/brand";
 import { Apple } from "@mui/icons-material";
 import { searchProductsByBrand_Id } from "../../api/productApi";
 import { Link } from "react-router-dom";
+import { CATEGORY } from "../../constants/routeConstants";
+import '../../App.css'; // Import file CSS
 
 
 const ButtonCategory = styled(Button)(({ theme }) => ({
@@ -108,10 +110,10 @@ const NavLinks = () => {
         }}
       >
         {links.map((link, index) => (
-            <Link to={"/s"}>
           <Box key={link.name}>
+            <Link to={`${CATEGORY}/:${link.id}`} key={index} className='no-underline'>
               <ButtonCategory
-              // onMouseEnter={(event) => handleOnClick(event, link)}
+              onMouseEnter={(event) => handleOnClick(event, link)}
               onMouseLeave={handleOnMouseLeaveCategory}
               ref={index === 0 ? firstButtonRef : null}
               >
@@ -119,8 +121,8 @@ const NavLinks = () => {
               {link.name}
               </ButtonCategory>
             
-          </Box>
             </Link>
+          </Box>
         ))}
       </Box>
 
@@ -129,12 +131,16 @@ const NavLinks = () => {
         open={Boolean(anchorEl)}
         onClose={handleClose}
         onMouseOver={handleOnMouseLeaveMenu}
+        onMouseLeave={handleClose}
+        disableAutoFocus={true}  
+        disableEnforceFocus={true}  
         PaperProps={{ 
           sx: { 
             display: 'flex', 
             width: '50%', 
             height: '500px', 
-            marginTop: '8px' 
+            marginTop: '8px', 
+            background:'red'
           } 
         }}
       >
