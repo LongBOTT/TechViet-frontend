@@ -133,9 +133,10 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
                     transition: 'height 0.3s ease',  // Chuyển đổi mượt mà khi thay đổi chiều cao
                     }}
                   >
-                    <Box sx={{display:'flex', justifyItems:'center', textAlign: 'center', gap:'5px' , borderBottom:'solid', marginBottom:'10px'}}>
+                    <Box sx={{display:'flex', justifyItems:'center', textAlign: 'center', gap:'5px', 
+                        borderBottom:'1px solid #000000', marginBottom:'10px'}}>
                         <ListSharp sx={{fontSize:'30px'}}/> 
-                    <Typography variant="h5" gutterBottom fontWeight={"bold"}>
+                    <Typography variant="h6" gutterBottom fontWeight={"bold"}>
                         Bộ lọc tìm kiếm
                     </Typography>
                     </Box>
@@ -173,8 +174,8 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
 
                 {/* Danh sách sản phẩm bên phải */}
                 <Grid item xs={9}>
-                    <Box display="flex" justifyContent="center" alignItems="center" height="100px" width="100%">
-                        <Typography fontSize={"32px"} borderBottom={"solid"}>
+                    <Box display="flex" justifyContent="center" alignItems="center" height="fit-content" width="100%">
+                        <Typography fontSize={"32px"} fontWeight={"bold"}>
                             {category?.name}
                         </Typography>
 
@@ -183,6 +184,12 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
                         <Container sx={{ height: 'fit-content'}}>
                             <BrandSlider brands={brands}/>
                         </Container>
+                    </Box>
+
+                    <Box display="flex" justifyContent="left" alignItems="center" height="fit-content" marginLeft={"10px"}>
+                    <Typography fontSize={"15px"}>
+                            Tìm thấy <b>{products.length}</b> sản phẩm
+                    </Typography>
                     </Box>
 
                     <Grid container justifyContent="left" alignItems="center">

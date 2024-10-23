@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { IconButton } from '@mui/material';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'; // Icon từ Material-UI
+import { useLocation } from 'react-router-dom';
 
 const ScrollToTopButton: React.FC = () => {
   const [isVisible, setIsVisible] = useState<boolean>(false);
@@ -21,6 +22,12 @@ const ScrollToTopButton: React.FC = () => {
       behavior: 'smooth', // Cuộn mượt mà
     });
   };
+  
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);  // Scrolls to the top of the window when the pathname changes
+  }, [pathname]);
 
   useEffect(() => {
     window.addEventListener('scroll', toggleVisibility);
@@ -36,6 +43,7 @@ const ScrollToTopButton: React.FC = () => {
           style={styles.scrollBtn}
           onClick={scrollToTop}
           sx={{
+            border:'1px solid #bdbdbd',
             backgroundColor: 'white',
             color: '#000',
             '&:hover': {

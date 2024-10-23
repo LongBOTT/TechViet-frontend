@@ -5,6 +5,7 @@ import { searchBrandByCategory_Id } from "../../api/brandApi";
 import { Brand } from "../../types/brand";
 import { Apple } from "@mui/icons-material";
 import { searchProductsByBrand_Id } from "../../api/productApi";
+import { Link } from "react-router-dom";
 
 
 const ButtonCategory = styled(Button)(({ theme }) => ({
@@ -107,16 +108,19 @@ const NavLinks = () => {
         }}
       >
         {links.map((link, index) => (
+            <Link to={"/s"}>
           <Box key={link.name}>
-            <ButtonCategory
-              onMouseEnter={(event) => handleOnClick(event, link)}
+              <ButtonCategory
+              // onMouseEnter={(event) => handleOnClick(event, link)}
               onMouseLeave={handleOnMouseLeaveCategory}
               ref={index === 0 ? firstButtonRef : null}
-            >
+              >
               <link.icon sx={{ paddingRight: "5px", display: "inline-flex" }} />
               {link.name}
-            </ButtonCategory>
+              </ButtonCategory>
+            
           </Box>
+            </Link>
         ))}
       </Box>
 

@@ -46,7 +46,7 @@ const MenuRadioSection: React.FC<MenuRadioSectionProps> = ({ title, onChange, da
           <FormControlLabel
             key={item.id}
             value={JSON.stringify(item.value)}
-            control={<Radio size='small' />}
+            control={<Radio size='small' sx={{ color: 'red', '&.Mui-checked': { color: 'red' } }} />}
             label={item.label}
           />
         ))}
@@ -55,6 +55,7 @@ const MenuRadioSection: React.FC<MenuRadioSectionProps> = ({ title, onChange, da
         <FormControlLabel
           control={
             <Radio
+              sx={{ color: 'red', '&.Mui-checked': { color: 'red' } }}
               size='small'
               checked={selectedValue === 'custom'}
               value="custom"
@@ -83,6 +84,7 @@ const MenuRadioSection: React.FC<MenuRadioSectionProps> = ({ title, onChange, da
         {selectedValue === 'custom' && (
           <Box sx={{ mt: 2 }}>
             <Slider
+              sx={{color:'red',}}
               value={priceRange}
               onChange={handleSliderChange}
               min={0}
