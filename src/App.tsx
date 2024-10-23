@@ -6,6 +6,7 @@ import CategoryPage from './pages/Category/CategoryPage';
 import { BASE, CATEGORY } from './constants/routeConstants';
 import { ProductProvider } from './context/ProductContex';
 import ScrollToTopButton from './components/Footer/ScrollToTopButton';
+import TestComponent from './TestComponent';
 
 function App() {
   return (
@@ -21,6 +22,9 @@ function App() {
       <Footer/>
         <ScrollToTopButton/>
     </Router>
+    // <Home/>
+   
+    // <TestComponent />
   );
 }
 

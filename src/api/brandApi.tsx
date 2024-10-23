@@ -54,6 +54,19 @@ export const searchBrandByName = async (query: string) => {
   }
 };
 
+// Gọi API kiểm tra thương hiệu trùng lặp theo tên
+export const checkDuplicateBrand = async (name: string) : Promise<Brand | null> => {
+  try {
+    const response = await axiosInstance.get<Brand>(
+      `/brands/search/name/exact?name=${name}`
+    );
+    return response.data ? response.data : null;
+  } catch (error: any) {
+    handleApiError(error, "kiểm tra thương hiệu trùng lặp theo tên");
+    return null;
+  }
+};
+
 // Gọi API lọc thương hiệu theo trạng thái
 export const filterBrandByStatus = async (status: string) => {
   try {

@@ -1,24 +1,20 @@
 // src/admin/pages/SupplierPage.tsx
 import Box from "@mui/material/Box";
 import { Paper, TableContainer, Typography } from "@mui/material";
-import FileButton from "../components/Util/FileButton";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
-import AddCircleIcon from "@mui/icons-material/AddCircle";
-import AddSupplierButton from "../components/Util/CustomButton";
 import { useState } from "react";
 import AddSupplierDialog from "../components/Supplier/AddSupplierDialog";
-import type { Supplier } from "../../types/supplier";
-import SearchBox from "../components/Util/Search";
-import SupplierTable from "../components/Supplier/SupplierTable";
-import FilterDropdown from "../components/Util/FilterDropdown";
-
+import EntityActions from "../components/Util/EntityActions"; // Component hành động chung
+import EntityFilter from "../components/Util/EntityFilter"; // Component lọc chung
+import EntityTable from "../components/Util/EntityTable"; // Dùng bảng tái sử dụng
 import { useSupplierContext } from "../../context/SupplierContext";
+import EditSupplierDialog from "../components/Supplier/EditSupplierDialog";
 
 export default function Supplier() {
   const [openAddDialog, setOpenAddDialog] = useState(false);
-  const { searchSuppliersByName } = useSupplierContext();
-  const { filterSuppliersByStatus } = useSupplierContext();
+  const { searchSuppliersByName, filterSuppliersByStatus, suppliers, loading } =
+    useSupplierContext();
+  const { setSelectedSupplier, setEditDialogOpen, editDialogOpen } =
+    useSupplierContext();
 
   const supplierStatusOptions = [
     { value: "all", label: "Tất cả" },
@@ -42,7 +38,18 @@ export default function Supplier() {
     console.log("Nhập file");
   };
 
- 
+  const supplierColumns = [
+    { label: "Mã Nhà Cung Cấp", key: "id" },
+    { label: "Tên Nhà Cung Cấp", key: "name" },
+    { label: "Số Điện Thoại", key: "phone" },
+    { label: "Email", key: "email" },
+    { label: "Trạng Thái", key: "status" },
+  ];
+
+  const handleRowClick = (supplier: any) => {
+    setSelectedSupplier(supplier); // Lưu nhà cung cấp đã chọn vào context
+    setEditDialogOpen(true);
+  };
 
   return (
     <Box
@@ -71,50 +78,26 @@ export default function Supplier() {
         >
           Nhà cung cấp
         </Typography>
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            marginLeft: "100px",
-            marginTop: "10px",
-            gap: 2,
-            width: "700px",
-          }}
-        >
-          <SearchBox
-            placeholder="Tìm kiếm nhà cung cấp"
-            onSearch={searchSuppliersByName}
-          />
-          <FilterDropdown
-            label="Lọc nhà cung cấp"
-            options={supplierStatusOptions}
-            onFilterChange={filterSuppliersByStatus}
-          />
-        </Box>
+
+        {/* Phần lọc và tìm kiếm */}
+        <EntityFilter
+          searchByName={searchSuppliersByName}
+          filterByStatus={filterSuppliersByStatus}
+          statusOptions={supplierStatusOptions}
+          entityName="nhà cung cấp"
+        />
+
+        {/* Phần action */}
         <Box sx={{ marginLeft: "auto", marginRight: "10px" }}>
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <FileButton
-              icon={<CloudUploadIcon />}
-              text="Xuất file"
-              onClick={handleExport}
-            />
-            <FileButton
-              icon={<CloudDownloadIcon />}
-              text="Nhập file"
-              onClick={handleImport}
-            />
-            <AddSupplierButton
-              icon={<AddCircleIcon />}
-              text="Thêm nhà cung cấp"
-              onClick={handleOpenAddDialog}
-            />
-            <AddSupplierDialog
-              open={openAddDialog}
-              onClose={handleCloseAddDialog}
-            />
-          </Box>
+          <EntityActions
+            onExport={handleExport}
+            onImport={handleImport}
+            onOpenAddDialog={handleOpenAddDialog}
+            entityName="nhà cung cấp"
+          />
         </Box>
       </Box>
+
       <Box
         sx={{
           height: "100%",
@@ -122,15 +105,21 @@ export default function Supplier() {
           boxShadow: "0 0 3px 0 rgba(0, 0, 0, 0.3)",
         }}
       >
-        <TableContainer
-          component={Paper}
-          sx={{
-            Height: "80vh",
-          }}
-        >
-          <SupplierTable />
+        <TableContainer component={Paper}>
+          <EntityTable
+            entities={suppliers}
+            loading={loading}
+            columns={supplierColumns}
+            onRowClick={handleRowClick}
+          />
         </TableContainer>
       </Box>
+
+      <AddSupplierDialog open={openAddDialog} onClose={handleCloseAddDialog} />
+      <EditSupplierDialog
+        open={editDialogOpen}
+        onClose={() => setEditDialogOpen(false)}
+      />
     </Box>
   );
 }
