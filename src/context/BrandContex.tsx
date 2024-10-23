@@ -7,7 +7,8 @@ import {
   getBrands,
   searchBrandByName,
   filterBrandByStatus,
-  searchBrandByCategoryName,
+  // searchBrandByCategory_Name,
+  searchBrandByCategory_Id,
 } from "../api/brandApi";
 
 interface BrandContextType {
@@ -17,7 +18,8 @@ interface BrandContextType {
   editBrand: (id: number, brand: Brand) => Promise<void>;
   removeBrand: (id: number) => Promise<void>;
   searchBrandsByName: (query: string) => Promise<void>;
-  searchBrandByCategoryName: (name: string) => Promise<void>;
+  // searchBrandByCategoryName: (name: string) => Promise<void>;
+  searchBrandByCategoryId: (id: number) => Promise<void>;
   filterBrandsByStatus: (status: string) => Promise<void>;
   loading: boolean;
   selectedBrand: Brand | null;
@@ -76,10 +78,22 @@ export const BrandProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const searchBrandByCategoryName = async (name: string) => {
+  // const searchBrandByCategoryName = async (name: string) => {
+  //   setLoading(true);
+  //   try {
+  //     const data = await searchBrandByCategory_Name(name);
+  //     setBrands(data || []);
+  //   } catch (error) {
+  //     console.error("Error searching brands:", error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  const searchBrandByCategoryId = async (id: number) => {
     setLoading(true);
     try {
-      const data = await searchBrandByName(name);
+      const data = await searchBrandByCategory_Id(id);
       setBrands(data || []);
     } catch (error) {
       console.error("Error searching brands:", error);
@@ -118,7 +132,7 @@ export const BrandProvider: React.FC<{ children: React.ReactNode }> = ({
         removeBrand,
         searchBrandsByName,
         filterBrandsByStatus,
-        searchBrandByCategoryName,
+        searchBrandByCategoryId,  
         loading,
       }}
     >

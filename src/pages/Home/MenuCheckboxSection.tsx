@@ -19,7 +19,7 @@ const MenuCheckboxSection: React.FC<MenuCheckboxSectionProps> = ({ title, onChan
 
   return (
     <div>
-      <Typography variant="subtitle1" gutterBottom>{title}</Typography>
+      <Typography variant="h6" fontSize="17px" gutterBottom>{title}</Typography>
       <FormGroup>
         {data.map(item => (
           <FormControlLabel
@@ -29,8 +29,9 @@ const MenuCheckboxSection: React.FC<MenuCheckboxSectionProps> = ({ title, onChan
                 checked={selectedValues.includes(item.id)}
                 onChange={handleChange}
                 value={item.id}
-              />
-            }
+                size='small'
+                />
+              }
             label={item.label}
           />
         ))}

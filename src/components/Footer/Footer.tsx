@@ -11,16 +11,16 @@ export const Footer = () => {
                     <Typography variant="h6" gutterBottom sx={{fontFamily:'inter'}}>KẾT NỐI VỚI TECHVIET</Typography>
                     <Box sx={{ display: 'flex', gap: '10px' }}>
                         <img
-                            src={"src/assets/icons/facebook_icon.svg"}
+                            src={"/src/assets/icons/facebook_icon.svg"}
                             alt={"Facebook"}/>
                         <img
-                            src={"src/assets/icons/zalo_icon.svg"}
+                            src={"/src/assets/icons/zalo_icon.svg"}
                             alt={"Zalo"}/>
                         <img
-                            src={"src/assets/icons/youtube_icon.svg"}
+                            src={"/src/assets/icons/youtube_icon.svg"}
                             alt={"Youtube"}/>
                         <img
-                            src={"src/assets/icons/tiktok_icon.svg"}
+                            src={"/src/assets/icons/tiktok_icon.svg"}
                             alt={"TikTok"}/>
                     </Box>
 
@@ -66,13 +66,13 @@ export const Footer = () => {
                 <Grid item xs={12} md={3}>
                     <Typography variant="h6" gutterBottom sx={{fontFamily:'inter'}}>HỖ TRỢ THANH TOÁN</Typography>
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-                        <img src="src/assets/icons/vnpay_icon.svg" alt="Visa" style={{ width: '40px' }} />
+                        <img src="/src/assets/icons/vnpay_icon.svg" alt="Visa" style={{ width: '40px' }} />
                     </Box>
 
                     <Box sx={{ marginTop: '20px' }}>
                         <Typography variant="h6" gutterBottom sx={{fontFamily:'inter'}}>CHỨNG NHẬN</Typography>
                         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-                            <img src="src/assets/icons/da_thong_bao_bo_cong_thuong_icon.svg" alt="Bộ Công Thương" style={{ width: '50px' }} />
+                            <img src="/src/assets/icons/da_thong_bao_bo_cong_thuong_icon.svg" alt="Bộ Công Thương" style={{ width: '50px' }} />
                         </Box>
                     </Box>
                 </Grid>

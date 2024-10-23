@@ -56,6 +56,18 @@ export const searchCategoryByName = async (query: string) => {
   }
 };
 
+// Gọi API tìm kiếm thể loại theo id
+export const searchCategoryBy_Id = async (id: number) => {
+  try {
+    const response = await axiosInstance.get<Category>(
+      `/categories/${id}`
+    );
+    return response.data;
+  } catch (error: any) {
+    handleApiError(error, "tìm kiếm thể loại theo id");
+  }
+};
+
 // Gọi API lọc thể loại theo trạng thái
 export const filterCategoryByStatus = async (status: string) => {
   try {

@@ -129,12 +129,11 @@ function NavBar() {
           <Link to={"/"} >
           <Box
             component="img"
-            src="src/assets/logo.png"
+            src="/src/assets/logo.png"
             alt="Logo"
             sx={{ height: "100px", marginRight: "5px" }}
           />
           </Link>
-          
 
           {/* Ẩn trong md */}
           <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>

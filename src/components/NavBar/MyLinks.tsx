@@ -10,6 +10,7 @@ import {
 
 export const links = [
   {
+    id: 1,
     name: "ĐIỆN THOẠI",
     submenu: true, icon: PhoneAndroid,
     link:"/",
@@ -125,6 +126,7 @@ export const links = [
     // ],
   },
   {
+    id: 2,
     name: "MÁY TÍNH BẢNG",
     submenu: true, icon: Tablet,
     link:"/",
@@ -149,6 +151,7 @@ export const links = [
     // ],
   },
   {
+    id: 3,
     name: "LAPTOP",
     submenu: true, icon: Laptop,
     link:"/",
@@ -174,6 +177,7 @@ export const links = [
     // ],
   },
   {
+    id: 3,
     name: "ĐỒNG HỒ THÔNG MINH",
     submenu: true, icon: Watch,
     link:"/",
@@ -198,6 +202,7 @@ export const links = [
     // ],
   },
   {
+    id: 4,
     name: "PHỤ KIỆN",
     submenu: true, icon: Headphones,
     link:"/",
@@ -223,6 +228,7 @@ export const links = [
     // ],
   },
   {
+    id: 5,
     name: "ĐIỆN MÁY",
     submenu: true, icon: BroadcastOnHome,
     link:"/",

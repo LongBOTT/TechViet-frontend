@@ -67,10 +67,22 @@ export const filterBrandByStatus = async (status: string) => {
 };
 
 // Gọi API lấy danh sách thương hiệu theo thể loại sản phẩm
-export const searchBrandByCategoryName = async (name: string) => {
+// export const searchBrandByCategory_Name = async (name: string) => {
+//   try {
+//     const response = await axiosInstance.get<Brand[]>(
+//       `/brands/search/category/exact?name=${name}`
+//     );
+//     return response.data;
+//   } catch (error: any) {
+//     handleApiError(error, "lọc thương hiệu theo thể loại");
+//   }
+// };
+
+// Gọi API lấy danh sách thương hiệu theo thể loại sản phẩm
+export const searchBrandByCategory_Id = async (id: number) => {
   try {
     const response = await axiosInstance.get<Brand[]>(
-      `/brands/search/category/exact?name=${name}`
+      `/brands/search/category/exact?id=${id}`
     );
     return response.data;
   } catch (error: any) {

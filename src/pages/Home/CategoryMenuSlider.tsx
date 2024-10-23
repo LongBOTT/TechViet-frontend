@@ -3,24 +3,25 @@ import Slider from "react-slick";
 import React from 'react';
 import { Link } from 'react-router-dom';
 import '../../App.css'; // Import file CSS
+import { CATEGORY } from '../../constants/routeConstants';
 const categories = [
-    { name: 'Điện thoại', imgSrc: 'src/assets/products/product1.png' },
-    { name: 'Laptop', imgSrc: 'src/assets/products/product2.png' },
-    { name: 'Máy tính bảng', imgSrc: 'src/assets/products/product3.jpg' },
-    { name: 'Đồng hồ thông minh', imgSrc: 'src/assets/products/product4.png' },
-    { name: 'Loa', imgSrc: 'src/assets/products/product5.jpg' },
-    { name: 'Tai nghe', imgSrc: 'src/assets/products/product6.png' },
-    { name: 'Sạc dự phòng', imgSrc: 'src/assets/products/product7.jpg' },
-    { name: 'Cáp sạc', imgSrc: 'src/assets/products/product8.jpg' },
-    { name: 'Ốp lưng điện thoại', imgSrc: 'src/assets/products/product9.jpg' },
-    { name: 'Ốp lưng máy tính bảng', imgSrc: 'src/assets/products/product10.jpg' },
-    { name: 'Chuột', imgSrc: 'src/assets/products/product11.jpg' },
-    { name: 'Bàn phím', imgSrc: 'src/assets/products/product12.jpg' },
-    { name: 'Tivi', imgSrc: 'src/assets/products/product13.png' },
-    { name: 'Robot hút bụi', imgSrc: 'src/assets/products/product14.png' },
-    { name: 'Màn hình', imgSrc: 'src/assets/products/product15.png' },
-    { name: 'Linh kiện', imgSrc: 'src/assets/products/product16.png' },
-    { name: 'PC lắp ráp', imgSrc: 'src/assets/products/product17.png' },
+    {id:1, name: 'Điện thoại', imgSrc: 'src/assets/products/product1.png' },
+    {id:2, name: 'Laptop', imgSrc: 'src/assets/products/product2.png' },
+    {id:3, name: 'Máy tính bảng', imgSrc: 'src/assets/products/product3.jpg' },
+    {id:4, name: 'Đồng hồ thông minh', imgSrc: 'src/assets/products/product4.png' },
+    {id:5, name: 'Loa', imgSrc: 'src/assets/products/product5.jpg' },
+    {id:6, name: 'Tai nghe', imgSrc: 'src/assets/products/product6.png' },
+    {id:7, name: 'Sạc dự phòng', imgSrc: 'src/assets/products/product7.jpg' },
+    {id:8, name: 'Cáp sạc', imgSrc: 'src/assets/products/product8.jpg' },
+    {id:9, name: 'Ốp lưng điện thoại', imgSrc: 'src/assets/products/product9.jpg' },
+    {id:10, name: 'Ốp lưng máy tính bảng', imgSrc: 'src/assets/products/product10.jpg' },
+    {id:11, name: 'Chuột', imgSrc: 'src/assets/products/product11.jpg' },
+    {id:12, name: 'Bàn phím', imgSrc: 'src/assets/products/product12.jpg' },
+    {id:13, name: 'Tivi', imgSrc: 'src/assets/products/product13.png' },
+    {id:14, name: 'Robot hút bụi', imgSrc: 'src/assets/products/product14.png' },
+    {id:15, name: 'Màn hình', imgSrc: 'src/assets/products/product15.png' },
+    {id:16, name: 'Linh kiện', imgSrc: 'src/assets/products/product16.png' },
+    {id:17, name: 'PC lắp ráp', imgSrc: 'src/assets/products/product17.png' },
 ];
 
 interface WatchSliderProps {
@@ -70,7 +71,7 @@ const CategoryMenuSlider: React.FC<WatchSliderProps> = ({ sliderRef }) => {
             <Slider ref={sliderRef} {...settings}>
                 {categories.map((category, index) => (
                     // <Link to={`/${removeVietnameseTones(category.name)}`} key={index} className='no-underline'>
-                    <Link to={`/${category.name}`} key={index} className='no-underline'>
+                    <Link to={`${CATEGORY}/:${category.id}`} key={index} className='no-underline'>
                         <Grid item xs={2}>
                             <Box
                                 sx={{

@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import { Menu, MenuItem, Box, Button, styled } from "@mui/material";
 import { links } from "./MyLinks"; // Adjust the import based on your file structure
-import { searchBrandByCategoryName } from "../../api/brandApi";
+import { searchBrandByCategory_Id } from "../../api/brandApi";
 import { Brand } from "../../types/brand";
 import { Apple } from "@mui/icons-material";
 import { searchProductsByBrand_Id } from "../../api/productApi";
@@ -46,7 +46,7 @@ const NavLinks = () => {
 
     try {
         // Gọi API lấy danh sách Brand theo Category
-        const brands = await searchBrandByCategoryName(link.name); 
+        const brands = await searchBrandByCategory_Id(link.id); 
         setCurrentSubmenu(brands ?? []); // Nếu brands là undefined, gán giá trị là mảng rỗng
     } catch (error) {
         console.error("Error fetching brands:", error);

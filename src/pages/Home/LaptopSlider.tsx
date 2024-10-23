@@ -112,6 +112,8 @@ const LaptopSlider: React.FC<LaptopSliderProps> = ({ sliderRef }) => {
     slidesToShow: productCount < 4 ? productCount : 4,  // Hiển thị tối đa số lượng sản phẩm
     slidesToScroll: 1,
     rows: 2,
+    arrows: false,  // Ẩn nút điều hướng mặc định của slider
+
     // nextArrow: <CustomNextArrow />,   // Thay nút forward
     // prevArrow: <CustomPrevArrow />,   // Thay nút back
     responsive: [

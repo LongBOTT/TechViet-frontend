@@ -13,6 +13,22 @@
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
 }
+
+/* Thay đổi màu nền và biểu tượng cho nút next */
+.slick-next, .slick-prev {
+  border-radius: 25px;
+  background-color: rgb(83, 79, 79); /* Màu biểu tượng */
+}
+
+/* Tùy chỉnh thêm khi hover */
+.slick-prev:hover, .slick-next:hover {
+  background-color: rgb(83, 79, 79); /* Đổi màu khi hover */
+}
+
+.slick-prev:focus, .slick-next:focus, .slick-prevc:active, .slick-next:active {
+  background-color: rgb(83, 79, 79); /* Đổi màu khi hover */
+}
+
 /*
 a {
   font-weight: 500;
@@ -81,7 +97,3 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;

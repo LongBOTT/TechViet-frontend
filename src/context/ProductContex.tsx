@@ -3,7 +3,7 @@ import { Product } from "../types/product";
 import {
 
   getProducts,
-  searchProductByCategory_Name,
+  searchProductByCategory_Id,
   searchProductsByBrand_Id,
 
 } from "../api/productApi";
@@ -15,7 +15,7 @@ interface ProductContextType {
   // editProduct: (id: number, product: Product) => Promise<void>;
   // removeProduct: (id: number) => Promise<void>;
   // searchProductsByName: (query: string) => Promise<void>;
-  searchProductByCategoryName: (name: string) => Promise<void>;
+  searchProductByCategoryId: (id: number) => Promise<void>;
   // filterProductsByStatus: (status: string) => Promise<void>;
   loading: boolean;
   // selectedProduct: Product | null;
@@ -74,10 +74,10 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
   //   }
   // };
 
-  const searchProductByCategoryName = async (name: string) => {
+  const searchProductByCategoryId = async (id: number) => {
     setLoading(true);
     try {
-      const data = await searchProductByCategory_Name (name);
+      const data = await searchProductByCategory_Id (id);
       setProducts(data || []);
       console.log(data?.length)
     } catch (error) {
@@ -106,7 +106,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
         // removeProduct,
         // searchProductsByName,
         // filterProductsByStatus,
-        searchProductByCategoryName,
+        searchProductByCategoryId,
         loading,
       }}
     >

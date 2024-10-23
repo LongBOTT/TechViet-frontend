@@ -25,10 +25,10 @@ export const searchProductsByBrand_Id = async (id: number) => {
 };
 
 // Gọi API lấy danh sách thương hiệu theo thể loại sản phẩm
-export const searchProductByCategory_Name = async (name: string) => {
+export const searchProductByCategory_Id = async (id: number) => {
   try {
     const response = await axiosInstance.get<Product[]>(
-      `/products/search/categoryName/exact?name=${name}`
+      `/products/search/category/exact?id=${id}`
     );
     return response.data;
   } catch (error: any) {

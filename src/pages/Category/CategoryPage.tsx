@@ -1,30 +1,42 @@
 import React, { FC, ReactElement, useEffect, useState } from "react";
-import { Box, Grid, Typography, Button, CircularProgress } from '@mui/material';
-import MenuCheckboxSection from "./MenuCheckboxSection";
-import MenuRadioSection from "./MenuRadioSection";
+import { Box, Grid, Typography, Button, CircularProgress, MenuItem, List, Container } from '@mui/material';
+import MenuCheckboxSection from "../Home/MenuCheckboxSection";
+import MenuRadioSection from "../Home/MenuRadioSection";
 import { useProductContext } from "../../context/ProductContex";
 import ProductCard from "../../components/Cards/ProductCard";
 import { useParams } from "react-router-dom";
+import { ListSharp, Menu, MenuOpen } from "@mui/icons-material";
+import { Brand } from "../../types/brand";
+import { Category } from "../../types/category";
+import BrandSlider from "../Home/BrandSlider";
+import { searchBrandByCategory_Id } from "../../api/brandApi";
+import { searchCategoryBy_Id } from "../../api/categoryApi";
 
-// Định nghĩa kiểu Props cho CategoryPage
 interface CategoryPageProps {
-    categoryName: string;
 }
 
 const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
+    const [category, setCategory] = useState<Category>();  // Số sản phẩm hiển thị ban đầu
     const [itemsToShow, setItemsToShow] = useState(12);  // Số sản phẩm hiển thị ban đầu
     const [loadingMore, setLoadingMore] = useState(false);  // State để quản lý trạng thái loading khi nhấn "Xem thêm"
-    const { categoryName } = useParams<{ categoryName: string }>();  // Lấy categoryName từ URL
-    const safeCategoryName = categoryName || '';
-    const { products, searchProductByCategoryName, loading } = useProductContext();  // Lấy sản phẩm và hàm fetch từ context
+    const params = useParams<{ id: string }>();  // `{ id: string }` đảm bảo `id` là chuỗi
+    const safeCategoryId = parseInt(params.id?.replace(':', '') || "0", 10);
+    const { products, searchProductByCategoryId, loading } = useProductContext();  // Lấy sản phẩm và hàm fetch từ context
     const [isSticky, setIsSticky] = useState(false);  // State để quản lý trạng thái cuộn
-
+    const [brands, setBrands] = useState<Brand[]>([]);
+    const [selectedPriceRange, setSelectedPriceRange] = useState<number[]>([0, Infinity]);  // Lưu trữ giá trị giá đã chọn
+    
     // Gọi hàm fetchProducts khi component được mount
     useEffect(() => {
+        console.log(safeCategoryId)
         const loadProducts = async () => 
           {
-            console.log(categoryName)
-            await searchProductByCategoryName(safeCategoryName);  // Truyền categoryName vào hàm fetchProducts
+            const category = await searchCategoryBy_Id(safeCategoryId);
+            setCategory(category);
+            const brands = await searchBrandByCategory_Id(safeCategoryId); 
+            setBrands(brands ?? []);
+            console.log(brands)
+            await searchProductByCategoryId(safeCategoryId);  // Truyền categoryId vào hàm fetchProducts
           };
         loadProducts();
     }, []);
@@ -36,7 +48,6 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
                 display="flex"
                 justifyContent="center"
                 alignItems="center"
-                sx={{ background: 'brown' }}
             >
                 <CircularProgress/>
             </Box>
@@ -47,9 +58,11 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
     const loadProductCards = () => {
         if (products.length === 0) {
             return (
-                <Typography variant="h6" gutterBottom>
-                    Không có sản phẩm nào trong danh mục.
-                </Typography>
+                <Box display="flex" justifyContent="center" alignItems="center" height="100px" width="100%">
+                    <Typography variant="h6" gutterBottom >
+                        Không có sản phẩm nào trong danh mục.
+                    </Typography>
+                </Box>
             );
         }
 
@@ -59,7 +72,7 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
                   name={product.name}
                   price={20000000}
                   originalPrice={25000000}
-                  image="src/assets/products/iphone_16_pro_max_desert_titan_3552a28ae0.png"
+                  image="/src/assets/products/iphone_16_pro_max_desert_titan_3552a28ae0.png"
                   details=""
                 />
             </Grid>
@@ -93,6 +106,17 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
         };
     }, []);
 
+    useEffect(() => {
+        loadProductCards();
+    }, [products]);
+
+    // Hàm xử lý sự thay đổi của MenuRadioSection
+    const handlePriceRangeChange = (newRange: number[]) => {
+        setSelectedPriceRange(newRange);  // Cập nhật giá trị giá đã chọn
+        console.log("Giá trị mới:", newRange);  // In ra để kiểm tra
+        // Thực hiện các hành động khác như lọc sản phẩm theo khoảng giá
+    };
+
     return (
         <Box sx={{ display: 'flex', marginTop: '20px', marginBottom: '20px'}}>
             <Grid container >
@@ -100,6 +124,7 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
                  <Grid item xs={3} >       
                   <Box sx={{ 
                     marginLeft:'20px',
+                    padding:'10px',
                     background: "white", 
                     borderRadius:'10px', 
                     position:'sticky',   // Thay đổi thành 'sticky' để dính vào khi cuộn
@@ -108,12 +133,19 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
                     transition: 'height 0.3s ease',  // Chuyển đổi mượt mà khi thay đổi chiều cao
                     }}
                   >
-                    <Typography variant="h6" gutterBottom>
+                    <Box sx={{display:'flex', justifyItems:'center', textAlign: 'center', gap:'5px' , borderBottom:'solid', marginBottom:'10px'}}>
+                        <ListSharp sx={{fontSize:'30px'}}/> 
+                    <Typography variant="h5" gutterBottom fontWeight={"bold"}>
                         Bộ lọc tìm kiếm
                     </Typography>
+                    </Box>
                       {/* Hiển thị bộ lọc theo từng categoryName */}
-                    {safeCategoryName === "Laptop" && (
-                        <MenuCheckboxSection
+                    {/* {safeCategoryName === "Laptop" && (
+                        
+                    )} */}
+
+                    {/* Bộ lọc thương hiệu cho mọi danh mục */}
+                    {/* <MenuCheckboxSection
                             title="Thương hiệu"
                             onChange={(checkedValues) => { console.log("Selected brands:", checkedValues); }}
                             data={[
@@ -122,43 +154,38 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
                                 { id: 'sony', label: 'Sony' }
                             ]}
                             selectedValues={[]} // Truyền giá trị đã chọn nếu có
-                        />
-                    )}
-
-                    {safeCategoryName === "Laptop" && (
-                        <MenuCheckboxSection
-                            title="Giới tính"
-                            onChange={(checkedValues) => { console.log("Selected genders:", checkedValues); }}
-                            data={[
-                                { id: 'male', label: 'Nam' },
-                                { id: 'female', label: 'Nữ' }
-                            ]}
-                            selectedValues={[]} // Truyền giá trị đã chọn nếu có
-                        />
-                    )}
+                    /> */}
 
                     {/* Bộ lọc giá cho mọi danh mục */}
                     <MenuRadioSection
                       title="Giá"
-                      onChange={()=>{}}
+                      onChange={handlePriceRangeChange}
                       data={[
                         { id: 'under5', label: 'Dưới 5 triệu', value: [0, 5000000] },
                         { id: '5to10', label: '5 - 10 triệu', value: [5000000, 10000000] },
                         { id: 'above10', label: 'Trên 10 triệu', value: [10000000, Infinity] }
                       ]}
                     />      
+
+                    
                   </Box>     
                 </Grid>
 
                 {/* Danh sách sản phẩm bên phải */}
                 <Grid item xs={9}>
                     <Box display="flex" justifyContent="center" alignItems="center" height="100px" width="100%">
-                        <Typography variant="h3">
-                            {categoryName}
+                        <Typography fontSize={"32px"} borderBottom={"solid"}>
+                            {category?.name}
                         </Typography>
+
+                    </Box>
+                    <Box sx={{ display: 'flex', margin: '20px'}}>
+                        <Container sx={{ height: 'fit-content'}}>
+                            <BrandSlider brands={brands}/>
+                        </Container>
                     </Box>
 
-                    <Grid container justifyContent="center" alignItems="center">
+                    <Grid container justifyContent="left" alignItems="center">
                         {loading ? (
                         <Grid item xs={12}>
                           <LoadingIndicator /> {/* Hiển thị CircularProgress khi đang load trang ban đầu */}

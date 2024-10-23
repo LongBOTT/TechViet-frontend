@@ -43,5 +43,8 @@
  
 .no-underline {
   text-decoration: none;
-  color: inherit;
+  color: black;
+}
+.no-underline:hover {
+  color: black;
 }
