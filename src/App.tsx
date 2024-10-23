@@ -10,21 +10,21 @@ import TestComponent from './TestComponent';
 
 function App() {
   return (
-    // <Router>
-    //   <NavBar />
-    //   <Routes>
-    //     <Route path={BASE} element={<Home/>} />
-    //     <Route path={CATEGORY_PAGE} element={
-    //       <ProductProvider>
-    //           <CategoryPage categoryName={CATEGORY_PAGE}/>
-    //       </ProductProvider>} />
-    //   </Routes>
-    //   <Footer/>
-    //     <ScrollToTopButton/>
-    // </Router>
+    <Router>
+      <NavBar />
+      <Routes>
+        <Route path={BASE} element={<Home/>} />
+        <Route path={CATEGORY_PAGE} element={
+          <ProductProvider>
+              <CategoryPage categoryName={CATEGORY_PAGE}/>
+          </ProductProvider>} />
+      </Routes>
+      <Footer/>
+        <ScrollToTopButton/>
+    </Router>
     // <Home/>
    
-    <TestComponent />
+    // <TestComponent />
   );
 }
 
