@@ -6,21 +6,25 @@ import CategoryPage from './pages/Home/CategoryPage';
 import { BASE, CATEGORY_PAGE } from './constants/routeConstants';
 import { ProductProvider } from './context/ProductContex';
 import ScrollToTopButton from './components/Footer/ScrollToTopButton';
+import TestComponent from './TestComponent';
 
 function App() {
   return (
-    <Router>
-      <NavBar />
-      <Routes>
-        <Route path={BASE} element={<Home/>} />
-        <Route path={CATEGORY_PAGE} element={
-          <ProductProvider>
-              <CategoryPage categoryName={CATEGORY_PAGE}/>
-          </ProductProvider>} />
-      </Routes>
-      <Footer/>
-        <ScrollToTopButton/>
-    </Router>
+    // <Router>
+    //   <NavBar />
+    //   <Routes>
+    //     <Route path={BASE} element={<Home/>} />
+    //     <Route path={CATEGORY_PAGE} element={
+    //       <ProductProvider>
+    //           <CategoryPage categoryName={CATEGORY_PAGE}/>
+    //       </ProductProvider>} />
+    //   </Routes>
+    //   <Footer/>
+    //     <ScrollToTopButton/>
+    // </Router>
+    // <Home/>
+   
+    <TestComponent />
   );
 }
 

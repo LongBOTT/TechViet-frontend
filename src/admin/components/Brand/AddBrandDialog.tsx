@@ -1,55 +1,40 @@
 import React, { useState } from "react";
 import CustomDialog from "../Util/CustomDialog";
 import EntityForm from "../Util/EntityForm"; // Dùng form tái sử dụng
-import { Supplier } from "../../../types/supplier";
-import { useSupplierContext } from "../../../context/SupplierContext";
+import { Brand } from "../../../types/brand";
+import { useBrandContext } from "../../../context/BrandContex";
 import LoadingSnackbar from "../Util/LoadingSnackbar";
-import { validateSupplier } from "../Util/validation/supplierValidation";
-import { checkDuplicateEmail, checkDuplicatePhone, checkDuplicateSupplier } from "../../../api/supplierApi";
+import { validateBrand } from "../Util/validation/brandValidation";
+import { checkDuplicateBrand } from "../../../api/brandApi";
 
-interface AddSupplierDialogProps {
+interface AddBrandDialogProps {
   open: boolean;
   onClose: () => void;
 }
 
-const AddSupplierDialog: React.FC<AddSupplierDialogProps> = ({
+const AddBrandDialog: React.FC<AddBrandDialogProps> = ({
   open,
   onClose,
 }) => {
-  const [supplierData, setSupplierData] = useState<Supplier>({
+  const [brandData, setBrandData] = useState<Brand>({
     id: 0,
-    name: "",
-    phone: "",
-    email: "",
-    address: "",
-    status: "Đang giao dịch",
+    name: "", 
+    status: "Đang hoạt động",
   });
   
   const [loading, setLoading] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
-  const { createSupplier } = useSupplierContext();
+  const { createBrand } = useBrandContext();
 
-  const supplierFields = [
-    { label: "Tên nhà cung cấp", name: "name" },
-    { label: "Số điện thoại", name: "phone" },
-    { label: "Email", name: "email" },
-    { label: "Địa chỉ", name: "address" },
-    {
-      label: "Trạng thái",
-      name: "status",
-      type: "select",
-      options: [
-        { value: "Đang giao dịch", label: "Đang giao dịch" },
-        { value: "Ngưng giao dịch", label: "Ngưng giao dịch" },
-      ],
-    },
+  const brandFields = [
+    { label: "Tên thương hiệu", name: "name" },
   ];
 
   // Xử lý validate và tạo nhà cung cấp
   const handleSave = async () => {
-    const validationError = validateSupplier(supplierData);
+    const validationError = validateBrand(brandData);
     if (validationError) {
       showSnackbar(validationError);
       return;
@@ -57,9 +42,8 @@ const AddSupplierDialog: React.FC<AddSupplierDialogProps> = ({
 
     setLoading(true);
     try {
-      if (await isDuplicateSupplier(supplierData)) return;
-      
-      await createSupplier(supplierData);
+      if (await isDuplicateBrand(brandData)) return;
+      await createBrand(brandData);
       showSnackbar("Thêm nhà cung cấp thành công!");
     } catch (error) {
       showSnackbar("Thêm nhà cung cấp thất bại!");
@@ -69,11 +53,10 @@ const AddSupplierDialog: React.FC<AddSupplierDialogProps> = ({
   };
 
   // Hàm kiểm tra các trường hợp trùng lặp
-  const isDuplicateSupplier = async (data: Supplier) => {
+  const isDuplicateBrand = async (data: Brand) => {
     const duplicateCheckers = [
-      { check: checkDuplicateSupplier(data.name), message: "Tên nhà cung cấp đã tồn tại." },
-      { check: checkDuplicateEmail(data.email), message: "Email đã tồn tại." },
-      { check: checkDuplicatePhone(data.phone), message: "Số điện thoại đã tồn tại." },
+      { check: checkDuplicateBrand(data.name), message: "Tên thương hiệu đã tồn tại." },
+  
     ];
 
     for (const checker of duplicateCheckers) {
@@ -101,7 +84,7 @@ const AddSupplierDialog: React.FC<AddSupplierDialogProps> = ({
       title="Thêm Nhà Cung Cấp"
       onSave={handleSave}
     >
-      <EntityForm data={supplierData} setData={setSupplierData} fields={supplierFields} />
+      <EntityForm data={brandData} setData={setBrandData} fields={brandFields} />
       <LoadingSnackbar
         loading={loading}
         snackbarOpen={snackbarOpen}
@@ -112,4 +95,4 @@ const AddSupplierDialog: React.FC<AddSupplierDialogProps> = ({
   );
 };
 
-export default AddSupplierDialog;
+export default AddBrandDialog;

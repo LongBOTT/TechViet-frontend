@@ -8,7 +8,7 @@ export const isValidEmail = (email: string): boolean => {
   
   // Kiểm tra số điện thoại có hợp lệ hay không
   export const isValidPhoneNumber = (phone: string): boolean => {
-    const phoneRegex = /^[0-9]{10,11}$/; // Số điện thoại có độ dài từ 10-11 chữ số
+    const phoneRegex = /^[0-9]{10,11}$/; 
     return phoneRegex.test(phone);
   };
   
