@@ -1,12 +1,10 @@
 import { Category } from "../../../../types/category";
-import {
-  isNotEmpty,
-} from "./commonValidation";
+import { isNotEmpty } from "./commonValidation";
 
-
-export const validateBrand = (categry: Category): string | null => {
+const validateCategory = (categry: Category): string | null => {
   if (!isNotEmpty(categry.name)) {
-    return "Tên thương hiệu không được để trống";
+    return "Tên thể loại không được để trống";
   }
   return null; // Dữ liệu hợp lệ
 };
+export default validateCategory;

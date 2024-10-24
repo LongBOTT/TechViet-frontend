@@ -12,7 +12,6 @@ export const isValidEmail = (email: string): boolean => {
     return phoneRegex.test(phone);
   };
   
-  // Kiểm tra chuỗi không rỗng
   export const isNotEmpty = (value: string): boolean => {
     return value.trim().length > 0;
   };

@@ -35,3 +35,42 @@ export const searchProductByCategory_Name = async (name: string) => {
     handleApiError(error, "lọc sản phẩm theo thể loại");
   }
 };
+
+// Gọi API thêm sản phẩm
+export const addProduct = async (product: Product) => {
+  try {
+    await axiosInstance.post("/products", product);
+  } catch (error: any) {
+    handleApiError(error, "thêm sản phẩm");
+  }
+};
+
+// Gọi API cập nhật sản phẩm
+export const updateProduct = async (id: number, product: Product) => {
+  try {
+    await axiosInstance.put(`/products/${id}`, product);
+  } catch (error: any) {
+    handleApiError(error, "cập nhật sản phẩm");
+  }
+};
+
+// Gọi API xóa sản phẩm
+export const deleteProduct = async (id: number) => {
+  try {
+    await axiosInstance.delete(`/products/${id}`);
+  } catch (error: any) {
+    handleApiError(error, "xóa sản phẩm");
+  }
+};
+
+// Gọi API tìm kiếm sản phẩm theo tên
+export const searchProductByName = async (query: string) => {
+  try {
+    const response = await axiosInstance.get<Product[]>(
+      `/products/search/name?query=${query}`
+    );
+    return response.data;
+  } catch (error: any) {
+    handleApiError(error, "tìm kiếm sản phẩm theo tên");
+  }
+};

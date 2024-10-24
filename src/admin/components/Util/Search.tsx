@@ -15,10 +15,10 @@ const StyledSearchBox = styled(Box)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   border: '1px solid #ccc',
-  borderRadius: '50px',
-  width: '1600px',
+  borderRadius: '5px',
+  width: '100%',
   height: '40px',
-  backgroundColor: '#f0f0f0', // Màu nền cho thanh tìm kiếm
+  backgroundColor: 'rba(255,255,255)', // Màu nền cho thanh tìm kiếm
   padding: '0px 10px',
   boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.1)', // Hiệu ứng đổ bóng nhẹ
   '&:hover': {
@@ -55,6 +55,9 @@ const SearchBox: React.FC<SearchBoxProps> = ({ placeholder, onSearch }) => {
 
   return (
     <StyledSearchBox>
+       <IconButton onClick={handleSearchClick}>
+        <SearchIcon sx={{ color: '#555' }} />
+      </IconButton>
       <StyledInputBase
         placeholder={placeholder}
         value={query}
@@ -62,9 +65,7 @@ const SearchBox: React.FC<SearchBoxProps> = ({ placeholder, onSearch }) => {
         onKeyPress={handleKeyPress}
         inputProps={{ 'aria-label': placeholder }}
       />
-      <IconButton onClick={handleSearchClick}>
-        <SearchIcon sx={{ color: '#555' }} />
-      </IconButton>
+     
     </StyledSearchBox>
   );
 };

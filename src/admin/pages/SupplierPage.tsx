@@ -69,6 +69,7 @@ export default function Supplier() {
           width: "100%",
           justifyContent: "space-between",
           alignItems: "center",
+        
         }}
       >
         <Typography

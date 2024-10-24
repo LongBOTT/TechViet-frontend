@@ -1,3 +1,4 @@
+//src/admin/pages/HomePage.tsx
 import * as React from "react";
 import { Typography } from "@mui/material";
 import Box from "@mui/material/Box";
@@ -28,6 +29,10 @@ import Order from "./OrderPage";
 import Overview from "./OverviewPage";
 
 import { SupplierProvider } from "../../context/SupplierContext";
+import { CategoryProvider } from "../../context/CategoryContext";
+import { BrandProvider } from "../../context/BrandContex";
+import { ProductProvider } from "../../context/ProductContex";
+import ProductPage from "./ProductPage";
 
 const drawerWidth = 240;
 
@@ -53,7 +58,15 @@ export default function PermanentDrawerLeft() {
       case "Đơn hàng":
         return <Order />;
       case "Sản phẩm":
-        return <Product />;
+        return (
+          <ProductProvider>
+          <BrandProvider>
+            <CategoryProvider>
+              <ProductPage />
+            </CategoryProvider>
+          </BrandProvider>
+        </ProductProvider>
+        );
       case "Nhà cung cấp":
         return (
           <SupplierProvider>

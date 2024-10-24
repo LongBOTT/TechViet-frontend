@@ -34,10 +34,10 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({ label, options, onFilte
         sx={{
           height: '40px',
           width: '200px', 
-          '& .MuiSelect-select': {
-            display: 'flex', 
-            alignItems: 'center', 
-          },
+          // '& .MuiSelect-select': {
+          //   display: 'flex', 
+          //   alignItems: 'center', 
+          // },
         }}
       >
         <MenuItem disabled value="">

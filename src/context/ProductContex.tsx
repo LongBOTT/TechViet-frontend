@@ -2,26 +2,29 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { Product } from "../types/product";
 import {
 
+  addProduct,
+  deleteProduct,
   getProducts,
   searchProductByCategory_Name,
+  searchProductByName,
   searchProductsByBrand_Id,
+  updateProduct,
 
 } from "../api/productApi";
 
 interface ProductContextType {
   products: Product[];
   fetchProducts: () => Promise<void>;
-  // createProduct: (product: Product) => Promise<void>;
-  // editProduct: (id: number, product: Product) => Promise<void>;
-  // removeProduct: (id: number) => Promise<void>;
-  // searchProductsByName: (query: string) => Promise<void>;
+  createProduct: (product: Product) => Promise<void>;
+  editProduct: (id: number, product: Product) => Promise<void>;
+  removeProduct: (id: number) => Promise<void>;
+  searchProductsByName: (query: string) => Promise<void>;
   searchProductByCategoryName: (name: string) => Promise<void>;
-  // filterProductsByStatus: (status: string) => Promise<void>;
   loading: boolean;
-  // selectedProduct: Product | null;
-  // setSelectedProduct: React.Dispatch<React.SetStateAction<Product | null>>;
-  // editDialogOpen: boolean;
-  // setEditDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  selectedProduct: Product | null;
+  setSelectedProduct: React.Dispatch<React.SetStateAction<Product | null>>;
+  editDialogOpen: boolean;
+  setEditDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
@@ -47,32 +50,32 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  // const createProduct = async (product: Product) => {
-  //   await addProduct(product);
-  //   fetchProducts();
-  // };
+  const createProduct = async (product: Product) => {
+    await addProduct(product);
+    fetchProducts();
+  };
 
-  // const editProduct = async (id: number, product: Product) => {
-  //   await updateProduct(id, product);
-  //   fetchProducts();
-  // };
+  const editProduct = async (id: number, product: Product) => {
+    await updateProduct(id, product);
+    fetchProducts();
+  };
 
-  // const removeProduct = async (id: number) => {
-  //   await deleteProduct(id);
-  //   fetchProducts();
-  // };
+  const removeProduct = async (id: number) => {
+    await deleteProduct(id);
+    fetchProducts();
+  };
 
-  // const searchProductsByName = async (query: string) => {
-  //   setLoading(true);
-  //   try {
-  //     const data = await searchProductByName(query);
-  //     setProducts(data || []);
-  //   } catch (error) {
-  //     console.error("Error searching products:", error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+  const searchProductsByName = async (query: string) => {
+    setLoading(true);
+    try {
+      const data = await searchProductByName(query);
+      setProducts(data || []);
+    } catch (error) {
+      console.error("Error searching products:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const searchProductByCategoryName = async (name: string) => {
     setLoading(true);
@@ -88,24 +91,23 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
 
-  // useEffect(() => {
-  //   fetchProducts();
-  // }, []);
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
   return (
     <ProductContext.Provider
       value={{
         products,
-        // selectedProduct,
-        // setSelectedProduct,
-        // editDialogOpen,
-        // setEditDialogOpen,
+        selectedProduct,
+        setSelectedProduct,
+        editDialogOpen,
+        setEditDialogOpen,
         fetchProducts,
-        // createProduct,
-        // editProduct,
-        // removeProduct,
-        // searchProductsByName,
-        // filterProductsByStatus,
+        createProduct,
+        editProduct,
+        removeProduct,
+        searchProductsByName,
         searchProductByCategoryName,
         loading,
       }}

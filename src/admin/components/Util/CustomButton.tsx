@@ -15,6 +15,7 @@ const ButtonStyles: SxProps = {
   border: '1px solid transparent',
   borderRadius: '5px',
   height: '40px',
+  width: '200px',
   margin: '0 5px',
   '&:hover': {
     backgroundColor: 'rgb(51, 160, 255)',

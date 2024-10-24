@@ -32,7 +32,7 @@ const AddBrandDialog: React.FC<AddBrandDialogProps> = ({
     { label: "Tên thương hiệu", name: "name" },
   ];
 
-  // Xử lý validate và tạo nhà cung cấp
+  // Xử lý validate và tạo thương hiệu
   const handleSave = async () => {
     const validationError = validateBrand(brandData);
     if (validationError) {
@@ -44,9 +44,9 @@ const AddBrandDialog: React.FC<AddBrandDialogProps> = ({
     try {
       if (await isDuplicateBrand(brandData)) return;
       await createBrand(brandData);
-      showSnackbar("Thêm nhà cung cấp thành công!");
+      showSnackbar("Thêm thương hiệu thành công!");
     } catch (error) {
-      showSnackbar("Thêm nhà cung cấp thất bại!");
+      showSnackbar("Thêm thương hiệu thất bại!");
     } finally {
       setTimeout(() => setLoading(false), 1000);
     }
@@ -81,7 +81,7 @@ const AddBrandDialog: React.FC<AddBrandDialogProps> = ({
     <CustomDialog
       open={open}
       onClose={onClose}
-      title="Thêm Nhà Cung Cấp"
+      title="Thêm thương hiệu"
       onSave={handleSave}
     >
       <EntityForm data={brandData} setData={setBrandData} fields={brandFields} />
