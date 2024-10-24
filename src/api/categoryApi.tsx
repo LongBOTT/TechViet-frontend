@@ -45,6 +45,18 @@ export const getCategories = async () => {
 };
 
 // Gọi API tìm kiếm thể loại theo tên
+export const searchCategoryBy_Id = async (id: number) => {
+  try {
+    const response = await axiosInstance.get<Category>(
+      `/categories/${id}`
+    );
+    return response.data;
+  } catch (error: any) {
+    handleApiError(error, "tìm kiếm thể loại theo id");
+  }
+};
+
+// Gọi API tìm kiếm thể loại theo tên
 export const searchCategoryByName = async (query: string) => {
   try {
     const response = await axiosInstance.get<Category[]>(

@@ -17,3 +17,5 @@ npm i --save-dev @types/react-slick
  npm instal axios --save   
 
 npm install react-router-dom --save
+
+npm i --save-dev @types/lodash
