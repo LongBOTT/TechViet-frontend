@@ -68,7 +68,7 @@ export const searchVariantByPrice = async (minPrice: number, maxPrice: number, v
         }
       },
     );
-    console.log(response);
+    
     return response.data;
   } catch (error: any) {
     handleApiError(error, "lọc phiên bản theo khoảng giá");
@@ -91,7 +91,7 @@ export const searchVariantByProductsAndPrice = async (
         }
       }
     );
-    console.log(response);
+    
     return response.data; // Trả về danh sách phiên bản (Variant)
   } catch (error: any) {
     handleApiError(error, "tìm kiếm phiên bản theo mảng sản phẩm và khoảng giá");

@@ -28,7 +28,7 @@ const HotSaleCard: FC<PropsType> = ({name, price, originalPrice, discount, image
           cursor: 'pointer'
       },
     }}>
-      <Card sx={{ position: 'relative', borderRadius:'10px', margin:'10px', alignItems: 'center',  height:'420px',}}>
+      <Card sx={{ position: 'relative', borderRadius:'10px', margin:'10px', alignItems: 'center',  height:'fit-content',}}>
         <Box sx={{ position: 'absolute', top: 0, left: 0, backgroundColor: '#f44336', color: '#fff', padding: '4px 8px', borderRadius: '0 0 8px 0' }}>
           Giảm {discount}%
         </Box>
@@ -60,11 +60,11 @@ const HotSaleCard: FC<PropsType> = ({name, price, originalPrice, discount, image
             {name}
           </Typography>
         </CardContent>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', padding:'10px'}}>
+        {/* <Box sx={{ display: 'flex', justifyContent: 'space-between', padding:'10px'}}>
             <FormControlLabel control={<Checkbox
               inputProps={{ 'aria-label': 'controlled' }}
             />} label="So sánh" />  
-        </Box>
+        </Box> */}
       </Card>
     </Link>
   )

@@ -16,7 +16,7 @@ const formatCurrency = (number: number) => {
 };
 
 
-const ProductCard: FC<PropsType> = ({name, price, originalPrice, image, details}) : ReactElement => {
+const ItemCard: FC<PropsType> = ({name, price, originalPrice, image, details}) : ReactElement => {
   
     const colors = ['#D5C2B5', '#C4C4C4', '#E8E8E8', '#4D4D4D']; // Các mã màu
 
@@ -35,13 +35,13 @@ const ProductCard: FC<PropsType> = ({name, price, originalPrice, image, details}
         position: 'relative',
         borderRadius: '10px',
         margin: '10px',
-        height: 'fit-content',
+        height: '420px',
         width: '249px',
         boxShadow: 'none',
         display: 'flex',
         flexDirection: 'column',
-        // alignItems: 'flex-start', // Không căn giữa theo chiều ngang
-        // justifyContent: 'flex-start', // Không căn giữa theo chiều dọc
+        alignItems: 'flex-start', // Không căn giữa theo chiều ngang
+        justifyContent: 'flex-start', // Không căn giữa theo chiều dọc
         borderStyle:'solid',
         borderWidth:'2px',
         borderColor:'#f3f4f6'
@@ -84,7 +84,7 @@ const ProductCard: FC<PropsType> = ({name, price, originalPrice, image, details}
       </CardContent>
 
       {/* Box chứa màu sắc */}
-      <Box sx={{ display: 'flex', gap: '10px', padding: '10px', alignItems: 'flex-start' }}>
+      <Box sx={{ display: 'flex', gap: '10px', paddingLeft: '10px', alignItems: 'flex-start' }}>
         {colors.map((color, index) => (
           <Box
             key={index}
@@ -104,15 +104,15 @@ const ProductCard: FC<PropsType> = ({name, price, originalPrice, image, details}
       </Box>
 
       {/* Box chứa checkbox */}
-      {/* <Box sx={{ display: 'flex', justifyContent: 'flex-start', padding: '10px' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'flex-start', padding: '10px' }}>
         <FormControlLabel
           control={<Checkbox inputProps={{ 'aria-label': 'controlled' }} />}
           label="So sánh"
         />
-      </Box> */}
+      </Box>
     </Card>
     </Link>
   )
 }
 
-export default ProductCard
+export default ItemCard

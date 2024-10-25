@@ -1,7 +1,9 @@
 import React, { FC, ReactElement, useEffect, useState } from "react";
 import { Box, Grid, Typography, Button, CircularProgress, MenuItem, List, Container } from '@mui/material';
+import MenuCheckboxSection from "../Home/MenuCheckboxSection";
 import MenuRadioSection from "../Home/MenuRadioSection";
-import ProductCard from "../../components/Cards/ProductCard";
+import { useProductContext } from "../../context/ProductContex";
+import ItemCard from "../../components/Cards/ItemCard";
 import { useParams } from "react-router-dom";
 import { ListSharp, Menu, MenuOpen } from "@mui/icons-material";
 import { Brand } from "../../types/brand";
@@ -11,7 +13,12 @@ import { searchBrandByCategory_Id } from "../../api/brandApi";
 import { searchCategoryBy_Id } from "../../api/categoryApi";
 import MenuRadioPriceSection from "../Home/MenuRadioPriceSection copy";
 import { searchVariantByCategory, searchVariantByPrice, searchVariantByProductsAndPrice } from "../../api/variantApi";
+import { forEach } from "lodash";
+import { Product } from "../../types/product";
+import { getProducts, searchProductByVariants } from "../../api/productApi";
 import { Variant } from "../../types/variant";
+import { Variant_Attribute } from "../../types/variant_attribute";
+import { searchVariant_AttributeByVariant } from "../../api/variant_attributeApi";
 
 interface CategoryPageProps {
 }
@@ -24,9 +31,15 @@ interface FilterParamsType {
   screen: string,
   connectivity: string  
 }
+interface Product_Variant {
+  product: Product,
+  variants: Variant[],
+  variants_attributes: Variant_Attribute[]
+}
+
 const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
     const [category, setCategory] = useState<Category>();
-    const [products, setProducts] = useState<Variant[]>([]);
+    // const [products, setProducts] = useState<Product[]>([]);
     const [variants, setVariants] = useState<Variant[]>([]);
     const [itemsToShow, setItemsToShow] = useState(12);  // Số sản phẩm hiển thị ban đầu
     const [loadingMore, setLoadingMore] = useState(false);  // State để quản lý trạng thái loading khi nhấn "Xem thêm"
@@ -45,7 +58,7 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
     const [selectedConnectivity, setSelectedConnectivity] = useState<string>();  // Lưu trữ giá trị giá đã chọn
     const [ filters, setFilters] = useState();  // Số sản phẩm hiển thị ban đầu
     const [filterParams, setFilterParams] = useState<FilterParamsType>({
-      price: [],
+      price: [0, 100000000],
       system: "",
       ethernet: "",
       performance: "",
@@ -53,44 +66,54 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
       screen: "",
       connectivity: ""   
     });
-    
+    const [items, setItems] = useState<Product_Variant[]>([]);
+
     // Gọi hàm fetchProducts khi component được mount
     useEffect(() => {
-      console.log(safeCategoryId);
-      setLoading(true);  // Bắt đầu tải
-
+      setLoading(true);  // Start loading
       const loadProducts = async () => {
         try {
           const category = await searchCategoryBy_Id(safeCategoryId);
           setCategory(category);
-          console.log(category);
-        
           const brands = await searchBrandByCategory_Id(safeCategoryId); 
           setBrands(brands ?? []);
-          console.log(brands);
-        
-          // Gọi API lấy variants
+          
           const variantList = await searchVariantByCategory(safeCategoryId);  
-          setVariants(variantList ?? []);  // Cập nhật variants vào state
-          console.log(variantList);  // In ra variantList sau khi API trả về
-        
-          // Gọi API lấy products dựa trên danh sách variants
-          // const productList = await searchProductByVariants(variantList ?? []);
-          setProducts(variantList ?? []);  // Cập nhật products vào state
-          // console.log(productList);
-        
-          // Cập nhật filterParams với danh sách products
-          // setFilterParams(prev => ({ ...prev, product: productList ?? [] }));
+          setVariants(variantList ?? []);  // Update state with variants
+          const productList = await searchProductByVariants(variantList ?? []);
+
+          const itemList = await convertToProduct_Variant(variantList ?? [], productList ?? []);
+          setItems(itemList);
+
         } catch (error) {
           console.error("Error loading products:", error);
+        } finally {
+          setLoading(false);  // Kết thúc tải
         }
       };
-      
       loadProducts();
-      setLoading(false);  // Kết thúc tải
     }, []);
 
-    // Component để hiển thị CircularProgress khi loading
+    const convertToProduct_Variant = async (variantList: Variant[], productList: Product[]) => {
+      const itemList: Product_Variant[] = [];
+      for (const product of productList) {
+        const item: Product_Variant = {
+          product,
+          variants: [],
+          variants_attributes: []
+        };
+        // Filter variants by product ID
+        item.variants.push(...variantList.filter(variant => variant.products.id === product.id));
+        for (const variant of item.variants) {
+          const attributes = await searchVariant_AttributeByVariant(variant.id);
+          item.variants_attributes.push(...attributes ?? []);  // Add attributes to variants_attributes
+        }
+        itemList.push(item);
+      }
+      return itemList;
+    };
+      
+      // Component để hiển thị CircularProgress khi loading
     const LoadingIndicator = () => {
         return (
             <Box
@@ -106,35 +129,31 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
         );
     };
 
-    // Hàm loadProductCards để hiển thị danh sách sản phẩm
-    const loadProductCards = () => {
+    // Hàm loadItemCards để hiển thị danh sách sản phẩm
+    const loadItemCards = () => {
       if (loading) {  // Kiểm tra trạng thái loading
         return <LoadingIndicator />;  // Hiển thị LoadingIndicator khi đang tải sản phẩm
       }
-
-      delay(1000);  // Thêm thời gian chờ 1 giây (1000 milliseconds)
-
-        if (products.length === 0) {
-            return (
-                <Box display="flex" justifyContent="center" alignItems="center" height="100px" width="100%">
-                    <Typography variant="h6" gutterBottom >
-                        Không có sản phẩm nào trong danh mục.
-                    </Typography>
-                </Box>
-            );
-        }
-
-        return products.slice(0, itemsToShow).map((product) => (  // Hiển thị theo itemsToShow
-            <Grid item  key={product.id}>
-                <ProductCard
-                  name={product.products.name}
-                  price={product.price}
-                  originalPrice={product.price}
-                  image="/src/assets/products/iphone_16_pro_max_desert_titan_3552a28ae0.png"
-                  details=""
-                />
-            </Grid>
-        ));
+      if (items.length === 0) {
+          return (
+              <Box display="flex" justifyContent="center" alignItems="center" height="100px" width="100%">
+                  <Typography variant="h6" gutterBottom >
+                      Không có sản phẩm nào trong danh mục.
+                  </Typography>
+              </Box>
+          );
+      }
+      return items.slice(0, itemsToShow).map((item) => (  // Hiển thị theo itemsToShow
+          <Grid item justifyContent="left"  key={item.product.id}>
+              <ItemCard
+                name={item.product.name}
+                price={item.variants[0].price}
+                originalPrice={item.variants[0].price}
+                image="/src/assets/products/iphone_16_pro_max_desert_titan_3552a28ae0.png"
+                details=""
+              />
+          </Grid>
+      ));
     };
 
     // Hàm xử lý khi nhấn vào nút "Xem thêm"
@@ -167,22 +186,108 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
     useEffect(() => {
       if (!loading) {  // Kiểm tra trạng thái loading
         const searchProducts = async () => {
+          window.scrollTo(0, 0);
           setLoading(true);  // Bắt đầu loading
           setTimeout(async () => {
-              console.log("tim kiem")
-              
-              const variantList = await searchVariantByPrice(filterParams.price[0], filterParams.price[1], variants);
-              
-              // const productList = await searchProductByVariants(variantList ?? []);
-              setProducts(variantList ?? []);  // Cập nhật products vào state
+              console.log("tim kiem");
+
+              console.log(filterParams);
           
+              const variantList = await searchVariantByPrice(filterParams.price[0], filterParams.price[1], variants);
+              const productList = await searchProductByVariants(variantList ?? []);
+              let itemList = await convertToProduct_Variant(variantList ?? [], productList ?? []);
+
+              //#region Lọc hệ điều hành  
+              if (filterParams.system !== "") {
+                // Filter out items that don't match the specified system
+                itemList = itemList.filter(item => {
+                  return item.variants_attributes.some(var_att => 
+                    var_att.attribute.name === "OS" &&
+                    var_att.value === filterParams.system
+                  );
+                });
+              }
+              //#endregion 
+
+              //#region Lọc Hỗ trợ mạng  
+              if (filterParams.ethernet !== "") {
+                // Filter out items that don't match the specified system
+                itemList = itemList.filter(item => {
+                  return item.variants_attributes.some(var_att => 
+                    var_att.attribute.name === "Hỗ trợ mạng" &&
+                    var_att.value === filterParams.ethernet
+                  );
+                });
+              
+              }
+              //#endregion 
+              
+              //#region Lọc Hiệu năng và pin 
+              if (filterParams.performance !== "") {
+
+                if (filterParams.performance === "under_3000") {
+                  itemList = itemList.filter(item => {
+                  return item.variants_attributes.some(var_att => 
+                    var_att.attribute.name === "Dung lượng pin" &&
+                     Number(var_att.value.replace(" mAh", "")) < 3000
+                  );
+                  });    
+                }
+
+                if (filterParams.performance === "3000_4000") {
+                  itemList = itemList.filter(item => {
+                  return item.variants_attributes.some(var_att => 
+                    var_att.attribute.name === "Dung lượng pin" &&
+                     Number(var_att.value.replace(" mAh", "")) >= 3000 && Number(var_att.value.replace(" mAh", "")) <= 4000
+                  );
+                  });    
+                }
+
+                if (filterParams.performance === "4000_5000") {
+                  itemList = itemList.filter(item => {
+                  return item.variants_attributes.some(var_att => 
+                    var_att.attribute.name === "Dung lượng pin" &&
+                     Number(var_att.value.replace(" mAh", "")) >= 4000 && Number(var_att.value.replace(" mAh", "")) <= 5000
+                  );
+                  });    
+                }
+
+                if (filterParams.performance === "above_5000") {
+                  itemList = itemList.filter(item => {
+                  return item.variants_attributes.some(var_att => 
+                    var_att.attribute.name === "Dung lượng pin" &&
+                     Number(var_att.value.replace(" mAh", "")) >= 5000
+                  );
+                  });    
+                }
+              }
+              //#endregion 
+
+              //#region Lọc camera  
+              // if (filterParams.camera !== "") {
+              //   // Filter out items that don't match the specified system
+              //   itemList = itemList.filter(item => {
+              //     return item.variants_attributes.some(var_att => 
+              //       var_att.attribute.name === "Hỗ trợ mạng" &&
+              //       var_att.value === filterParams.camera
+              //     );
+              //   });
+              
+              // }
+              //#endregion
+
+              setItems(itemList);  // Update items with filtered list
+              console.log(itemList)
+
               setItemsToShow(12);
               setLoading(false);  // Kết thúc loading
           }, 500);  // Giả lập thời gian chờ khi tải dữ liệu
         };
+      
         searchProducts();
       }
     }, [filterParams]);
+
 
     
 
@@ -193,38 +298,47 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
           ...prev,
           price: (newRange[1] === Infinity) ? [newRange[0], 100000000] : newRange
         }));
+        console.log("Giá trị mới:", newRange);  // In ra để kiểm tra
       }
     };
 
     const handleSystemChange = (value: string) => {
       if (!loading) {  // Kiểm tra trạng thái loading
-        setSelectedSystem(value);  // Cập nhật giá trị giá đã chọn
+        setFilterParams(prev => ({
+          ...prev,
+          system: (value === "Tất cả") ? "" : value
+        }));
         console.log("Giá trị mới:", value);  // In ra để kiểm tra
-        
       }
     };
 
     const handleEthernetChange = (value: string) => {
       if (!loading) {  // Kiểm tra trạng thái loading
-        setSelectedEthernet(value);  // Cập nhật giá trị giá đã chọn
+        setFilterParams(prev => ({
+          ...prev,
+          ethernet: (value === "Tất cả") ? "" : value
+        }));
         console.log("Giá trị mới:", value);  // In ra để kiểm tra
-        
       }
     };
 
     const handlePerformanceChange = (value: string) => {
       if (!loading) {  // Kiểm tra trạng thái loading
-        setSelectedPerformance(value);  // Cập nhật giá trị giá đã chọn
+        setFilterParams(prev => ({
+          ...prev,
+          performance: (value === "Tất cả") ? "" : value
+        }));
         console.log("Giá trị mới:", value);  // In ra để kiểm tra
-        
       }
     };
 
     const handleCameraChange = (value: string) => {
       if (!loading) {  // Kiểm tra trạng thái loading
-        setSelectedCamera(value);  // Cập nhật giá trị giá đã chọn
+        setFilterParams(prev => ({
+          ...prev,
+          camera: (value === "Tất cả") ? "" : value
+        }));
         console.log("Giá trị mới:", value);  // In ra để kiểm tra
-        
       }
     };
 
@@ -312,10 +426,10 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
                       onChange={handlePerformanceChange}
                       data={[
                         { id: 'Tất cả', label: 'Tất cả', value: 'all' },
-                        { id: 'Dưới 3000', label: 'Dưới 3000 mah', value: 'under_3000' },
-                        { id: '3000-4000', label: 'Pin từ 3000 - 4000 mah', value: '3000_4000' },
-                        { id: '4000-5000', label: 'Pin từ 4000 - 5000 mah', value: '4000_5000' },
-                        { id: 'trên 5000', label: 'Siêu trâu: trên 5000 mah', value: 'above_5000' }
+                        { id: 'Dưới 3000', label: 'Dưới 3000 mAh', value: 'under_3000' },
+                        { id: '3000-4000', label: 'Pin từ 3000 - 4000 mAh', value: '3000_4000' },
+                        { id: '4000-5000', label: 'Pin từ 4000 - 5000 mAh', value: '4000_5000' },
+                        { id: 'trên 5000', label: 'Siêu trâu: trên 5000 mAh', value: 'above_5000' }
                       ]}
                     />
                 
@@ -374,32 +488,34 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
                         </Container>
                     </Box>
 
-                    <Box display="flex" justifyContent="left" alignItems="center" height="fit-content" marginLeft={"10px"}>
+                    <Box display="flex" justifyContent="center" alignItems="center" height="fit-content" marginLeft={"10px"}>
                     
                       { !loading ? 
                         (
-                          <Typography fontSize={"15px"}>
-                            Tìm thấy <b>{products.length}</b> sản phẩm 
-                          </Typography>
+                          <><Typography fontSize={"15px"} justifyContent="left" width={"80%"}>
+                            Tìm thấy <b>{items.length}</b> sản phẩm
+                          </Typography><Typography fontSize={"15px"} justifyContent="left" sx={{ width: '20%' }}>
+                             Sắp xếp
+                          </Typography></>
                         ) : null
                       }
                     </Box>
 
                     <Grid container justifyContent="left" alignItems="center">
-                        {/* Gọi hàm loadProductCards với delay */}
+                        {/* Gọi hàm loadItemCards với delay */}
                         {loading ? (
                           <LoadingIndicator />  // Hiển thị loading khi đang tải thêm
-                          ) : (loadProductCards())}  
+                          ) : (loadItemCards())}  
                     </Grid>
 
                     {/* Nút Xem thêm */}
-                    {products.length > itemsToShow && (
+                    {items.length > itemsToShow && (
                         <Box mt={4} display="flex" justifyContent="center">
                             {!loading && loadingMore ? (
                                 <LoadingIndicator />  // Hiển thị loading khi đang tải thêm
                             ) : !loading ?(
                                 <Button variant="contained" onClick={handleShowMore} sx={{borderRadius:'99px', background:'white', color:'black'}}>
-                                    Xem thêm {products.length - itemsToShow} kết quả
+                                    Xem thêm {items.length - itemsToShow} kết quả
                                 </Button>
                             ) : null}
                         </Box>

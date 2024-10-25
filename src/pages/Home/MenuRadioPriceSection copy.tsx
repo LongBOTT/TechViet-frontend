@@ -19,7 +19,7 @@ const MenuRadioPriceSection: React.FC<MenuRadioPriceSectionProps> = ({ title, on
   // Debounce the onChange handler to reduce performance lag
   const debouncedOnChange = useCallback(debounce((value: number[]) => {
     onChange(value);
-  }, 300), []);
+  }, 300), [priceRange]);
 
   useEffect(() => {
     debouncedOnChange(priceRange);
