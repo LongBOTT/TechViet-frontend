@@ -1,8 +1,6 @@
 import React, { FC, ReactElement, useEffect, useState } from "react";
 import { Box, Grid, Typography, Button, CircularProgress, MenuItem, List, Container } from '@mui/material';
-import MenuCheckboxSection from "../Home/MenuCheckboxSection";
 import MenuRadioSection from "../Home/MenuRadioSection";
-import { useProductContext } from "../../context/ProductContex";
 import ProductCard from "../../components/Cards/ProductCard";
 import { useParams } from "react-router-dom";
 import { ListSharp, Menu, MenuOpen } from "@mui/icons-material";
@@ -12,17 +10,30 @@ import BrandSlider from "../Home/BrandSlider";
 import { searchBrandByCategory_Id } from "../../api/brandApi";
 import { searchCategoryBy_Id } from "../../api/categoryApi";
 import MenuRadioPriceSection from "../Home/MenuRadioPriceSection copy";
+import { searchVariantByCategory, searchVariantByPrice, searchVariantByProductsAndPrice } from "../../api/variantApi";
+import { Variant } from "../../types/variant";
 
 interface CategoryPageProps {
 }
-
+interface FilterParamsType {
+  price: number[],
+  system: string,
+  ethernet: string,
+  performance: string,
+  camera: string,
+  screen: string,
+  connectivity: string  
+}
 const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
-    const [category, setCategory] = useState<Category>();  // Số sản phẩm hiển thị ban đầu
+    const [category, setCategory] = useState<Category>();
+    const [products, setProducts] = useState<Variant[]>([]);
+    const [variants, setVariants] = useState<Variant[]>([]);
     const [itemsToShow, setItemsToShow] = useState(12);  // Số sản phẩm hiển thị ban đầu
     const [loadingMore, setLoadingMore] = useState(false);  // State để quản lý trạng thái loading khi nhấn "Xem thêm"
+    const [loading, setLoading] = useState(true);  // State để theo dõi trạng thái tải dữ liệu ban đầu
+    const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
     const params = useParams<{ id: string }>();  // `{ id: string }` đảm bảo `id` là chuỗi
     const safeCategoryId = parseInt(params.id?.replace(':', '') || "0", 10);
-    const { products, searchProductByCategoryId, loading } = useProductContext();  // Lấy sản phẩm và hàm fetch từ context
     const [isSticky, setIsSticky] = useState(false);  // State để quản lý trạng thái cuộn
     const [brands, setBrands] = useState<Brand[]>([]);
     const [selectedPriceRange, setSelectedPriceRange] = useState<number[]>([0, Infinity]);  // Lưu trữ giá trị giá đã chọn
@@ -32,26 +43,60 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
     const [selectedCamera, setSelectedCamera] = useState<string>();  // Lưu trữ giá trị giá đã chọn
     const [selectedScreen, setSelectedScreen] = useState<string>();  // Lưu trữ giá trị giá đã chọn
     const [selectedConnectivity, setSelectedConnectivity] = useState<string>();  // Lưu trữ giá trị giá đã chọn
+    const [ filters, setFilters] = useState();  // Số sản phẩm hiển thị ban đầu
+    const [filterParams, setFilterParams] = useState<FilterParamsType>({
+      price: [],
+      system: "",
+      ethernet: "",
+      performance: "",
+      camera: "",
+      screen: "",
+      connectivity: ""   
+    });
     
     // Gọi hàm fetchProducts khi component được mount
     useEffect(() => {
-        console.log(safeCategoryId)
-        const loadProducts = async () => 
-          {
-            const category = await searchCategoryBy_Id(safeCategoryId);
-            setCategory(category);
-            const brands = await searchBrandByCategory_Id(safeCategoryId); 
-            setBrands(brands ?? []);
-            console.log(brands)
-            await searchProductByCategoryId(safeCategoryId);  // Truyền categoryId vào hàm fetchProducts
-          };
-        loadProducts();
+      console.log(safeCategoryId);
+      setLoading(true);  // Bắt đầu tải
+
+      const loadProducts = async () => {
+        try {
+          const category = await searchCategoryBy_Id(safeCategoryId);
+          setCategory(category);
+          console.log(category);
+        
+          const brands = await searchBrandByCategory_Id(safeCategoryId); 
+          setBrands(brands ?? []);
+          console.log(brands);
+        
+          // Gọi API lấy variants
+          const variantList = await searchVariantByCategory(safeCategoryId);  
+          setVariants(variantList ?? []);  // Cập nhật variants vào state
+          console.log(variantList);  // In ra variantList sau khi API trả về
+        
+          // Gọi API lấy products dựa trên danh sách variants
+          // const productList = await searchProductByVariants(variantList ?? []);
+          setProducts(variantList ?? []);  // Cập nhật products vào state
+          // console.log(productList);
+        
+          // Cập nhật filterParams với danh sách products
+          // setFilterParams(prev => ({ ...prev, product: productList ?? [] }));
+        } catch (error) {
+          console.error("Error loading products:", error);
+        }
+      };
+      
+      loadProducts();
+      setLoading(false);  // Kết thúc tải
     }, []);
 
     // Component để hiển thị CircularProgress khi loading
     const LoadingIndicator = () => {
         return (
             <Box
+                marginTop={"20px"}
+                width={"100%"}
+                height={"100%"}
                 display="flex"
                 justifyContent="center"
                 alignItems="center"
@@ -63,6 +108,12 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
 
     // Hàm loadProductCards để hiển thị danh sách sản phẩm
     const loadProductCards = () => {
+      if (loading) {  // Kiểm tra trạng thái loading
+        return <LoadingIndicator />;  // Hiển thị LoadingIndicator khi đang tải sản phẩm
+      }
+
+      delay(1000);  // Thêm thời gian chờ 1 giây (1000 milliseconds)
+
         if (products.length === 0) {
             return (
                 <Box display="flex" justifyContent="center" alignItems="center" height="100px" width="100%">
@@ -76,9 +127,9 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
         return products.slice(0, itemsToShow).map((product) => (  // Hiển thị theo itemsToShow
             <Grid item  key={product.id}>
                 <ProductCard
-                  name={product.name}
-                  price={20000000}
-                  originalPrice={25000000}
+                  name={product.products.name}
+                  price={product.price}
+                  originalPrice={product.price}
                   image="/src/assets/products/iphone_16_pro_max_desert_titan_3552a28ae0.png"
                   details=""
                 />
@@ -114,51 +165,84 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
     }, []);
 
     useEffect(() => {
-        loadProductCards();
-    }, [products]);
+      if (!loading) {  // Kiểm tra trạng thái loading
+        const searchProducts = async () => {
+          setLoading(true);  // Bắt đầu loading
+          setTimeout(async () => {
+              console.log("tim kiem")
+              
+              const variantList = await searchVariantByPrice(filterParams.price[0], filterParams.price[1], variants);
+              
+              // const productList = await searchProductByVariants(variantList ?? []);
+              setProducts(variantList ?? []);  // Cập nhật products vào state
+          
+              setItemsToShow(12);
+              setLoading(false);  // Kết thúc loading
+          }, 500);  // Giả lập thời gian chờ khi tải dữ liệu
+        };
+        searchProducts();
+      }
+    }, [filterParams]);
 
-    // Hàm xử lý sự thay đổi của MenuRadioSection
-    const handlePriceRangeChange = (newRange: number[]) => {
-        setSelectedPriceRange(newRange);  // Cập nhật giá trị giá đã chọn
-        console.log("Giá trị mới:", newRange);  // In ra để kiểm tra
-        // Thực hiện các hành động khác như lọc sản phẩm theo khoảng giá
+    
+
+    const handlePriceRangeChange = async (newRange: number[]) => {
+      if (!loading) {  // Kiểm tra trạng thái loading
+        // Cập nhật giá trị price trong filterParams
+        setFilterParams(prev => ({
+          ...prev,
+          price: (newRange[1] === Infinity) ? [newRange[0], 100000000] : newRange
+        }));
+      }
     };
 
     const handleSystemChange = (value: string) => {
+      if (!loading) {  // Kiểm tra trạng thái loading
         setSelectedSystem(value);  // Cập nhật giá trị giá đã chọn
         console.log("Giá trị mới:", value);  // In ra để kiểm tra
-        // Thực hiện các hành động khác như lọc sản phẩm theo khoảng giá
+        
+      }
     };
 
     const handleEthernetChange = (value: string) => {
+      if (!loading) {  // Kiểm tra trạng thái loading
         setSelectedEthernet(value);  // Cập nhật giá trị giá đã chọn
         console.log("Giá trị mới:", value);  // In ra để kiểm tra
-        // Thực hiện các hành động khác như lọc sản phẩm theo khoảng giá
+        
+      }
     };
 
     const handlePerformanceChange = (value: string) => {
+      if (!loading) {  // Kiểm tra trạng thái loading
         setSelectedPerformance(value);  // Cập nhật giá trị giá đã chọn
         console.log("Giá trị mới:", value);  // In ra để kiểm tra
-        // Thực hiện các hành động khác như lọc sản phẩm theo khoảng giá
+        
+      }
     };
 
     const handleCameraChange = (value: string) => {
+      if (!loading) {  // Kiểm tra trạng thái loading
         setSelectedCamera(value);  // Cập nhật giá trị giá đã chọn
         console.log("Giá trị mới:", value);  // In ra để kiểm tra
-        // Thực hiện các hành động khác như lọc sản phẩm theo khoảng giá
+        
+      }
     };
 
 
     const handleScreenChange = (value: string) => {
+      if (!loading) {  // Kiểm tra trạng thái loading
         setSelectedScreen(value);  // Cập nhật giá trị giá đã chọn
         console.log("Giá trị mới:", value);  // In ra để kiểm tra
-        // Thực hiện các hành động khác như lọc sản phẩm theo khoảng giá
+        
+      }
     };
-
+    
     const handleConnectivityChange = (value: string) => {
+      if (!loading) {  // Kiểm tra trạng thái loading
         setSelectedConnectivity(value);  // Cập nhật giá trị giá đã chọn
         console.log("Giá trị mới:", value);  // In ra để kiểm tra
-        // Thực hiện các hành động khác như lọc sản phẩm theo khoảng giá
+        
+      }
     };
 
     return (
@@ -193,7 +277,7 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
                       title="Mức giá"
                       onChange={handlePriceRangeChange}
                       data={[
-                        { id: 'Tất cả', label: 'Tất cả', value: [0, 10000000] },
+                        { id: 'Tất cả', label: 'Tất cả', value: [0, 100000000] },
                         { id: 'under5', label: 'Dưới 5 triệu', value: [0, 5000000] },
                         { id: '5to10', label: '5 - 10 triệu', value: [5000000, 10000000] },
                         { id: 'above10', label: 'Trên 10 triệu', value: [10000000, Infinity] }
@@ -291,31 +375,33 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
                     </Box>
 
                     <Box display="flex" justifyContent="left" alignItems="center" height="fit-content" marginLeft={"10px"}>
-                    <Typography fontSize={"15px"}>
-                            Tìm thấy <b>{products.length}</b> sản phẩm
-                    </Typography>
+                    
+                      { !loading ? 
+                        (
+                          <Typography fontSize={"15px"}>
+                            Tìm thấy <b>{products.length}</b> sản phẩm 
+                          </Typography>
+                        ) : null
+                      }
                     </Box>
 
                     <Grid container justifyContent="left" alignItems="center">
+                        {/* Gọi hàm loadProductCards với delay */}
                         {loading ? (
-                        <Grid item xs={12}>
-                          <LoadingIndicator /> {/* Hiển thị CircularProgress khi đang load trang ban đầu */}
-                        </Grid>
-                      ) : (
-                        loadProductCards() // Hiển thị sản phẩm sau khi tải xong
-                      )}
+                          <LoadingIndicator />  // Hiển thị loading khi đang tải thêm
+                          ) : (loadProductCards())}  
                     </Grid>
 
                     {/* Nút Xem thêm */}
-                    {!loading && products.length > itemsToShow && (
+                    {products.length > itemsToShow && (
                         <Box mt={4} display="flex" justifyContent="center">
-                            {loadingMore ? (
+                            {!loading && loadingMore ? (
                                 <LoadingIndicator />  // Hiển thị loading khi đang tải thêm
-                            ) : (
-                                <Button variant="contained" onClick={handleShowMore}>
+                            ) : !loading ?(
+                                <Button variant="contained" onClick={handleShowMore} sx={{borderRadius:'99px', background:'white', color:'black'}}>
                                     Xem thêm {products.length - itemsToShow} kết quả
                                 </Button>
-                            )}
+                            ) : null}
                         </Box>
                     )}
                 </Grid>

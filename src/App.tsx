@@ -15,10 +15,7 @@ function App() {
       <NavBar />
       <Routes>
         <Route path={BASE} element={<Home/>} />
-        <Route path={`${CATEGORY}/:id`} element={
-          <ProductProvider>
-              <CategoryPage/>
-          </ProductProvider>} />
+        <Route path={`${CATEGORY}/:id`} element={<CategoryPage/>} />
       </Routes>
       <Footer/>
         <ScrollToTopButton/>

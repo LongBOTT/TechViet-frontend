@@ -56,11 +56,19 @@ export const searchVariantByProduct = async (productID: string) => {
 };
 
 // Gọi API lấy danh sách phiên bản theo khoảng giá
-export const filterVariantByPrice = async (minPrice: number, maxPrice: number) => {
+export const searchVariantByPrice = async (minPrice: number, maxPrice: number, variants: Variant[]) => {
   try {
-    const response = await axiosInstance.get<Variant[]>(
-      `/variants/search/price?minPrice=${minPrice}&maxPrice=${maxPrice}`
+    const response = await axiosInstance.post<Variant[]>(
+      `/variants/search/price`,
+      variants,  // Truyền variants vào body của request
+      {
+        params: {
+          minPrice: minPrice,
+          maxPrice: maxPrice
+        }
+      },
     );
+    console.log(response);
     return response.data;
   } catch (error: any) {
     handleApiError(error, "lọc phiên bản theo khoảng giá");
@@ -83,6 +91,7 @@ export const searchVariantByProductsAndPrice = async (
         }
       }
     );
+    console.log(response);
     return response.data; // Trả về danh sách phiên bản (Variant)
   } catch (error: any) {
     handleApiError(error, "tìm kiếm phiên bản theo mảng sản phẩm và khoảng giá");
@@ -102,4 +111,25 @@ export const filterBrandByStatus = async (status: string) => {
   }
 };
 
+// Gọi API lấy danh sách  phiên bản theo sản phẩm
+export const searchVariantByCategory = async (categoryID: number) => {
+  try {
+    const response = await axiosInstance.get<Variant[]>(
+      `/variants/search/category/categoryID?categoryID=${categoryID}`
+    );
+    return response.data;
+  } catch (error: any) {
+    handleApiError(error, "tìm kiếm phiên bản theo sản phẩm");
+  }
+};
 
+export const searchVariantByBrand = async (brandID: number) => {
+  try {
+    const response = await axiosInstance.get<Variant[]>(
+      `/variants/search/brand/brandID?brandID=${brandID}`
+    );
+    return response.data;
+  } catch (error: any) {
+    handleApiError(error, "tìm kiếm phiên bản theo sản phẩm");
+  }
+};

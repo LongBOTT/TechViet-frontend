@@ -10,7 +10,7 @@ interface MenuRadioSectionProps {
 }
 
 const MenuRadioSection: React.FC<MenuRadioSectionProps> = ({ title, onChange, data }) => {
-  const [selectedValue, setSelectedValue] = useState<string>(''); // Theo dõi lựa chọn radio hiện tại
+  const [selectedValue, setSelectedValue] = useState<string>(data.length > 0 ? JSON.stringify(data[0].value) : '');
   const [expanded, setExpanded] = useState<boolean>(true); // Trạng thái thu gọn/mở rộng
 
   const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {

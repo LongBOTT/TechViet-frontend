@@ -11,7 +11,7 @@ interface MenuRadioPriceSectionProps {
 }
 
 const MenuRadioPriceSection: React.FC<MenuRadioPriceSectionProps> = ({ title, onChange, data }) => {
-  const [priceRange, setPriceRange] = useState<number[]>(data.length > 0 ? data[0].value : [0, 10000000]);
+  const [priceRange, setPriceRange] = useState<number[]>(data.length > 0 ? data[0].value : [0, 100000000]);
   const [customPrice, setCustomPrice] = useState(false);
   const [selectedValue, setSelectedValue] = useState<string>(data.length > 0 ? JSON.stringify(data[0].value) : '');
   const [expanded, setExpanded] = useState<boolean>(true);
@@ -23,7 +23,7 @@ const MenuRadioPriceSection: React.FC<MenuRadioPriceSectionProps> = ({ title, on
 
   useEffect(() => {
     debouncedOnChange(priceRange);
-  }, [priceRange, debouncedOnChange]);
+  }, [priceRange]);
 
   const handleSliderChange = (event: Event, newValue: number | number[]) => {
     setPriceRange(newValue as number[]);
@@ -126,7 +126,7 @@ const MenuRadioPriceSection: React.FC<MenuRadioPriceSectionProps> = ({ title, on
                 value={priceRange}
                 onChange={handleSliderChange}
                 min={0}
-                max={50000000}
+                max={100000000}
                 valueLabelFormat={(value) => value.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
               />
             </Box>

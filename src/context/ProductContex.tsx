@@ -10,6 +10,7 @@ import {
 
 interface ProductContextType {
   products: Product[];
+  setProducts: React.Dispatch<React.SetStateAction<Product[]>>
   fetchProducts: () => Promise<void>;
   // createProduct: (product: Product) => Promise<void>;
   // editProduct: (id: number, product: Product) => Promise<void>;
@@ -91,11 +92,12 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
   // useEffect(() => {
   //   fetchProducts();
   // }, []);
-
+  
   return (
     <ProductContext.Provider
       value={{
         products,
+        setProducts,
         // selectedProduct,
         // setSelectedProduct,
         // editDialogOpen,
