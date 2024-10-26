@@ -7,6 +7,9 @@ import { useProductContext } from "../../../context/ProductContex";
 import FilterDropdown from "../Util/FilterDropdown";
 import { useCategoryContext } from "../../../context/CategoryContext";
 import { useBrandContext } from "../../../context/BrandContex";
+import { useState } from "react";
+import CustomButton from "../Util/CustomButton";
+import RefreshIcon from "@mui/icons-material/Refresh";
 
 const AllProducts: React.FC = () => {
   const searchProductsByName = (query: string) => {
@@ -77,13 +80,29 @@ const AllProducts: React.FC = () => {
     console.log("Clicked product:", product);
   };
 
-  const handleFilterCategory = (selectedValue: string) => {
-    console.log("Selected category:", selectedValue);
+
+  const [resetFilter, setResetFilter] = useState(false);
+
+
+
+  const handleReset = () => {
+    setResetFilter(true);
+    setTimeout(() => setResetFilter(false), 0);
+    // fetchProducts();
   };
 
-  const handleFilterBrand = (selectedValue: string) => {
-    console.log("Selected brand:", selectedValue);
+  const handleFilterCategory = (value: string) => {
+    console.log("Filtering by category:", value); 
   };
+
+  const handleFilterBrand = (value: string) => {
+    console.log("Filtering by brand:", value);
+  };
+
+  const handleFilterStatus = (value: string) => {
+    console.log("Filtering by status:", value);
+  };
+
 
   return (
     <Box
@@ -109,8 +128,17 @@ const AllProducts: React.FC = () => {
           <SearchBox
             placeholder="Tìm kiếm theo mã sản phẩm, tên sản phẩm"
             onSearch={searchProductsByName}
+            resetSearch={resetFilter}
           />
         </Box>
+         {/* Nút reset */}
+         <Box>
+            <CustomButton
+              icon={<RefreshIcon />}
+              text="Reset"
+              onClick={handleReset}
+            />
+          </Box>
 
         {/* Loại sản phẩm Dropdown */}
         <Box sx={{ minWidth: 200 }}>
@@ -118,6 +146,7 @@ const AllProducts: React.FC = () => {
             label={`Loại sản phẩm`}
             options={CategoryOptions}
             onFilterChange={handleFilterCategory}
+            resetFilter={resetFilter}
           />
         </Box>
 
@@ -127,6 +156,7 @@ const AllProducts: React.FC = () => {
             label={`Thương hiệu`}
             options={BrandOptions}
             onFilterChange={handleFilterBrand}
+            resetFilter={resetFilter}
           />
         </Box>
 
@@ -136,6 +166,7 @@ const AllProducts: React.FC = () => {
             label={`Trạng thái`}
             options={StatusOptions}
             onFilterChange={handleFilterCategory}
+            resetFilter={resetFilter}
           />
         </Box>
       </Box>

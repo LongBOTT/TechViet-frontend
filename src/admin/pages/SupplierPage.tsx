@@ -4,24 +4,35 @@ import { Paper, TableContainer, Typography } from "@mui/material";
 import { useState } from "react";
 import AddSupplierDialog from "../components/Supplier/AddSupplierDialog";
 import EntityActions from "../components/Util/EntityActions"; // Component hành động chung
-import EntityFilter from "../components/Util/EntityFilter"; // Component lọc chung
 import EntityTable from "../components/Util/EntityTable"; // Dùng bảng tái sử dụng
 import { useSupplierContext } from "../../context/SupplierContext";
 import EditSupplierDialog from "../components/Supplier/EditSupplierDialog";
-
+import SearchBox from "../components/Util/Search";
+import FilterDropdown from "../components/Util/FilterDropdown";
+import CustomButton from "../components/Util/CustomButton";
+import RefreshIcon from "@mui/icons-material/Refresh";
 export default function Supplier() {
   const [openAddDialog, setOpenAddDialog] = useState(false);
-  const { searchSuppliersByName, filterSuppliersByStatus, suppliers, loading } =
-    useSupplierContext();
+  const {
+    searchSuppliersByName,
+    filterSuppliersByStatus,
+    fetchSuppliers,
+    suppliers,
+    loading,
+  } = useSupplierContext();
   const { setSelectedSupplier, setEditDialogOpen, editDialogOpen } =
     useSupplierContext();
-
+  const [resetFilter, setResetFilter] = useState(false);
   const supplierStatusOptions = [
     { value: "all", label: "Tất cả" },
     { value: "active", label: "Đang giao dịch" },
     { value: "inactive", label: "Ngưng giao dịch" },
   ];
-
+  const handleReset = () => {
+    setResetFilter(true);
+    setTimeout(() => setResetFilter(false), 0);
+    fetchSuppliers();
+  };
   const handleExport = () => {
     console.log("Xuất file");
   };
@@ -69,7 +80,6 @@ export default function Supplier() {
           width: "100%",
           justifyContent: "space-between",
           alignItems: "center",
-        
         }}
       >
         <Typography
@@ -81,20 +91,55 @@ export default function Supplier() {
         </Typography>
 
         {/* Phần lọc và tìm kiếm */}
-        <EntityFilter
-          searchByName={searchSuppliersByName}
-          filterByStatus={filterSuppliersByStatus}
-          statusOptions={supplierStatusOptions}
-          entityName="nhà cung cấp"
-        />
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginLeft: "20px",
+            marginTop: "10px",
+            gap: 1,
+            width: "50%", 
+          }}
+        >
+          {/* Thanh tìm kiếm sẽ chiếm toàn bộ không gian còn lại */}
+          <Box sx={{ flexGrow: 1 }}>
+            <SearchBox
+              placeholder={`Tìm kiếm nhà cung cấp`}
+              onSearch={searchSuppliersByName}
+              resetSearch={resetFilter}
+            />
+          </Box>
+
+          {/* Dropdown lọc nhà cung cấp */}
+          <Box sx={{ minWidth: "200px" }}>
+            {" "}
+            {/* Đặt chiều rộng tối thiểu */}
+            <FilterDropdown
+              label={`Lọc nhà cung cấp`}
+              options={supplierStatusOptions}
+              onFilterChange={filterSuppliersByStatus}
+              resetFilter={resetFilter}
+            />
+          </Box>
+
+          {/* Nút reset */}
+          <Box>
+            <CustomButton
+              icon={<RefreshIcon />}
+              text="Reset"
+              onClick={handleReset}
+            />
+          </Box>
+        </Box>
 
         {/* Phần action */}
-        <Box sx={{ marginLeft: "auto", marginRight: "10px" }}>
+        <Box sx={{ marginLeft: "auto", marginRight: "10px",marginTop:"10px" }}>
           <EntityActions
             onExport={handleExport}
             onImport={handleImport}
             onOpenAddDialog={handleOpenAddDialog}
-            entityName="nhà cung cấp"
+            entityName="NCC"
           />
         </Box>
       </Box>

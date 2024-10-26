@@ -5,7 +5,7 @@ import { Paper, TableContainer } from "@mui/material";
 import EntityTable from "../Util/EntityTable";
 import FilterDropdown from "../Util/FilterDropdown";
 
-const IMEIS: React.FC = () => {
+const Warranty: React.FC = () => {
   const searchProductsByName = (query: string) => {
     console.log("Searching for:", query);
   };
@@ -17,7 +17,7 @@ const IMEIS: React.FC = () => {
     { value: "inactive", label: "Đã bán" },
   ];
 
-  const imeis = [
+  const Guarantees = [
     {
       id: "3121410482",
       name: "Iphone 15 Pro Max",
@@ -38,11 +38,9 @@ const IMEIS: React.FC = () => {
   ];
 
   const imeiColumns = [
-    { label: "Mã IMEI", key: "image" },
-    { label: "Sản phẩm", key: "name" },
-    { label: "Trạng thái", key: "stock" },
-    { label: "Thể loại", key: "category" },
-    { label: "Thương hiệu", key: "brand" },
+    { label: "Mã ", key: "image" },
+    { label: "Tên chính sách", key: "name" },
+    { label: "Thời hạn bảo hành", key: "stock" },
   ];
 
   const handleRowClick = ( )=> {
@@ -101,7 +99,7 @@ const IMEIS: React.FC = () => {
       >
         <TableContainer component={Paper}>
           <EntityTable
-            entities={imeis}
+            entities={Guarantees}
             loading={false}
             columns={imeiColumns}
             onRowClick={handleRowClick}
@@ -112,4 +110,4 @@ const IMEIS: React.FC = () => {
   );
 };
 
-export default IMEIS;
+export default Warranty;

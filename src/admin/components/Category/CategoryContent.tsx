@@ -8,13 +8,14 @@ import {
 } from "../../../context/CategoryContext";
 import EditCategoryDialog from "./EditCategoryDialog";
 import { useState } from "react";
-import AddCategoryDialog from "./AddCategoryDialog";
-
+import CustomButton from "../Util/CustomButton";
+import RefreshIcon from "@mui/icons-material/Refresh";
 const CategoryContent: React.FC = () => {
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const {
     searchCategoriesByName,
     filterCategoriesByStatus,
+    fetchCategories,
     categories,
     loading,
     setSelectedCategory,
@@ -22,15 +23,23 @@ const CategoryContent: React.FC = () => {
     editDialogOpen,
   } = useCategoryContext();
 
+  const [resetFilter, setResetFilter] = useState(false);
+  const handleReset = () => {
+    setResetFilter(true);
+    setTimeout(() => setResetFilter(false), 0);
+    fetchCategories();
+  };
   const categoryColumns = [
     { label: "Mã thể loại", key: "id" },
     { label: "Tên thể loại", key: "name" },
+    { label: "Mô tả", key: "description" },
   ];
 
   const handleRowClick = (category: any) => {
     setSelectedCategory(category); // Lưu nhà cung cấp đã chọn vào context
     setEditDialogOpen(true);
   };
+
 
   return (
     <Box
@@ -45,14 +54,27 @@ const CategoryContent: React.FC = () => {
       {/* Nội dung dành cho thể loại */}
       <Box
         sx={{
+          display: "flex", 
+          alignItems: "center", 
           marginTop: "20px",
+          gap: 2,
         }}
       >
         <SearchBox
           placeholder={`Tìm kiếm thể loại`}
           onSearch={searchCategoriesByName}
+          resetSearch={resetFilter}
         />
+        {/* Nút reset */}
+        <Box>
+          <CustomButton
+            icon={<RefreshIcon />}
+            text="Reset"
+            onClick={handleReset}
+          />
+        </Box>
       </Box>
+
 
       <Box
         sx={{
@@ -72,13 +94,15 @@ const CategoryContent: React.FC = () => {
           />
         </TableContainer>
       </Box>
-      <AddCategoryDialog
+      {/* <AddCategoryDialog
         open={openAddDialog}
         onClose={() => setOpenAddDialog(false)}
-      />
+      /> */}
+    
       <EditCategoryDialog
         open={editDialogOpen}
         onClose={() => setEditDialogOpen(false)}
+
       />
     </Box>
   );

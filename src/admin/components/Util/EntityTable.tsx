@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -17,7 +17,7 @@ interface EntityTableProps {
   entities: any[];
   loading: boolean;
   columns: Array<{ label: string; key: string }>;
-  onRowClick: (entity: any) => void;
+  onRowClick?: (entity: any) => void; // Đặt ? để tùy chọn
 }
 
 const EntityTable: React.FC<EntityTableProps> = ({
@@ -29,11 +29,9 @@ const EntityTable: React.FC<EntityTableProps> = ({
   const [page, setPage] = useState(1);
   const rowsPerPage = 12;
 
-
- 
-    useEffect(() => {
-      window.scrollTo({ top: 0, behavior: "smooth" }); // Cuộn mượt lên đầu trang khi thay đổi trang
-    }, [page]);
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" }); // Cuộn mượt lên đầu trang khi thay đổi trang
+  }, [page]);
 
   const handleChangePage = (event: React.ChangeEvent<unknown>, newPage: number) => {
     setPage(newPage);
@@ -46,13 +44,13 @@ const EntityTable: React.FC<EntityTableProps> = ({
 
   return (
     <Box>
-      <TableContainer component={Paper} > 
+      <TableContainer component={Paper}>
         <Table>
-          <TableHead sx = {{backgroundColor: "rgb(244, 246, 248)"}}>
+          <TableHead sx={{ backgroundColor: "rgb(244, 246, 248)" }}>
             <TableRow>
               {columns.map((column) => (
-                <TableCell 
-                  key={column.key} 
+                <TableCell
+                  key={column.key}
                   sx={{ flexGrow: 1, textAlign: 'center' }} // Căn giữa và đảm bảo các cột co giãn đều nhau
                 >
                   {column.label}
@@ -72,7 +70,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
               paginatedEntities.map((entity) => (
                 <TableRow
                   key={entity.id}
-                  onClick={() => onRowClick(entity)}
+                  onClick={() => onRowClick && onRowClick(entity)} // Gọi hàm nếu onRowClick tồn tại
                   sx={{
                     '&:hover': {
                       backgroundColor: '#f0f0f0',
@@ -81,8 +79,8 @@ const EntityTable: React.FC<EntityTableProps> = ({
                   }}
                 >
                   {columns.map((column) => (
-                    <TableCell 
-                      key={column.key} 
+                    <TableCell
+                      key={column.key}
                       sx={{ flexGrow: 1, textAlign: 'center' }} // Đảm bảo nội dung được căn giữa
                     >
                       {entity[column.key]}
@@ -101,15 +99,15 @@ const EntityTable: React.FC<EntityTableProps> = ({
             )}
           </TableBody>
         </Table>
+        <Box sx={{ display: "flex", justifyContent: "center", margin: 2 }}>
+          <Pagination
+            count={Math.ceil(entities.length / rowsPerPage)}
+            page={page}
+            onChange={handleChangePage}
+            color="primary"
+          />
+        </Box>
       </TableContainer>
-      <Box sx={{ display: "flex", justifyContent: "center", margin: 2 }}>
-        <Pagination
-          count={Math.ceil(entities.length / rowsPerPage)}
-          page={page}
-          onChange={handleChangePage}
-          color="primary"
-        />
-      </Box>
     </Box>
   );
 };

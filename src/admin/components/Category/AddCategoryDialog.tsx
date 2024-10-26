@@ -3,7 +3,6 @@ import CustomDialog from "../Util/CustomDialog";
 import EntityForm from "../Util/EntityForm"; // Dùng form tái sử dụng
 import LoadingSnackbar from "../Util/LoadingSnackbar";
 import { useCategoryContext } from "../../../context/CategoryContext";
-import { validateCategory } from "../Util/validation/categoryValidation";
 import { Category } from "../../../types/category";
 import { checkDuplicateCategory } from "../../../api/categoryApi";
 
@@ -28,6 +27,7 @@ const AddCategoryDialog: React.FC<AddCategoryDialogProps> = ({
 
   const { createCategory } = useCategoryContext();
 
+  
   const CategoryFields = [
     { label: "Tên thể loại", name: "name" },
   ];

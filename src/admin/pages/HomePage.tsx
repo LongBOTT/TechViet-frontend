@@ -1,4 +1,5 @@
-//src/admin/pages/HomePage.tsx
+// src/admin/pages/HomePage.tsx
+import { Outlet, useNavigate } from "react-router-dom";
 import * as React from "react";
 import { Typography } from "@mui/material";
 import Box from "@mui/material/Box";
@@ -10,33 +11,20 @@ import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import DashboardIcon from "@mui/icons-material/Dashboard"; // Icon cho Tổng quan
-import ReceiptLongIcon from "@mui/icons-material/ReceiptLong"; // Icon cho Đơn hàng
-import CategoryIcon from "@mui/icons-material/Category"; // Icon cho Sản phẩm
-import LocalShippingIcon from "@mui/icons-material/LocalShipping"; // Icon cho Nhà cung cấp
-import GppGoodIcon from "@mui/icons-material/GppGood"; // Icon cho Bảo hành
-import PeopleIcon from "@mui/icons-material/People"; // Icon cho Khách hàng
-import LocalOfferIcon from "@mui/icons-material/LocalOffer"; // Icon cho Giảm giá
-import BarChartIcon from "@mui/icons-material/BarChart"; // Icon cho Báo cáo
-
-import Customer from "./CustomerPage";
-import Discount from "./DiscountPage";
-import Dashboard from "./DashboardPage";
-import Supplier from "./SupplierPage";
-import Product from "./ProductPage";
-import Guarantee from "./GuaranteePage";
-import Order from "./OrderPage";
-import Overview from "./OverviewPage";
-
-import { SupplierProvider } from "../../context/SupplierContext";
-import { CategoryProvider } from "../../context/CategoryContext";
-import { BrandProvider } from "../../context/BrandContex";
-import { ProductProvider } from "../../context/ProductContex";
-import ProductPage from "./ProductPage";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
+import CategoryIcon from "@mui/icons-material/Category";
+import LocalShippingIcon from "@mui/icons-material/LocalShipping";
+import GppGoodIcon from "@mui/icons-material/GppGood";
+import PeopleIcon from "@mui/icons-material/People";
+import LocalOfferIcon from "@mui/icons-material/LocalOffer";
+import BarChartIcon from "@mui/icons-material/BarChart";
 
 const drawerWidth = 240;
 
 export default function PermanentDrawerLeft() {
+  const navigate = useNavigate();
+
   const iconMap: any = {
     "Tổng quan": <DashboardIcon />,
     "Đơn hàng": <ReceiptLongIcon />,
@@ -48,43 +36,17 @@ export default function PermanentDrawerLeft() {
     "Báo cáo": <BarChartIcon />,
   };
 
-  // Trạng thái lưu mục được chọn
-  const [selectedMenu, setSelectedMenu] = React.useState("Tổng quan");
-  // Hàm để render nội dung dựa trên menu được chọn
-  const renderContent = () => {
-    switch (selectedMenu) {
-      case "Tổng quan":
-        return <Overview />;
-      case "Đơn hàng":
-        return <Order />;
-      case "Sản phẩm":
-        return (
-          <ProductProvider>
-          <BrandProvider>
-            <CategoryProvider>
-              <ProductPage />
-            </CategoryProvider>
-          </BrandProvider>
-        </ProductProvider>
-        );
-      case "Nhà cung cấp":
-        return (
-          <SupplierProvider>
-            <Supplier />
-          </SupplierProvider>
-        );
-      case "Bảo hành":
-        return <Guarantee />;
-      case "Khách hàng":
-        return <Customer />;
-      case "Giảm giá":
-        return <Discount />;
-      case "Báo cáo":
-        return <Dashboard />;
-      default:
-        return <Overview />;
-    }
+  const menuRoutes: { [key: string]: string } = {
+    "Tổng quan": "/overview",
+    "Đơn hàng": "/orders",
+    "Sản phẩm": "/products",
+    "Nhà cung cấp": "/suppliers",
+    "Bảo hành": "/warranty",
+    "Khách hàng": "/customers",
+    "Giảm giá": "/discounts",
+    "Báo cáo": "/reports",
   };
+
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
@@ -123,7 +85,7 @@ export default function PermanentDrawerLeft() {
               noWrap
               component="div"
               sx={{
-                color: " rgb(255, 255, 255)",
+                color: "rgb(255, 255, 255)",
                 fontWeight: "bold",
                 fontSize: 30,
                 fontFamily: "Roboto",
@@ -136,32 +98,21 @@ export default function PermanentDrawerLeft() {
         </Toolbar>
 
         <List>
-          {[
-            "Tổng quan",
-            "Đơn hàng",
-            "Sản phẩm",
-            "Nhà cung cấp",
-            "Bảo hành",
-            "Khách hàng",
-            "Giảm giá",
-            "Báo cáo",
-          ].map((text) => (
+          {Object.keys(menuRoutes).map((text) => (
             <ListItem
               key={text}
               disablePadding
-              onClick={() => setSelectedMenu(text)}
+              onClick={() => navigate(menuRoutes[text])}
             >
               <ListItemButton>
-                <ListItemIcon>
-                  {/* Gắn icon từ iconMap */}
-                  {iconMap[text]}
-                </ListItemIcon>
+                <ListItemIcon>{iconMap[text]}</ListItemIcon>
                 <ListItemText primary={text} />
               </ListItemButton>
             </ListItem>
           ))}
         </List>
       </Drawer>
+
       <Box
         component="main"
         sx={{
@@ -171,11 +122,9 @@ export default function PermanentDrawerLeft() {
           height: "calc(100vh)",
           width: "100%",
           display: "flex",
-          // overflow: "auto",
-          // flexDirection: "column",
         }}
       >
-        {renderContent()}
+        <Outlet /> {/* Render nội dung của các route con tại đây */}
       </Box>
     </Box>
   );
