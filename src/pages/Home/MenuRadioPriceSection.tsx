@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, forwardRef, useImperativeHandle } from 'react';
 import { RadioGroup, FormControlLabel, Radio, Typography, Box, Slider, TextField, IconButton } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
@@ -8,13 +8,22 @@ interface MenuRadioPriceSectionProps {
   title: string;
   onChange: (value: number[]) => void;
   data: { id: string; label: string; value: number[] }[];
+  resetRef: React.RefObject<{ resetSelection: () => void }>;
 }
 
-const MenuRadioPriceSection: React.FC<MenuRadioPriceSectionProps> = ({ title, onChange, data }) => {
+const MenuRadioPriceSection: React.FC<MenuRadioPriceSectionProps> = forwardRef(({ title, onChange, data, resetRef }, ref) => {
   const [priceRange, setPriceRange] = useState<number[]>(data.length > 0 ? data[0].value : [0, 100000000]);
   const [customPrice, setCustomPrice] = useState(false);
   const [selectedValue, setSelectedValue] = useState<string>(data.length > 0 ? JSON.stringify(data[0].value) : '');
   const [expanded, setExpanded] = useState<boolean>(true);
+
+  // Syncs reset functionality with the parent component's ref
+  useImperativeHandle(resetRef, () => ({
+    resetSelection: () => {
+      setSelectedValue(JSON.stringify(data[0].value)); // Reset to the default selection
+      onChange(data[0].value); // Notify parent of the reset
+    }
+  }));
 
   // Debounce the onChange handler to reduce performance lag
   const debouncedOnChange = useCallback(debounce((value: number[]) => {
@@ -55,8 +64,8 @@ const MenuRadioPriceSection: React.FC<MenuRadioPriceSectionProps> = ({ title, on
 
   return (
     <div>
-      <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={toggleExpand}>
-        <Typography variant="h6" fontSize="17px" gutterBottom width={"100%"}>
+      <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', borderTop:'2px solid #f3f4f6' }} onClick={toggleExpand}>
+        <Typography variant="h6" fontSize="15px" gutterBottom width={"100%"}>
           {title}
         </Typography>
         <IconButton size="small">
@@ -69,7 +78,10 @@ const MenuRadioPriceSection: React.FC<MenuRadioPriceSectionProps> = ({ title, on
             <FormControlLabel
               key={item.id}
               value={JSON.stringify(item.value)}
-              control={<Radio size='small' sx={{ color: 'red', '&.Mui-checked': { color: 'red' } }} />}
+              control={<Radio sx={{ color: 'red', '&.Mui-checked': { color: 'red' },
+                                    '& .MuiSvgIcon-root': {
+                                    fontSize: 15, // Adjust this size as needed
+                                  },}} />}
               label={item.label}
             />
           ))}
@@ -77,8 +89,10 @@ const MenuRadioPriceSection: React.FC<MenuRadioPriceSectionProps> = ({ title, on
           <FormControlLabel
             control={
               <Radio
-                sx={{ color: 'red', '&.Mui-checked': { color: 'red' } }}
-                size='small'
+                sx={{ color: 'red', '&.Mui-checked': { color: 'red' },
+                                    '& .MuiSvgIcon-root': {
+                                    fontSize: 15, // Adjust this size as needed
+                                  },}}
                 checked={selectedValue === 'custom'}
                 value="custom"
                 onChange={() => setSelectedValue('custom')}
@@ -135,6 +149,6 @@ const MenuRadioPriceSection: React.FC<MenuRadioPriceSectionProps> = ({ title, on
       )}
     </div>
   );
-};
+});
 
 export default MenuRadioPriceSection;
