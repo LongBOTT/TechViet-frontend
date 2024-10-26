@@ -1,28 +1,31 @@
 import React, { useEffect, useState } from "react";
 import CustomDialog from "../Util/CustomDialog";
-import EntityForm from "../Util/EntityForm"; 
+import EntityForm from "../Util/EntityForm";
 import LoadingSnackbar from "../Util/LoadingSnackbar";
-import { validateCategory } from "../Util/validation/categoryValidation";
+import  validateCategory from "../Util/validation/categoryValidation";
 import { checkDuplicateCategory } from "../../../api/categoryApi";
-import { Brand } from "../../../types/brand";
-import { useBrandContext } from "../../../context/BrandContex";
+import { Category } from "../../../types/category";
+import { useCategoryContext } from "../../../context/CategoryContext";
 
-interface EditCategoryDialogProps {
+interface editCategoryDialogProps {
   open: boolean;
   onClose: () => void;
 }
 
-const EditCategoryDialog: React.FC<EditCategoryDialogProps> = ({ open, onClose }) => {
-  const { selectedCategory, editBrand } = useBrandContext();
-  const [brandData, setBrandData] = useState<Brand | null>(null);
+const editCategoryDialog: React.FC<editCategoryDialogProps> = ({
+  open,
+  onClose,
+}) => {
+  const { selectedCategory, editCategory } = useCategoryContext();
+  const [categoryData, setCategoryData] = useState<Category | null>(null);
   const [loading, setLoading] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
-  // Cập nhật dữ liệu khi thương hiệu được chọn thay đổi
+  // Cập nhật dữ liệu khi thể loại được chọn thay đổi
   useEffect(() => {
     if (selectedCategory) {
-      setBrandData(selectedCategory);
+      setCategoryData(selectedCategory);
     }
   }, [selectedCategory]);
 
@@ -32,19 +35,19 @@ const EditCategoryDialog: React.FC<EditCategoryDialogProps> = ({ open, onClose }
     setSnackbarOpen(true);
   };
 
-  const isDuplicateBrand = async (data: Brand) => {
+  const isDuplicateCategory = async (data: Category) => {
     const duplicateCheckers = [
       {
-        check: checkDuplicateBrand(data.name),
-        message: "Tên thương hiệu đã tồn tại.",
+        check: checkDuplicateCategory(data.name),
+        message: "Tên thể loại đã tồn tại.",
         field: "name",
       },
     ];
-  
+
     for (const checker of duplicateCheckers) {
       const result = await checker.check;
       if (result && result.id !== data.id) {
-        // Nếu ID của thương hiệu trùng lặp không giống với ID của thương hiệu hiện tại
+        // Nếu ID của thể loại trùng lặp không giống với ID của thể loại hiện tại
         showSnackbar(checker.message);
         setLoading(false);
         return true;
@@ -52,12 +55,11 @@ const EditCategoryDialog: React.FC<EditCategoryDialogProps> = ({ open, onClose }
     }
     return false;
   };
-  
 
   // Lưu dữ liệu sau khi kiểm tra trùng lặp và validate
   const handleSave = async () => {
-    if (brandData) {
-      const validationError = validateBrand(brandData);
+    if (categoryData) {
+      const validationError = validateCategory(categoryData);
       if (validationError) {
         showSnackbar(validationError);
         return;
@@ -65,11 +67,11 @@ const EditCategoryDialog: React.FC<EditCategoryDialogProps> = ({ open, onClose }
 
       setLoading(true);
       try {
-        if (await isDuplicateBrand(brandData)) return;
-        await editBrand(brandData.id, brandData);
-        showSnackbar("Cập nhật thương hiệu thành công!");
+        if (await isDuplicateCategory(categoryData)) return;
+        await editCategory(categoryData.id, categoryData);
+        showSnackbar("Cập nhật thể loại thành công!");
       } catch (error) {
-        showSnackbar("Cập nhật thương hiệu thất bại!");
+        showSnackbar("Cập nhật thể loại thất bại!");
       } finally {
         setTimeout(() => setLoading(false), 1000);
       }
@@ -79,16 +81,22 @@ const EditCategoryDialog: React.FC<EditCategoryDialogProps> = ({ open, onClose }
   const handleSnackbarClose = () => setSnackbarOpen(false);
 
   // Cấu trúc form cho các trường nhập liệu
-  const brandFields = [
-    { label: "Tên thương hiệu", name: "name" },
-   
-  ];
+  const categoryFields = [{ label: "Tên thể loại", name: "name" }];
 
   return (
-    <CustomDialog open={open} onClose={onClose} title="Thương hiệu" onSave={handleSave}>
-      {brandData && (
+    <CustomDialog
+      open={open}
+      onClose={onClose}
+      title="Thể loại"
+      onSave={handleSave}
+    >
+      {categoryData && (
         <>
-          <EntityForm data={brandData} setData={setBrandData} fields={brandFields} />
+          <EntityForm
+            data={categoryData}
+            setData={setCategoryData}
+            fields={categoryFields}
+          />
           <LoadingSnackbar
             loading={loading}
             snackbarOpen={snackbarOpen}
@@ -101,4 +109,4 @@ const EditCategoryDialog: React.FC<EditCategoryDialogProps> = ({ open, onClose }
   );
 };
 
-export default EditCategoryDialog;
+export default editCategoryDialog;

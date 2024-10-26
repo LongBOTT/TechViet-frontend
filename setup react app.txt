@@ -19,3 +19,8 @@ npm i --save-dev @types/react-slick
 npm install react-router-dom --save
 
 npm i --save-dev @types/lodash
+npm update @mui/material @mui/icons-material
+
+>> npm install react-chartjs-2 chart.js
+>> 
+>> npm install --save-dev @types/react-chartjs-2

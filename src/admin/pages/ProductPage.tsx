@@ -1,25 +1,75 @@
+//src/admin/pages/ProductPage.tsx
 import * as React from "react";
 import Box from "@mui/material/Box";
 import { Typography } from "@mui/material";
-import Tab from "../components/Product/TabComponent";
 import EntityTabs from "../components/Util/EntityTabs";
 import EntityActions from "../components/Util/EntityActions";
+import ProductContent from "../components/Product/ProductContent";
+import CategoryContent from "../components/Category/CategoryContent";
+import BrandContent from "../components/Brand/BrandContent";
+import AddCategoryDialog from "../components/Category/AddCategoryDialog";
+// import AddProductDialog from "../components/Product/AddProductDialog";
+import AddBrandDialog from "../components/Brand/AddBrandDialog";
 
 export default function ProductComponent() {
-  const [openAddDialog, setOpenAddDialog] = React.useState(false);
+  // const [openAddProductDialog, setOpenAddProductDialog] = React.useState(false);
+  const [openAddCategoryDialog, setOpenAddCategoryDialog] =
+    React.useState(false);
+  const [openAddBrandDialog, setOpenAddBrandDialog] = React.useState(false);
+
+  const [currentTab, setCurrentTab] = React.useState("Sản phẩm"); // Trạng thái tab hiện tại
+
   const handleExport = () => {
-    console.log("Xuất file");
-  };
-  const handleOpenAddDialog = () => {
-    setOpenAddDialog(true);
-  };
-  const handleImport = () => {
-    console.log("Nhập file");
+    console.log(`Xuất file của ${currentTab}`);
   };
 
-  const handleAddProduct = () => {
-    
+  const handleOpenAddDialog = () => {
+    // Kiểm tra tab hiện tại để mở dialog tương ứng
+    if (currentTab === "Sản phẩm") {
+      // setOpenAddProductDialog(true);
+    } else if (currentTab === "Thể loại") {
+      setOpenAddCategoryDialog(true);
+    } else if (currentTab === "Thương hiệu") {
+      setOpenAddBrandDialog(true);
+    }
   };
+
+  const handleImport = () => {
+    console.log(`Nhập file của ${currentTab}`);
+  };
+
+  const tabs = [
+    {
+      label: "Sản phẩm",
+      content: <ProductContent />,
+    },
+    {
+      label: "Thể loại",
+      content: <CategoryContent />,
+    },
+    {
+      label: "Thương hiệu",
+      content: <BrandContent />,
+    },
+  ];
+
+  const handleTabChange = (tabLabel: string) => {
+    setCurrentTab(tabLabel); // Cập nhật tab hiện tại khi tab thay đổi
+  };
+
+  // // Đóng các dialog khi đã hoàn thành
+  // const handleCloseAddProductDialog = () => {
+  //   setOpenAddProductDialog(false);
+  // };
+
+  const handleCloseAddCategoryDialog = () => {
+    setOpenAddCategoryDialog(false);
+  };
+
+  const handleCloseAddBrandDialog = () => {
+    setOpenAddBrandDialog(false);
+  };
+
   return (
     <Box
       sx={{
@@ -28,7 +78,7 @@ export default function ProductComponent() {
         borderRadius: 1,
         bgcolor: "rgb(249, 249, 249)",
         margin: 0,
-        padding: 0,
+        height: "100vh",
       }}
     >
       <Box
@@ -45,29 +95,40 @@ export default function ProductComponent() {
           component="div"
           sx={{ fontWeight: "bold", padding: 2 }}
         >
-          Danh sách sản phẩm
+          Danh sách {currentTab}
         </Typography>
         <Box sx={{ marginLeft: "auto", marginRight: "10px" }}>
-        <EntityActions
+          <EntityActions
             onExport={handleExport}
             onImport={handleImport}
             onOpenAddDialog={handleOpenAddDialog}
-            entityName="sản phẩm"
+            entityName={currentTab}
           />
         </Box>
       </Box>
       <Box
         sx={{
-          height: "100%",
           margin: "20px",
           backgroundColor: "rgb(255, 255, 255)",
           boxShadow: "0 0 3px 0 rgba(0, 0, 0, 0.3)",
+          
         }}
       >
-        {/* <Tab /> */}
-        <EntityTabs tabs={[{ label: "Sản phẩm", content: <></> },{label:"Thể loại",content: <></> },{label:"Thương hiệu",content: <></> }]}  />
+        <EntityTabs tabs={tabs} onTabChange={handleTabChange} />
       </Box>
-     
+
+      {/* Hiển thị các dialog */}
+      {/* <AddProductDialog open={openAddProductDialog} onClose={handleCloseAddProductDialog} /> */}
+
+      <AddCategoryDialog
+        open={openAddCategoryDialog}
+        onClose={handleCloseAddCategoryDialog}
+      />
+
+      <AddBrandDialog
+        open={openAddBrandDialog}
+        onClose={handleCloseAddBrandDialog}
+      />
     </Box>
   );
 }

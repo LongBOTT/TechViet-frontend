@@ -17,7 +17,7 @@ interface EntityTableProps {
   entities: any[];
   loading: boolean;
   columns: Array<{ label: string; key: string }>;
-  onRowClick: (entity: any) => void;
+  onRowClick?: (entity: any) => void; // Đặt ? để tùy chọn
 }
 
 const EntityTable: React.FC<EntityTableProps> = ({
@@ -30,7 +30,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
   const rowsPerPage = 12;
 
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: "smooth" }); // Cuộn mượt lên đầu trang khi thay đổi trang
   }, [page]);
 
   const handleChangePage = (event: React.ChangeEvent<unknown>, newPage: number) => {
@@ -46,10 +46,15 @@ const EntityTable: React.FC<EntityTableProps> = ({
     <Box>
       <TableContainer component={Paper}>
         <Table>
-          <TableHead>
+          <TableHead sx={{ backgroundColor: "rgb(244, 246, 248)" }}>
             <TableRow>
               {columns.map((column) => (
-                <TableCell key={column.key}>{column.label}</TableCell>
+                <TableCell
+                  key={column.key}
+                  sx={{ flexGrow: 1, textAlign: 'center' }} // Căn giữa và đảm bảo các cột co giãn đều nhau
+                >
+                  {column.label}
+                </TableCell>
               ))}
             </TableRow>
           </TableHead>
@@ -65,7 +70,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
               paginatedEntities.map((entity) => (
                 <TableRow
                   key={entity.id}
-                  onClick={() => onRowClick(entity)}
+                  onClick={() => onRowClick && onRowClick(entity)} // Gọi hàm nếu onRowClick tồn tại
                   sx={{
                     '&:hover': {
                       backgroundColor: '#f0f0f0',
@@ -74,7 +79,12 @@ const EntityTable: React.FC<EntityTableProps> = ({
                   }}
                 >
                   {columns.map((column) => (
-                    <TableCell key={column.key}>{entity[column.key]}</TableCell>
+                    <TableCell
+                      key={column.key}
+                      sx={{ flexGrow: 1, textAlign: 'center' }} // Đảm bảo nội dung được căn giữa
+                    >
+                      {entity[column.key]}
+                    </TableCell>
                   ))}
                 </TableRow>
               ))
