@@ -27,54 +27,52 @@ import WarrantyPage from "./admin/pages/WarrantyPage";
 
 function App() {
   return (
-    // <Router>
-    //   <NavBar />
-    //   <Routes>
-    //     <Route path={BASE} element={<Home/>} />
-    //     <Route path={CATEGORY_PAGE} element={
-    //       <ProductProvider>
-    //           <CategoryPage categoryName={CATEGORY_PAGE}/>
-    //       </ProductProvider>} />
-    //   </Routes>
-    //   <Footer/>
-    //     <ScrollToTopButton/>
-    // </Router>
     <Router>
+      <NavBar />
       <Routes>
         <Route path={BASE} element={<Home/>} />
-        <Route path={`${CATEGORY}/:id`} element={<CategoryPage/>} />
-        {/* Đặt PermanentDrawerLeft làm route cha */}
-        <Route path="/" element={<PermanentDrawerLeft />}>
-          <Route index element={<Navigate to="/overview" />} />
-          <Route path="overview" element={<OverviewPage />} />
-          <Route path="orders" element={<OrderPage />} />
-          <Route
-            path="products"
-            element={
-              <ProductProvider>
-                <CategoryProvider>
-                  <BrandProvider>
-                    <ProductPage />
-                  </BrandProvider>
-                </CategoryProvider>
-              </ProductProvider>
-            }
-          />
-          <Route
-            path="suppliers"
-            element={
-              <SupplierProvider>
-                <SupplierPage />
-              </SupplierProvider>
-            }
-          />
-          <Route path="warranty" element={<WarrantyPage />} />
-          <Route path="customers" element={<CustomerPage />} />
-          <Route path="discounts" element={<DiscountPage />} />
-          <Route path="reports" element={<DashboardPage />} />
-        </Route>
+          <Route path={`${CATEGORY}/:id`} element={<CategoryPage/>} />
       </Routes>
-    </Router>
+      <Footer/>
+        <ScrollToTopButton/>
+  </Router>
+
+    // <Router>
+    //   <Routes>
+    //     <Route path={BASE} element={<Home/>} />
+    //     <Route path={`${CATEGORY}/:id`} element={<CategoryPage/>} />
+    //     {/* Đặt PermanentDrawerLeft làm route cha */}
+    //     <Route path="/" element={<PermanentDrawerLeft />}>
+    //       <Route index element={<Navigate to="/overview" />} />
+    //       <Route path="overview" element={<OverviewPage />} />
+    //       <Route path="orders" element={<OrderPage />} />
+    //       <Route
+    //         path="products"
+    //         element={
+    //           <ProductProvider>
+    //             <CategoryProvider>
+    //               <BrandProvider>
+    //                 <ProductPage />
+    //               </BrandProvider>
+    //             </CategoryProvider>
+    //           </ProductProvider>
+    //         }
+    //       />
+    //       <Route
+    //         path="suppliers"
+    //         element={
+    //           <SupplierProvider>
+    //             <SupplierPage />
+    //           </SupplierProvider>
+    //         }
+    //       />
+    //       <Route path="warranty" element={<WarrantyPage />} />
+    //       <Route path="customers" element={<CustomerPage />} />
+    //       <Route path="discounts" element={<DiscountPage />} />
+    //       <Route path="reports" element={<DashboardPage />} />
+    //     </Route>
+    //   </Routes>
+    // </Router>
   );
 }
 
