@@ -38,6 +38,8 @@ interface Product_Variant {
 }
 
 const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
+
+  //#endregion Khai báo biến
     const [category, setCategory] = useState<Category>();
     // const [products, setProducts] = useState<Product[]>([]);
     const [variants, setVariants] = useState<Variant[]>([]);
@@ -69,7 +71,9 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
     const screenResetRef = useRef<{ resetSelection: () => void }>(null);
     const connectivityResetRef = useRef<{ resetSelection: () => void }>(null);
     const [sort, setSort] = React.useState('Nổi bật');
-
+    
+    //#endregion
+    
     const handleChange = (event: SelectChangeEvent) => {
       setSort(event.target.value);
       sortItems(event.target.value);
@@ -93,6 +97,7 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
         setItems(itemList);
       }
     };
+
     // Gọi hàm fetchProducts khi component được mount
     useEffect(() => {
       setLoading(true);  // Start loading
@@ -454,7 +459,6 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
     };
 
     
-    // Functions to remove individual filters or clear all
     const handleRemoveFilter = (key: keyof FilterParamsType) => {
       if (key === 'price') priceResetRef.current?.resetSelection();
       if (key === 'system') systemResetRef.current?.resetSelection();
@@ -526,7 +530,6 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
         console.log("Giá trị mới:", value);  // In ra để kiểm tra
       }
     };
-
 
     const handleScreenChange = (value: string) => {
       if (!loading) {  // Kiểm tra trạng thái loading
@@ -702,6 +705,7 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
                           <Typography fontSize={"15px"} justifyContent="right" width={"5%"}>
                             Sắp xếp
                           </Typography>
+
                           <Box  sx={{width: '15%', justifyContent:"right" } }>
                             
                               <FormControl sx={{ m: 1, minWidth: 120 }} size="small" >
@@ -736,7 +740,7 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
                             {!loading && loadingMore ? (
                                 <LoadingIndicator />  // Hiển thị loading khi đang tải thêm
                             ) : !loading ?(
-                                <Button variant="contained" onClick={handleShowMore} sx={{borderRadius:'99px', background:'white', color:'black'}}>
+                                <Button variant="text" onClick={handleShowMore} sx={{borderRadius:'99px'}}>
                                     Xem thêm {items.length - itemsToShow} kết quả
                                 </Button>
                             ) : null}

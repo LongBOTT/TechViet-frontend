@@ -64,7 +64,7 @@ const MenuRadioPriceSection: React.FC<MenuRadioPriceSectionProps> = forwardRef((
 
   return (
     <div>
-      <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', borderTop:'2px solid #f3f4f6' }} onClick={toggleExpand}>
+      <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', borderTop:'1px solid #d1d5db' }} onClick={toggleExpand}>
         <Typography variant="h6" fontSize="15px" gutterBottom width={"100%"}>
           {title}
         </Typography>

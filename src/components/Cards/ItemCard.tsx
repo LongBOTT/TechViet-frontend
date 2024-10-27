@@ -1,6 +1,6 @@
 import { AddLink } from '@mui/icons-material';
-import { Box, Card, CardContent, CardMedia, Checkbox, FormControlLabel, Link, Typography } from '@mui/material'
-import React, { FC, ReactElement } from 'react'
+import { Box, Button, ButtonGroup, Card, CardContent, CardMedia, Checkbox, FormControlLabel, Link, Typography } from '@mui/material'
+import React, { FC, ReactElement, useState } from 'react'
 
 
 type PropsType = {
@@ -20,6 +20,14 @@ const ItemCard: FC<PropsType> = ({name, price, originalPrice, image, details}) :
   
     const colors = ['#D5C2B5', '#C4C4C4', '#E8E8E8', '#4D4D4D']; // Các mã màu
 
+    const variants = ["128 GB", "256 GB", "512 GB", "1 TB"]; // Các lựa chọn dung lượng
+
+    const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
+
+    const handleSelectVariant = (variant: string) => {
+        setSelectedVariant(variant);
+    };
+
     return (
     <Link sx={{ textDecoration: 'none', color: 'inherit', cursor: 'pointer',
       '&:hover img': {
@@ -35,7 +43,7 @@ const ItemCard: FC<PropsType> = ({name, price, originalPrice, image, details}) :
         position: 'relative',
         borderRadius: '10px',
         margin: '10px',
-        height: '420px',
+        height: 'fit-content',
         width: '249px',
         boxShadow: 'none',
         display: 'flex',
@@ -44,7 +52,7 @@ const ItemCard: FC<PropsType> = ({name, price, originalPrice, image, details}) :
         justifyContent: 'flex-start', // Không căn giữa theo chiều dọc
         borderStyle:'solid',
         borderWidth:'2px',
-        borderColor:'#f3f4f6'
+        borderColor:'#f3f4f6',
       }}
     >
       {/* Box chứa hình ảnh */}
@@ -103,10 +111,64 @@ const ItemCard: FC<PropsType> = ({name, price, originalPrice, image, details}) :
         ))}
       </Box>
 
+        {/* Box chứa variant buttons */}
+      <Box
+        sx={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '5px',
+          paddingLeft: '10px',
+          paddingTop: '10px',
+          width: '100%',
+        }}
+      >
+          {variants.map((variant, index) => (
+            <Button
+              key={index}
+              onClick={() => handleSelectVariant(variant)}
+              size="small"
+              variant="outlined"
+              sx={{
+                fontSize: '12px',
+                borderColor: selectedVariant === variant ? 'red' : '#d1d5db',
+                color: selectedVariant === variant ? 'red' : 'black',
+                position: 'relative',
+                '&::before': selectedVariant === variant ? {
+                  content: '""',
+                  position: 'absolute',
+                  top: 0,
+                  right: 0,
+                  width: '15px',
+                  height: '15px',
+                  backgroundColor: 'red',
+                  clipPath: 'polygon(100% 0, 0 0, 100% 100%)',
+                } : {},
+                '&::after': selectedVariant === variant ? {
+                  content: '"✓"',
+                  position: 'absolute',
+                  top: 0,
+                  right: 1,
+                  fontSize: '7px',
+                  color: 'white',
+                } : {},
+              }}
+            >
+              {variant}
+            </Button>
+          ))}
+      </Box>
+
       {/* Box chứa checkbox */}
-      <Box sx={{ display: 'flex', justifyContent: 'flex-start', padding: '10px' }}>
+      <Box sx={{ 
+        display: 'flex', 
+        alignItems: 'left',
+        borderTop: '1px solid #d1d5db', 
+        padding: '5px', 
+        marginTop: '10px', // Adds spacing between the divider line and the buttons above
+        width: '100%'
+    }}>
         <FormControlLabel
-          control={<Checkbox inputProps={{ 'aria-label': 'controlled' }} />}
+          control={<Checkbox size='small' inputProps={{ 'aria-label': 'controlled' }} />}
           label="So sánh"
         />
       </Box>
