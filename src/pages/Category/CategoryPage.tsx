@@ -1,10 +1,10 @@
 import React, { FC, ReactElement, useEffect, useRef, useState } from "react";
-import { Box, Grid, Typography, Button, CircularProgress, MenuItem, List, Container, Chip, Autocomplete, AutocompleteRenderInputParams, TextField, FormControl, InputLabel, Select, SelectChangeEvent } from '@mui/material';
+import { Box, Grid, Typography, Button, CircularProgress, MenuItem, List, Container, Chip, Autocomplete, AutocompleteRenderInputParams, TextField, FormControl, InputLabel, Select, SelectChangeEvent, Alert, Modal, Avatar } from '@mui/material';
 import MenuCheckboxSection from "../Home/MenuCheckboxSection";
 import MenuRadioSection from "../Home/MenuRadioSection";
 import { useProductContext } from "../../context/ProductContex";
 import ItemCard from "../../components/Cards/ItemCard";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { ListSharp, Menu, MenuOpen } from "@mui/icons-material";
 import { Brand } from "../../types/brand";
 import { Category } from "../../types/category";
@@ -19,6 +19,8 @@ import { getProducts, searchProductByVariants } from "../../api/productApi";
 import { Variant } from "../../types/variant";
 import { Variant_Attribute } from "../../types/variant_attribute";
 import { searchVariant_AttributeByVariant } from "../../api/variant_attributeApi";
+import ComparePage from "../Comparison/ComparePage";
+import { COMPARISON } from "../../constants/routeConstants";
 
 interface CategoryPageProps {
 }
@@ -38,8 +40,8 @@ interface Product_Variant {
 }
 
 const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
-
   //#endregion Khai báo biến
+    const navigate = useNavigate();
     const [category, setCategory] = useState<Category>();
     // const [products, setProducts] = useState<Product[]>([]);
     const [variants, setVariants] = useState<Variant[]>([]);
@@ -71,9 +73,38 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
     const screenResetRef = useRef<{ resetSelection: () => void }>(null);
     const connectivityResetRef = useRef<{ resetSelection: () => void }>(null);
     const [sort, setSort] = React.useState('Nổi bật');
-    
+    const [comparisonList, setComparisonList] = useState<[Product_Variant, Variant_Attribute|null][]>([]);
+    const [alertMessage, setAlertMessage] = useState<string | null>(null);
+
     //#endregion
-    
+
+    const compareProducts = () => {
+    // Navigate to the product's detail page
+      let params = comparisonList
+                    .map(item => `${item[1]?.variant.id}`)
+                    .join("&&");
+      console.log(params);
+      navigate(`${COMPARISON}/:${params}`);
+    };
+
+    // Handler to add or remove items from comparison list
+    const handleCompareToggle = (productVariant: Product_Variant, selectedVariant: Variant_Attribute | null, isAdding: boolean) => {
+      setComparisonList((prevList) => {
+          if (isAdding) {
+              if (prevList.length < 3) {
+                  // Add the tuple [productVariant, selectedVariant] if list has less than 3 items
+                  return [...prevList, [productVariant, selectedVariant]];
+              } else {
+                  // Set the alert message if the comparison list exceeds 3 items
+                  setAlertMessage("Không được chọn quá 3 sản phẩm để so sánh");
+                  return prevList;
+              }
+          }
+          // Remove the item if it's already in the list
+          return prevList.filter(([item]) => item.product.id !== productVariant.product.id);
+      });
+    };
+
     const handleChange = (event: SelectChangeEvent) => {
       setSort(event.target.value);
       sortItems(event.target.value);
@@ -81,18 +112,18 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
     
     const sortItems = (value: string) => {
       if (value === "Giá thấp nhất") {
-        let itemList = items;
+        let itemList = [...items];
         itemList.sort((a, b) => (a.variants[0].price ?? 0) - (b.variants[0].price ?? 0));
         setItems(itemList);
       } 
       else
       if (value === "Giá cao nhất") {
-        let itemList = items;
+        let itemList = [...items];
         itemList.sort((a, b) => (b.variants[0].price ?? 0) - (a.variants[0].price ?? 0));
         setItems(itemList);
       }
       else {
-        let itemList = items;
+        let itemList = [...items];
         itemList.sort((a, b) => (a.variants[0].id ?? 0) - (b.variants[0].id ?? 0));
         setItems(itemList);
       }
@@ -166,21 +197,25 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
       }
       if (items.length === 0) {
           return (
-              <Box display="flex" justifyContent="center" alignItems="center" height="100px" width="100%">
-                  <Typography variant="h6" gutterBottom >
-                      Không có sản phẩm nào trong danh mục.
-                  </Typography>
-              </Box>
+            <Box
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              height="100px"
+              width="100%"
+            >
+              <Typography variant="h6" gutterBottom>
+                Không có sản phẩm nào trong danh mục.
+              </Typography>
+            </Box>
           );
       }
       return items.slice(0, itemsToShow).map((item) => (  // Hiển thị theo itemsToShow
           <Grid item justifyContent="left"  key={item.product.id}>
               <ItemCard
-                name={item.product.name}
-                price={item.variants[0].price}
-                originalPrice={item.variants[0].price}
-                image="/src/assets/products/iphone_16_pro_max_desert_titan_3552a28ae0.png"
-                details=""
+                productVariant={item}
+                onCompareToggle={handleCompareToggle}
+                isInComparison={comparisonList.some(compItem => compItem[0].product.id === item.product.id)}
               />
           </Grid>
       ));
@@ -551,9 +586,36 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
       }
     };
     
+    // Clear the alert after 3 seconds
+    useEffect(() => {
+        if (alertMessage) {
+            const timer = setTimeout(() => setAlertMessage(null), 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [alertMessage]);
+
     return (
-        <Box sx={{ display: 'flex', marginTop: '20px', marginBottom: '20px'}}>
-            <Grid container >
+        <Box sx={{ display: 'block', marginTop: '20px'}}>
+           {/* Centered Modal Alert */}
+            <Modal
+                open={Boolean(alertMessage)}
+                onClose={() => setAlertMessage(null)}
+                aria-labelledby="alert-message"
+                closeAfterTransition
+                sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backdropFilter: 'blur(3px)', // Optional: blur background
+                }}
+            >
+                
+              <Alert severity="warning" sx={{ mb: 2 }}>
+                  <Typography id="alert-message">{alertMessage}</Typography>
+              </Alert>
+            </Modal>
+
+            <Grid container sx={{marginBottom: '20px'}} >
                 {/* Bộ lọc bên trái */}
                  <Grid item xs={3} >       
                   <Box sx={{ 
@@ -740,14 +802,54 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
                             {!loading && loadingMore ? (
                                 <LoadingIndicator />  // Hiển thị loading khi đang tải thêm
                             ) : !loading ?(
-                                <Button variant="text" onClick={handleShowMore} sx={{borderRadius:'99px'}}>
+                                <Button variant="text" onClick={handleShowMore} sx={{borderRadius:'99px', color:'inherit', fontSize:'14px'}}>
                                     Xem thêm {items.length - itemsToShow} kết quả
                                 </Button>
                             ) : null}
                         </Box>
                     )}
+
                 </Grid>
             </Grid>
+            {comparisonList.length > 0 && (
+                <Grid sx={{ display: 'flex', padding:'10px', gap:'10px', backgroundColor:'#21252b', justifyContent:'center', position:'sticky', bottom: '0px', marginTop: '20px', borderRadius: '20px 20px 0 0'}} >
+                    {comparisonList.map((item) => (
+                        <Chip
+                            sx={{backgroundColor:'white', height:'50px', width:'290px', fontSize:'16px', borderRadius:'8px', justifyContent:'left', '.MuiChip-avatar': {
+                                  width: 40, // Customize the avatar size if needed
+                                  height: 40,
+                                  borderRadius: 0
+                                },}}
+                            key={item[0].product.id}
+                            label={item[0].product.name + " " + item[1]?.value}
+                            onDelete={() => handleCompareToggle(item[0], item[1], false)}
+                             avatar={
+                              <Avatar
+                                  src={item[0].product.image}
+                              />
+                          }
+                        />
+                    ))}
+                    <Chip
+                      sx={{backgroundColor:'white', height:'50px', width:'fit-content', fontSize:'16px', borderRadius:'8px',fontWeight:'bold','&:hover': {
+                        bgcolor: '#e4e8ed',  // Background color on hover
+                    },}}
+                      label={"Xoá tất cả"}
+                      onClick={()=>{
+                        setComparisonList([]);
+                      }}  
+                    />
+                    {comparisonList.length > 1 && (
+                      <Chip
+                      sx={{backgroundColor:'#e01516', color:'white', height:'50px',width:'fit-content', fontSize:'16px', borderRadius:'8px', fontWeight:'bold', '&:hover': {
+                        bgcolor: '#e01516',  // Background color on hover
+                    },}}
+                      label={"So sánh ngay"}
+                      onClick={compareProducts}      
+                    />
+                    )}
+                </Grid>
+            )}
         </Box>
     );
 };

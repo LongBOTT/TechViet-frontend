@@ -10,4 +10,5 @@ export interface Product {
   category: Category;  // Thể loại sản phẩm (liên kết với Category)
   brand: Brand;        // Thương hiệu (liên kết với Brand)
   warranty: Warranty;  // Bảo hành sản phẩm (liên kết với Warranty)
+  image: string
 }

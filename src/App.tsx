@@ -8,7 +8,7 @@ import NavBar from "./components/NavBar/NavBar";
 import Footer from "./components/Footer/Footer";
 import Home from "./pages/Home/Home";
 import CategoryPage from "./pages/Category/CategoryPage";
-import { BASE, CATEGORY } from "./constants/routeConstants";
+import { BASE, CATEGORY, COMPARISON, PRODUCT } from "./constants/routeConstants";
 import { ProductProvider } from "./context/ProductContex";
 import { SupplierProvider } from "./context/SupplierContext";
 import { CategoryProvider } from "./context/CategoryContext";
@@ -24,6 +24,8 @@ import OrderPage from "./admin/pages/OrderPage";
 import OverviewPage from "./admin/pages/OverviewPage";
 import SupplierPage from "./admin/pages/SupplierPage";
 import WarrantyPage from "./admin/pages/WarrantyPage";
+import ComparePage from "./pages/Comparison/ComparePage";
+import ProductDetail from "./pages/Product/ProductDetail";
 
 function App() {
   return (
@@ -31,7 +33,9 @@ function App() {
       <NavBar />
       <Routes>
         <Route path={BASE} element={<Home/>} />
-          <Route path={`${CATEGORY}/:id`} element={<CategoryPage/>} />
+        <Route path={`${CATEGORY}/:id`} element={<CategoryPage/>} />
+        <Route path={`${COMPARISON}/:params`} element={<ComparePage/>} />
+        <Route path={`${PRODUCT}/:id`} element={<ProductDetail/>} />
       </Routes>
       <Footer/>
         <ScrollToTopButton/>
