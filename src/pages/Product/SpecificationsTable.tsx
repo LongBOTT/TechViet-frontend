@@ -115,7 +115,7 @@ const renderData = () => {
     <>
       {displayedAttributes.map((parent) => (
         <React.Fragment key={`parent-${parent}`}>
-          <TableRow>
+          <TableRow >
             <TableCell
               colSpan={2}
               variant={"head"}
@@ -130,8 +130,8 @@ const renderData = () => {
               <TableRow
                 key={`attribute-${parent}-${attribute.attribute.name}-${attribute.value}`}
               >
-                <TableCell>{attribute.attribute.name}</TableCell>
-                <TableCell>{attribute.value}</TableCell>
+                <TableCell sx={{width:'50%'}}>{attribute.attribute.name}</TableCell>
+                <TableCell sx={{width:'50%'}}>{attribute.value}</TableCell>
               </TableRow>
             ))}
         </React.Fragment>
@@ -161,8 +161,8 @@ return (
       <Typography variant="h6" fontWeight="bold" gutterBottom>
         Thông số kỹ thuật
       </Typography>
-      <Table size="small">
-        <TableBody>
+      <Table size="small" >
+        <TableBody >
          {renderData()}
         </TableBody>
       </Table>
