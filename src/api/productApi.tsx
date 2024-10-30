@@ -89,3 +89,15 @@ export const searchProductByName = async (query: string) => {
     handleApiError(error, "tìm kiếm sản phẩm theo tên");
   }
 }
+
+// Gọi API tìm kiếm thể loại theo tên
+export const searchProductBy_Id = async (id: number) => {
+  try {
+    const response = await axiosInstance.get<Product>(
+      `/products/${id}`
+    );
+    return response.data;
+  } catch (error: any) {
+    handleApiError(error, "tìm kiếm san pham id");
+  }
+};

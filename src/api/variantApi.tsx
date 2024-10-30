@@ -44,7 +44,7 @@ export const getVariants = async () => {
 };
 
 // Gọi API lấy danh sách  phiên bản theo sản phẩm
-export const searchVariantByProduct = async (productID: string) => {
+export const searchVariantByProduct = async (productID: number) => {
   try {
     const response = await axiosInstance.get<Variant[]>(
       `/variants/search/product/productID?productID=${productID}`

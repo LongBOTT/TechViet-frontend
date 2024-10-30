@@ -42,13 +42,13 @@ const ProductReviews: FC = (): ReactElement => {
   };
 
   return (
-    <Box p={3}>
+    <Box p={3} margin={"50px"}>
       <Typography variant="h5" fontWeight="bold">
         Khách hàng nói về sản phẩm
       </Typography>
       <Grid container spacing={2} alignItems="center" sx={{ mt: 2 }}>
         <Grid item xs={12} md={3}>
-          <Typography variant="h2" fontWeight="bold" color="primary">
+          <Typography variant="h2" fontWeight="bold">
             {(
               reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
             ).toFixed(1)}
@@ -62,7 +62,7 @@ const ProductReviews: FC = (): ReactElement => {
           {[5, 4, 3, 2, 1].map((star) => (
             <Box key={star} display="flex" alignItems="center">
               <Typography>
-                {star} <Star fontSize="small" />
+                {star} <Star sx={{ color: "yellow" }} fontSize="small" />
               </Typography>
               <Box
                 flex={1}
@@ -101,7 +101,7 @@ const ProductReviews: FC = (): ReactElement => {
             key={star}
             label={
               <>
-                <Star fontSize="small" /> {star}
+                <Star sx={{ color: "yellow" }} fontSize="small" /> {star}
               </>
             }
             variant={selectedRating === star ? "filled" : "outlined"}
@@ -132,7 +132,11 @@ const ProductReviews: FC = (): ReactElement => {
               color={star <= newRating ? "primary" : "default"}
               onClick={() => setNewRating(star)}
             >
-              {star <= newRating ? <Star /> : <StarBorder />}
+              {star <= newRating ? (
+                <Star sx={{ color: "yellow" }} />
+              ) : (
+                <StarBorder />
+              )}
             </IconButton>
           ))}
         </Box>

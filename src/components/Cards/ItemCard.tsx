@@ -120,8 +120,8 @@ const ItemCard: FC<ItemCardProps> = ({ productVariant, onCompareToggle, isInComp
           boxShadow: "none",
           display: "flex",
           flexDirection: "column",
-          alignItems: "flex-start", // Không căn giữa theo chiều ngang
-          justifyContent: "flex-start", // Không căn giữa theo chiều dọc
+          // alignItems: "flex-start", // Không căn giữa theo chiều ngang
+          // justifyContent: "flex-start", // Không căn giữa theo chiều dọc
           borderStyle: "solid",
           borderWidth: "2px",
           borderColor: "#f3f4f6",
@@ -147,7 +147,7 @@ const ItemCard: FC<ItemCardProps> = ({ productVariant, onCompareToggle, isInComp
               image={productVariant.product.image}
               alt={productVariant.product.name}
               sx={{ height: "180px", width: "180px", objectFit: "contain" }} // Đảm bảo hình ảnh chiếm toàn bộ Box
-            />
+              />
           </Box>
 
           {/* Nội dung Card */}
@@ -179,7 +179,7 @@ const ItemCard: FC<ItemCardProps> = ({ productVariant, onCompareToggle, isInComp
                   fontFamily: "inter",
                   fontSize: "12px",
                 }}
-              >
+                >
                 Giảm {formatCurrency(0)}
               </Typography>
             </Box>
@@ -187,7 +187,7 @@ const ItemCard: FC<ItemCardProps> = ({ productVariant, onCompareToggle, isInComp
               gutterBottom
               component="div"
               sx={{ height: "20px", fontFamily: "inter", fontSize: "14px" }}
-            >
+              >
               {name}
             </Typography>
           </CardContent>
@@ -215,10 +215,11 @@ const ItemCard: FC<ItemCardProps> = ({ productVariant, onCompareToggle, isInComp
                     transform: "scale(1.2)", // Phóng to khi hover
                   },
                 }}
-              />
+                />
             ))}
           </Box>
-
+        
+        </Link>
           {/* Box chứa variant buttons */}
           {productVariant.product.category.name === "ĐIỆN THOẠI" ? (
             <Box
@@ -278,7 +279,6 @@ const ItemCard: FC<ItemCardProps> = ({ productVariant, onCompareToggle, isInComp
               ))}
             </Box>
           ) : null}
-        </Link>
 
         {/* Box chứa checkbox */}
         <Box
