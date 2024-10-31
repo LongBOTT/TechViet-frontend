@@ -1,5 +1,5 @@
 import axiosInstance from "./index";
-import { Product, ProductDTO } from "../types/product";
+import { Product } from "../types/product";
 import { handleApiError } from "./errorHandler"; // Hàm xử lý lỗi
 import { Variant } from "../types/variant";
 
@@ -10,6 +10,16 @@ export const getProducts = async () => {
     return response.data;
   } catch (error: any) {
     handleApiError(error, "lấy danh sách sản phẩm");
+  }
+};
+
+// Gọi API lấy danh sách sản phẩm và danh sách phiên bản của sản phẩm
+export const getProductsWithVariants = async () => {
+  try {
+    const response = await axiosInstance.get("/products/getProductsAndVariantsAndAttributes");
+    return response.data;
+  } catch (error: any) {
+    handleApiError(error, "lấy danh sách sản phẩm và phiên bản");
   }
 };
 
@@ -52,7 +62,7 @@ export const searchProductByVariants = async (variants: Variant[]) => {
 };
 
 // Gọi API thêm sản phẩm và trả về dữ liệu từ server
-export const addProduct = async (product: ProductDTO): Promise<ProductDTO> => {
+export const addProduct = async (product: Product): Promise<Product> => {
   try {
     const response = await axiosInstance.post("/products", product);
     return response.data; // Trả về dữ liệu sản phẩm đã được thêm từ server

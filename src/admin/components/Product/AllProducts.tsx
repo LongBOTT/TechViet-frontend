@@ -11,13 +11,14 @@ import { useState, useEffect } from "react";
 import CustomButton from "../Util/CustomButton";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { useNavigate } from "react-router-dom";
-import { ProductDTO } from "../../../types/product";
+
+import { ProductWithVariants } from "../../../types/product";
 import { searchVariantByProduct } from "../../../api/variantApi";
 
 const AllProducts: React.FC = () => {
   const {
-    products,
     loading,
+    productWithVariants,
     searchProductsByName,
     searchProductByCategoryId,
   } = useProductContext(); // Lấy dữ liệu và hàm từ ProductContext
@@ -25,34 +26,29 @@ const AllProducts: React.FC = () => {
   const navigate = useNavigate();
   const { categories } = useCategoryContext();
   const { brands } = useBrandContext();
-  
   const [transformedProducts, setTransformedProducts] = useState<any[]>([]);
- 
   useEffect(() => {
-    const fetchTransformedProducts = async () => {
-      const transformed = await Promise.all(
-        products.map(async (product) => {
-          // Fetch variants and calculate total stock
-          const variants = (await searchVariantByProduct(product.id+"")) || []; // Default to empty array if undefined
-          const stock = variants.reduce((total, variant) => total + (variant.quantity || 0), 0); // Sum quantity with default to 0
-  
-          return {
-            ...product,
-            stock, // Total quantity
-            categoryName: product.category.name, // Add category name
-            brandName: product.brand.name,       // Add brand name
-            warrantyName: product.warranty.name, // Add warranty name
-          };
-        })
-      );
-      
-      setTransformedProducts(transformed);
-    };
-  
-    fetchTransformedProducts();
-  }, [products]);
-  
-  
+    // Kiểm tra nếu `productWithVariants` tồn tại
+    if (!productWithVariants) return;
+    // Biến đổi dữ liệu `productWithVariants` thành `transformedProducts`
+    const transformed = productWithVariants.map((product) => {
+      // Tính tổng tồn kho bằng cách cộng dồn `quantity` của các `variants`
+      const stock = product.variants.reduce((total, variant) => total + variant.quantity, 0);
+
+      return {
+        id: product.id,
+        image: product.image,         
+        name: product.name,            
+        stock: stock,                  
+        available: 0,               
+        brandName: product.brand.name,  
+        categoryName: product.category.name,  
+      };
+    });
+
+    setTransformedProducts(transformed);
+  }, [productWithVariants]);
+
 
   // Tạo các tùy chọn cho dropdown từ categories và brands
   const CategoryOptions = categories.map((category: any) => ({
@@ -70,7 +66,7 @@ const AllProducts: React.FC = () => {
     { value: "active", label: "Đang giao dịch" },
     { value: "inactive", label: "Ngưng giao dịch" },
   ];
- 
+
   // Cấu trúc cột cho bảng sản phẩm
   const productColumns = [
     { label: "Ảnh", key: "image" },
@@ -78,14 +74,14 @@ const AllProducts: React.FC = () => {
     { label: "Tồn kho", key: "stock" },
     { label: "Có thể bán", key: "available" },
     { label: "Thể loại", key: "categoryName" }, // Sử dụng `categoryName`
-    { label: "Thương hiệu", key: "brandName" },  // Sử dụng `brandName`
+    { label: "Thương hiệu", key: "brandName" }, // Sử dụng `brandName`
     { label: "Trạng thái", key: "status" },
   ];
 
   // Xử lý khi người dùng bấm vào hàng sản phẩm
   const handleRowClick = (product: any) => {
     console.log("Row clicked:", product);
-    navigate(`/EditProduct/${product.id}` ); // Chuyển hướng đến trang chỉnh sửa sản phẩm
+    navigate(`/EditProduct/${product.id}`); // Chuyển hướng đến trang chỉnh sửa sản phẩm
   };
 
   // Trạng thái đặt lại bộ lọc

@@ -2,11 +2,14 @@ import { Product } from "./product";
 
 export interface Variant {
   id: number;
+  name: string;
   image: string;
+  quantity: number;
+  minStock: number;
+  costPrice: number;
   price: number;
   products: Product;
-  quantity: number;
-//   status: string;
+  status: string;
 }
 //src/types/variant.ts
 export interface VariantDTO {

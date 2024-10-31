@@ -2,10 +2,9 @@
 import React from "react";
 import { Box, Divider, TextField, Typography } from "@mui/material";
 import ImageUploader from "./ImageUploader";
-interface GeneralProductProps {
-  onDataChange: (key: string, value: any) => void;
-}
-const GeneralProduct: React.FC<GeneralProductProps> = ({ onDataChange }) => {
+import { useProductContext } from "../../../context/ProductContext";
+const GeneralProduct: React.FC = () => {
+  const { handleProductChange } = useProductContext();
   return (
     <Box
       sx={{
@@ -38,7 +37,7 @@ const GeneralProduct: React.FC<GeneralProductProps> = ({ onDataChange }) => {
           placeholder="Nhập tên sản phẩm"
           variant="outlined"
           size="small"
-          onChange={(e) => onDataChange("name", e.target.value)}
+          onChange={(e) => handleProductChange("name", e.target.value)}
         />
       </Box>
       <Box sx={{ width: "100%", display: "flex" }}>
@@ -54,7 +53,7 @@ const GeneralProduct: React.FC<GeneralProductProps> = ({ onDataChange }) => {
                 placeholder="Nhập đơn vị"
                 variant="outlined"
                 size="small"
-                onChange={(e) => onDataChange("unit", e.target.value)}
+                onChange={(e) => handleProductChange("unit", e.target.value)}
               />
             </Box>
             <Box sx={{ flex: 1 }}>
@@ -66,7 +65,7 @@ const GeneralProduct: React.FC<GeneralProductProps> = ({ onDataChange }) => {
                 placeholder="Nhập khối lượng"
                 variant="outlined"
                 size="small"
-                onChange={(e) => onDataChange("weight", parseFloat(e.target.value))}
+                onChange={(e) => handleProductChange("weight", parseFloat(e.target.value))}
               />
             </Box>
           </Box>
@@ -136,7 +135,7 @@ const GeneralProduct: React.FC<GeneralProductProps> = ({ onDataChange }) => {
           </Box>
         </Box>
         <Box sx={{ width: "40%", margin: "auto" }}>
-          <ImageUploader  onImageChange={(imageUrl) => onDataChange("image", imageUrl)} />
+          <ImageUploader  onImageChange={(imageUrl) => handleProductChange("image", imageUrl)} />
         </Box>
       </Box>
       {/* Mô tả sản phẩm */}

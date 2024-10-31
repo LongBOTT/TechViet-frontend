@@ -23,6 +23,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import { VariantDTO } from "../../../types/variant";
 import { VariantAttributeDTO } from "../../../types/variant_attribute";
+import { useProductContext } from "../../../context/ProductContext";
 
 // Định nghĩa kiểu dữ liệu cho các giá trị của thuộc tính
 interface AttributeValues {
@@ -45,7 +46,7 @@ const Variant = React.memo(({ categoryId, productName, onVariantsChange, onVaria
   const [resetFilter, setResetFilter] = useState<boolean>(false); // Trạng thái reset bộ lọc
   const [attributeValues, setAttributeValues] = useState<AttributeValues>({}); // Giá trị của các thuộc tính
   const [variants, setVariants] = useState<VariantDTO[]>([]); // Danh sách các phiên bản sản phẩm
-
+  const {variant, handleVariantChange} = useProductContext(); // Danh sách phiên bản
   // Lấy danh sách thuộc tính dựa trên categoryId khi thay đổi
   useEffect(() => {
     if (categoryId !== null) {
@@ -56,6 +57,7 @@ const Variant = React.memo(({ categoryId, productName, onVariantsChange, onVaria
           categoryId === 1 ? [3, 24].includes(attr.attribute.id) : attr.attribute.id === 3
         ) || [];
         setAttributesData(relevantAttributes);
+        console.log("relevantAttributes", relevantAttributes);
       };
       fetchAttributes();
     }
@@ -64,6 +66,7 @@ const Variant = React.memo(({ categoryId, productName, onVariantsChange, onVaria
   // Hàm tạo và cập nhật danh sách phiên bản dựa trên giá trị các thuộc tính
   const updateVariants = useCallback(() => {
     const attributeKeys = Object.keys(attributeValues);
+    console.log("attributeKeys", attributeKeys);
     if (attributeKeys.length === 0) {
       setVariants([]);
       return;
@@ -75,12 +78,11 @@ const Variant = React.memo(({ categoryId, productName, onVariantsChange, onVaria
       return acc.length === 0 ? values.map((v) => [v]) : acc.flatMap((combination) => values.map((v) => [...combination, v]));
     }, []);
 
-    const productPrefix = productName ? productName.slice(0, 3).toUpperCase() : "PRD";
-
+ 
     // Tạo danh sách các phiên bản mới dựa trên tổ hợp các thuộc tính
     const newVariants: VariantDTO[] = combinations.map((combination, index) => ({
       id: index,
-      name: `${productPrefix}-${combination.join("-")}`,
+      name: `${productName}-${combination.join("-")}`,
       image: "",
       quantity: 0,
       price: 0,
@@ -117,7 +119,7 @@ const Variant = React.memo(({ categoryId, productName, onVariantsChange, onVaria
         label: attr.attribute.name,
       }));
   }, [attributesData, selectedAttributes]);
-
+ 
   // Hàm xử lý khi chọn thuộc tính
   const handleAttributeSelect = useCallback((attributeId: string) => {
     const selected = attributesData.find((attr) => attr.attribute.id.toString() === attributeId);
@@ -163,6 +165,7 @@ const Variant = React.memo(({ categoryId, productName, onVariantsChange, onVaria
     if (event.key === "Enter") {
       event.preventDefault();
       const target = event.target as HTMLInputElement;
+      console.log("attributeId", attributeId , "target.value", target.value);
       handleAddValue(attributeId, target.value);
       target.value = "";
     }

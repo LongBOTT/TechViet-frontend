@@ -2,9 +2,6 @@ import React, { useState } from "react";
 import {
   Box,
   Typography,
-  RadioGroup,
-  FormControlLabel,
-  Radio,
   IconButton,
   Divider,
 } from "@mui/material";
@@ -13,16 +10,13 @@ import FilterDropdown from "../Util/FilterDropdown";
 import { useBrandContext } from "../../../context/BrandContex";
 import { useCategoryContext } from "../../../context/CategoryContext";
 import { useWarrantyContext } from "../../../context/WarrantyContext";
-interface ProductClassificationProps {
-  onDataChange: (key: string, value: any) => void;
-}
-export default function ProductClassification({
-  onDataChange,
-}: ProductClassificationProps) {
+import { useProductContext } from "../../../context/ProductContext";
+
+export default function ProductClassification() {
   const { categories } = useCategoryContext();
   const { brands } = useBrandContext();
   const { warranties } = useWarrantyContext();
-
+  const {handleProductChange} = useProductContext();
   const CategoryOptions = categories.map((category: any) => ({
     value: category.id,
     label: category.name,
@@ -35,11 +29,6 @@ export default function ProductClassification({
     value: warranty.id,
     label: warranty.name,
   }));
-  const [selectedValue, setSelectedValue] = useState("regular");
-
-  const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectedValue(event.target.value);
-  };
 
   return (
     <Box
@@ -79,8 +68,11 @@ export default function ProductClassification({
               label="Chọn loại sản phẩm"
               options={CategoryOptions}
               onFilterChange={(value) => {
-                console.log("Category ID Selected:", value); // In ra ID thể loại khi được chọn
-                onDataChange("categoryId", value);
+                const selectedCategory = categories.find(
+                  (category) => category.id === Number(value)
+              
+                );
+                handleProductChange("category", selectedCategory);
               }}
               sx={{ width: "100%" }}
             />
@@ -107,7 +99,12 @@ export default function ProductClassification({
             <FilterDropdown
               label="Chọn thương hiệu"
               options={BrandOptions}
-              onFilterChange={(value) => onDataChange("brandId",value )}
+              onFilterChange={(value) => {
+                const selectedBrand = brands.find(
+                  (brand) => brand.id === Number(value)
+                );
+                handleProductChange("brand", selectedBrand);
+              }}
               sx={{ width: "100%" }}
             />
           </Box>
@@ -133,7 +130,12 @@ export default function ProductClassification({
             <FilterDropdown
               label="Chọn chính sách bảo hành"
               options={WarrantyOptions}
-              onFilterChange={(value) => onDataChange("warrantyId",value )}
+              onFilterChange={(value) => {
+                const selectedWarranty = warranties.find(
+                  (warranty) => warranty.id === Number(value)
+                );
+                handleProductChange("warranty", selectedWarranty);
+              }}
               sx={{ width: "100%" }}
             />
           </Box>

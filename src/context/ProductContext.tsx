@@ -1,23 +1,35 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { Product, ProductDTO } from "../types/product";
+import { Product, ProductWithVariants } from "../types/product";
 import {
-
   addProduct,
   deleteProduct,
   getProducts,
+  getProductsWithVariants,
   searchProductByCategory_Id,
   searchProductByName,
   searchProductsByBrand_Id,
   updateProduct,
-
 } from "../api/productApi";
+import { Category } from "../types/category";
+import { Brand } from "../types/brand";
+import { Warranty } from "../types/warranty";
+import { Variant } from "../types/variant";
+import { addVariant, updateVariant } from "../api/variantApi";
 
 interface ProductContextType {
   products: Product[];
-  setProducts: React.Dispatch<React.SetStateAction<Product[]>>
+  product: Product | undefined;
+  handleProductChange: (key: keyof Product, value: any) => void;
+  variant: Variant | undefined;
+  handleVariantChange: (key: keyof Variant, value: any) => void;
+  addVariant: (variant: Variant) => Promise<Variant>;
+  editVariant: (id: number, variant: Variant) => Promise<Variant>;
+  deleteVariant: (id: number) => Promise<void>;
+  productWithVariants: ProductWithVariants[] | undefined;
+  setProducts: React.Dispatch<React.SetStateAction<Product[]>>;
   fetchProducts: () => Promise<void>;
   searchProductByCategoryId: (id: number) => Promise<void>;
-  createProduct: (product: ProductDTO) => Promise<void>;
+  createProduct: (product: Product) => Promise<Product>;
   editProduct: (id: number, product: Product) => Promise<void>;
   removeProduct: (id: number) => Promise<void>;
   searchProductsByName: (query: string) => Promise<void>;
@@ -34,8 +46,33 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [product, setProduct] = useState<Product>({
+    id: 0, // Giá trị mặc định cho ID
+    name: '',
+    unit: '',
+    image: '',
+    weight: 0,
+    description: '',
+    category: {} as Category,
+    brand: {} as Brand,
+    warranty: {} as Warranty,
+    status: 'Đang giao dịch',
+  });
+  const [variant, setVariant] = useState<Variant>({
+    id: 0, // Giá trị mặc định cho ID
+    name: '',
+    image: '',
+    quantity: 0,
+    minStock: 0,
+    costPrice: 0,
+    price: 0,
+    products: {} as Product,
+    status: 'Đang giao dịch',
+  });
 
+  const [loading, setLoading] = useState(true);
+  const [productWithVariants, setProductWithVariants] =
+    useState<ProductWithVariants[]>();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
 
@@ -50,20 +87,39 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
       setLoading(false);
     }
   };
+  const handleProductChange = (key: keyof Product, value: any) => {
+    setProduct((prevProduct) => {
+      if (!prevProduct) return prevProduct;
+      return {
+        ...prevProduct,
+        [key]: value,
+      };
+    });
+  };
 
-  const createProduct = async (product: ProductDTO) => {
-    await addProduct(product);
-    fetchProducts();
+  const handleVariantChange = (key: keyof Variant, value: any) => {
+    setVariant((prevVariant) => {
+      if (!prevVariant) return prevVariant;
+      return {
+        ...prevVariant,
+        [key]: value,
+      };
+    });
+  }
+  const createProduct = async (product: Product): Promise<Product> => {
+   const response = await addProduct(product);
+   fetchProductsWithVariants();
+    return response;
   };
 
   const editProduct = async (id: number, product: Product) => {
     await updateProduct(id, product);
-    fetchProducts();
+    fetchProductsWithVariants();
   };
 
   const removeProduct = async (id: number) => {
     await deleteProduct(id);
-    fetchProducts();
+    fetchProductsWithVariants();
   };
 
   const searchProductsByName = async (query: string) => {
@@ -81,27 +137,61 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
   const searchProductByCategoryId = async (id: number) => {
     setLoading(true);
     try {
-      const data = await searchProductByCategory_Id (id);
+      const data = await searchProductByCategory_Id(id);
       setProducts(data || []);
-      console.log(data?.length)
+      console.log(data?.length);
     } catch (error) {
       console.error("Error searching products:", error);
     } finally {
       setLoading(false);
     }
   };
-
-
+  const fetchProductsWithVariants = async () => {
+    setLoading(true);
+    try {
+      const data = await getProductsWithVariants();
+      setProductWithVariants(data || []);
+    } catch (error) {
+      console.error("Error searching products:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+    // Quản lý Variant
+    const createVariant = async (variant: Variant) => {
+      const data = await addVariant(variant);
+      fetchProductsWithVariants(); // Cập nhật lại productsWithVariants sau khi thêm variant
+      return data;
+    };
+  
+    const editVariant = async (id: number, variant: Variant) => {
+      const data = await updateVariant(id, variant);
+      fetchProductsWithVariants(); 
+      return data;
+    };
+  
+    const deleteVariant = async (id: number) => {
+      const data = await deleteVariant(id);
+      fetchProductsWithVariants(); 
+    };
 
   useEffect(() => {
     fetchProducts();
-    
+    fetchProductsWithVariants();
   }, []);
 
   return (
     <ProductContext.Provider
       value={{
         products,
+        product,
+        handleProductChange,
+        productWithVariants,
+        variant,
+        handleVariantChange,
+        addVariant: createVariant,
+        editVariant,
+        deleteVariant,
         setProducts,
         fetchProducts,
         searchProductByCategoryId,
