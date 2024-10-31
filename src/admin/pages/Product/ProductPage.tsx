@@ -1,32 +1,29 @@
-//src/admin/pages/ProductPage.tsx
 import * as React from "react";
 import Box from "@mui/material/Box";
 import { Typography } from "@mui/material";
-import EntityTabs from "../components/Util/EntityTabs";
-import EntityActions from "../components/Util/EntityActions";
-import ProductContent from "../components/Product/ProductContent";
-import CategoryContent from "../components/Category/CategoryContent";
-import BrandContent from "../components/Brand/BrandContent";
-import AddCategoryDialog from "../components/Category/AddCategoryDialog";
-// import AddProductDialog from "../components/Product/AddProductDialog";
-import AddBrandDialog from "../components/Brand/AddBrandDialog";
+import { useNavigate } from "react-router-dom"; 
+import EntityTabs from "../../components/Util/EntityTabs";
+import EntityActions from "../../components/Util/EntityActions";
+import ProductContent from "../../components/Product/ProductContent";
+import CategoryContent from "../../components/Category/CategoryContent";
+import BrandContent from "../../components/Brand/BrandContent";
+import AddCategoryDialog from "../../components/Category/AddCategoryDialog";
+import AddBrandDialog from "../../components/Brand/AddBrandDialog";
 
 export default function ProductComponent() {
-  // const [openAddProductDialog, setOpenAddProductDialog] = React.useState(false);
-  const [openAddCategoryDialog, setOpenAddCategoryDialog] =
-    React.useState(false);
-  const [openAddBrandDialog, setOpenAddBrandDialog] = React.useState(false);
+  const navigate = useNavigate(); // Sử dụng useNavigate để điều hướng
 
-  const [currentTab, setCurrentTab] = React.useState("Sản phẩm"); // Trạng thái tab hiện tại
+  const [openAddCategoryDialog, setOpenAddCategoryDialog] = React.useState(false);
+  const [openAddBrandDialog, setOpenAddBrandDialog] = React.useState(false);
+  const [currentTab, setCurrentTab] = React.useState("Sản phẩm");
 
   const handleExport = () => {
     console.log(`Xuất file của ${currentTab}`);
   };
 
   const handleOpenAddDialog = () => {
-    // Kiểm tra tab hiện tại để mở dialog tương ứng
     if (currentTab === "Sản phẩm") {
-      // setOpenAddProductDialog(true);
+      navigate("/AddProduct"); // Chuyển hướng đến trang /add-product khi tab là "Sản phẩm"
     } else if (currentTab === "Thể loại") {
       setOpenAddCategoryDialog(true);
     } else if (currentTab === "Thương hiệu") {
@@ -54,13 +51,8 @@ export default function ProductComponent() {
   ];
 
   const handleTabChange = (tabLabel: string) => {
-    setCurrentTab(tabLabel); // Cập nhật tab hiện tại khi tab thay đổi
+    setCurrentTab(tabLabel);
   };
-
-  // // Đóng các dialog khi đã hoàn thành
-  // const handleCloseAddProductDialog = () => {
-  //   setOpenAddProductDialog(false);
-  // };
 
   const handleCloseAddCategoryDialog = () => {
     setOpenAddCategoryDialog(false);
@@ -111,14 +103,10 @@ export default function ProductComponent() {
           margin: "20px",
           backgroundColor: "rgb(255, 255, 255)",
           boxShadow: "0 0 3px 0 rgba(0, 0, 0, 0.3)",
-          
         }}
       >
         <EntityTabs tabs={tabs} onTabChange={handleTabChange} />
       </Box>
-
-      {/* Hiển thị các dialog */}
-      {/* <AddProductDialog open={openAddProductDialog} onClose={handleCloseAddProductDialog} /> */}
 
       <AddCategoryDialog
         open={openAddCategoryDialog}

@@ -1,15 +1,16 @@
 import axiosInstance from "./index";
-import { Variant } from "../types/variant";
+import { Variant, VariantDTO } from "../types/variant";
 import { handleApiError } from "./errorHandler"; // Hàm xử lý lỗi
 import { Product } from "../types/product";
 
-// Gọi API thêm phiên bản
-export const addVariant = async (variant: Variant) => {
+// Gọi API thêm phiên bản sản phẩm và trả về dữ liệu từ server
+export const addVariant = async (variant: VariantDTO): Promise<VariantDTO> => {
   try {
     const response = await axiosInstance.post("/variants", variant);
-    return response.data;
+    return response.data; // Trả về dữ liệu của phiên bản đã thêm từ server
   } catch (error: any) {
-    handleApiError(error, "thêm phiên bản");
+    handleApiError(error, "thêm phiên bản sản phẩm");
+    throw error; // Quăng lỗi để bên ngoài biết có lỗi xảy ra
   }
 };
 

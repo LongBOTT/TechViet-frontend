@@ -1,3 +1,4 @@
+//src/types/warranty.ts
 export interface Warranty {
   id: number;       // ID bảo hành, khóa chính
   name: string;     // Tên chính sách bảo hành

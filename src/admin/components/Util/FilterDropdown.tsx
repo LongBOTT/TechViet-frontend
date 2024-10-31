@@ -4,8 +4,8 @@ import { Select, MenuItem, SelectChangeEvent, FormControl, SxProps } from '@mui/
 interface FilterDropdownProps {
   label: string;
   options: { value: string; label: string }[];
-  onFilterChange: (value: string) => void;
-  resetFilter: boolean;  // Add a prop to reset the dropdown
+  onFilterChange?: (value: string) => void;
+  resetFilter?: boolean;  // Add a prop to reset the dropdown
   sx?: SxProps;
 }
 
@@ -15,7 +15,9 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({ label, options, onFilte
   const handleChange = (event: SelectChangeEvent<string>) => {
     const value = event.target.value as string;
     setSelectedValue(value);
-    onFilterChange(value);
+    if (onFilterChange) {
+      onFilterChange(value);
+    }
   };
 
   useEffect(() => {

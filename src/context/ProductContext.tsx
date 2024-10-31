@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { Product } from "../types/product";
+import { Product, ProductDTO } from "../types/product";
 import {
 
   addProduct,
@@ -17,7 +17,7 @@ interface ProductContextType {
   setProducts: React.Dispatch<React.SetStateAction<Product[]>>
   fetchProducts: () => Promise<void>;
   searchProductByCategoryId: (id: number) => Promise<void>;
-  createProduct: (product: Product) => Promise<void>;
+  createProduct: (product: ProductDTO) => Promise<void>;
   editProduct: (id: number, product: Product) => Promise<void>;
   removeProduct: (id: number) => Promise<void>;
   searchProductsByName: (query: string) => Promise<void>;
@@ -51,7 +51,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const createProduct = async (product: Product) => {
+  const createProduct = async (product: ProductDTO) => {
     await addProduct(product);
     fetchProducts();
   };
@@ -95,6 +95,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     fetchProducts();
+    
   }, []);
 
   return (

@@ -1,7 +1,7 @@
 //src/admin/components/Product/ProductContent.tsx
 import * as React from "react";
 import Box from "@mui/material/Box";
-import { useProductContext } from "../../../context/ProductContex";
+import { useProductContext } from "../../../context/ProductContext";
 import SearchBox from "../Util/Search";
 import { Paper, TableContainer } from "@mui/material";
 import EntityTable from "../Util/EntityTable";

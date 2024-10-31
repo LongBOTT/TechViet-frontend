@@ -2,7 +2,7 @@ import React, { FC, ReactElement, useEffect, useState } from "react";
 import { Box, Grid, Typography, Button, CircularProgress, MenuItem, List, Container } from '@mui/material';
 import MenuCheckboxSection from "../Home/MenuCheckboxSection";
 import MenuRadioSection from "../Home/MenuRadioSection";
-import { useProductContext } from "../../context/ProductContex";
+import { useProductContext } from "../../context/ProductContext";
 import ItemCard from "../../components/Cards/ItemCard";
 import { useParams } from "react-router-dom";
 import { ListSharp, Menu, MenuOpen } from "@mui/icons-material";

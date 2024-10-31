@@ -3,60 +3,66 @@ import Box from "@mui/material/Box";
 import SearchBox from "../Util/Search";
 import { Paper, TableContainer } from "@mui/material";
 import EntityTable from "../Util/EntityTable";
-import { useProductContext } from "../../../context/ProductContex";
+import { useProductContext } from "../../../context/ProductContext";
 import FilterDropdown from "../Util/FilterDropdown";
 import { useCategoryContext } from "../../../context/CategoryContext";
 import { useBrandContext } from "../../../context/BrandContex";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CustomButton from "../Util/CustomButton";
 import RefreshIcon from "@mui/icons-material/Refresh";
+import { useNavigate } from "react-router-dom";
+import { ProductDTO } from "../../../types/product";
+import { searchVariantByProduct } from "../../../api/variantApi";
 
 const AllProducts: React.FC = () => {
-  const searchProductsByName = (query: string) => {
-    console.log("Searching for:", query);
-  };
+  const {
+    products,
+    loading,
+    searchProductsByName,
+    searchProductByCategoryId,
+  } = useProductContext(); // Lấy dữ liệu và hàm từ ProductContext
 
-  // const { products } = useProductContext();
+  const navigate = useNavigate();
   const { categories } = useCategoryContext();
   const { brands } = useBrandContext();
-
+  
+  const [transformedProducts, setTransformedProducts] = useState<any[]>([]);
  
-  const products = [
-    {
-      id: 1,
-      image: "",
-      name: "Iphone 15 Pro Max",
-      stock: 50,
-      available: 50,
-      created_at: "28/03/2024",
-      category: "Điện thoại",
-      brand: "Apple",
-      status: "Đang giao dịch",
-    },
-    {
-      id: 2,
-      image: "",
-      name: "Xiaomi Redmi Note 10",
-      stock: 30,
-      available: 30,
-      created_at: "27/03/2024",
-      category: "Điện thoại",
-      brand: "Xiaomi",
-      status: "Đang giao dịch",
-    },
-   
-   
-    
-  ];
+  useEffect(() => {
+    const fetchTransformedProducts = async () => {
+      const transformed = await Promise.all(
+        products.map(async (product) => {
+          // Fetch variants and calculate total stock
+          const variants = (await searchVariantByProduct(product.id+"")) || []; // Default to empty array if undefined
+          const stock = variants.reduce((total, variant) => total + (variant.quantity || 0), 0); // Sum quantity with default to 0
+  
+          return {
+            ...product,
+            stock, // Total quantity
+            categoryName: product.category.name, // Add category name
+            brandName: product.brand.name,       // Add brand name
+            warrantyName: product.warranty.name, // Add warranty name
+          };
+        })
+      );
+      
+      setTransformedProducts(transformed);
+    };
+  
+    fetchTransformedProducts();
+  }, [products]);
+  
+  
+
+  // Tạo các tùy chọn cho dropdown từ categories và brands
   const CategoryOptions = categories.map((category: any) => ({
-    value: category.id,  
-    label: category.name, 
+    value: category.id,
+    label: category.name,
   }));
 
-  // Convert brands to options for the filter
   const BrandOptions = brands.map((brand: any) => ({
-    value: brand.id, 
-    label: brand.name, 
+    value: brand.id,
+    label: brand.name,
   }));
 
   const StatusOptions = [
@@ -64,45 +70,47 @@ const AllProducts: React.FC = () => {
     { value: "active", label: "Đang giao dịch" },
     { value: "inactive", label: "Ngưng giao dịch" },
   ];
-
+ 
+  // Cấu trúc cột cho bảng sản phẩm
   const productColumns = [
     { label: "Ảnh", key: "image" },
     { label: "Sản phẩm", key: "name" },
     { label: "Tồn kho", key: "stock" },
     { label: "Có thể bán", key: "available" },
-    { label: "Ngày khởi tạo", key: "created_at" },
-    { label: "Thể loại", key: "category" },
-    { label: "Thương hiệu", key: "brand" },
+    { label: "Thể loại", key: "categoryName" }, // Sử dụng `categoryName`
+    { label: "Thương hiệu", key: "brandName" },  // Sử dụng `brandName`
     { label: "Trạng thái", key: "status" },
   ];
 
+  // Xử lý khi người dùng bấm vào hàng sản phẩm
   const handleRowClick = (product: any) => {
-    console.log("Clicked product:", product);
+    console.log("Row clicked:", product);
+    navigate(`/EditProduct/${product.id}` ); // Chuyển hướng đến trang chỉnh sửa sản phẩm
   };
 
-
+  // Trạng thái đặt lại bộ lọc
   const [resetFilter, setResetFilter] = useState(false);
 
-
-
+  // Xử lý đặt lại bộ lọc
   const handleReset = () => {
     setResetFilter(true);
     setTimeout(() => setResetFilter(false), 0);
-    // fetchProducts();
   };
 
+  // Hàm lọc theo danh mục
   const handleFilterCategory = (value: string) => {
-    console.log("Filtering by category:", value); 
+    searchProductByCategoryId(parseInt(value)); // Sử dụng hàm từ ProductContext
   };
 
+  // Hàm lọc theo thương hiệu
   const handleFilterBrand = (value: string) => {
     console.log("Filtering by brand:", value);
   };
 
+  // Hàm lọc theo trạng thái
   const handleFilterStatus = (value: string) => {
     console.log("Filtering by status:", value);
   };
-
 
   return (
     <Box
@@ -127,23 +135,23 @@ const AllProducts: React.FC = () => {
         <Box sx={{ flexGrow: 1 }}>
           <SearchBox
             placeholder="Tìm kiếm theo mã sản phẩm, tên sản phẩm"
-            onSearch={searchProductsByName}
+            onSearch={searchProductsByName} // Sử dụng hàm từ ProductContext
             resetSearch={resetFilter}
           />
         </Box>
-         {/* Nút reset */}
-         <Box>
-            <CustomButton
-              icon={<RefreshIcon />}
-              text="Reset"
-              onClick={handleReset}
-            />
-          </Box>
+        {/* Nút reset */}
+        <Box>
+          <CustomButton
+            icon={<RefreshIcon />}
+            text="Reset"
+            onClick={handleReset}
+          />
+        </Box>
 
         {/* Loại sản phẩm Dropdown */}
         <Box sx={{ minWidth: 200 }}>
           <FilterDropdown
-            label={`Loại sản phẩm`}
+            label="Loại sản phẩm"
             options={CategoryOptions}
             onFilterChange={handleFilterCategory}
             resetFilter={resetFilter}
@@ -153,7 +161,7 @@ const AllProducts: React.FC = () => {
         {/* Thương hiệu Dropdown */}
         <Box sx={{ minWidth: 200 }}>
           <FilterDropdown
-            label={`Thương hiệu`}
+            label="Thương hiệu"
             options={BrandOptions}
             onFilterChange={handleFilterBrand}
             resetFilter={resetFilter}
@@ -163,9 +171,9 @@ const AllProducts: React.FC = () => {
         {/* Trạng thái Dropdown */}
         <Box sx={{ minWidth: 200 }}>
           <FilterDropdown
-            label={`Trạng thái`}
+            label="Trạng thái"
             options={StatusOptions}
-            onFilterChange={handleFilterCategory}
+            onFilterChange={handleFilterStatus}
             resetFilter={resetFilter}
           />
         </Box>
@@ -175,7 +183,7 @@ const AllProducts: React.FC = () => {
       <Box
         sx={{
           flex: 1,
-          overflow: "auto", 
+          overflow: "auto",
           marginTop: "20px",
           boxShadow: "0 0 3px 0 rgba(0, 0, 0, 0.3)",
           height: "100%",
@@ -183,8 +191,8 @@ const AllProducts: React.FC = () => {
       >
         <TableContainer component={Paper}>
           <EntityTable
-            entities={products}
-            loading={false}
+            entities={transformedProducts} // Sử dụng mảng ProductDTOs đã chuyển đổi
+            loading={loading} // Sử dụng loading từ context
             columns={productColumns}
             onRowClick={handleRowClick}
           />

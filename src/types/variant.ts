@@ -8,3 +8,14 @@ export interface Variant {
   quantity: number;
 //   status: string;
 }
+//src/types/variant.ts
+export interface VariantDTO {
+  id: number;
+  name: string;
+  image: string;
+  quantity: number;
+  price: number;
+  minStock: number;
+  costPrice: number;
+  productId: number;
+}
