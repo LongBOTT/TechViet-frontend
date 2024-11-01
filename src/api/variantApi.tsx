@@ -1,10 +1,10 @@
 import axiosInstance from "./index";
-import { Variant } from "../types/variant";
+import { Variant,VariantRequest } from "../types/variant";
 import { handleApiError } from "./errorHandler"; // Hàm xử lý lỗi
 import { Product } from "../types/product";
 
 // Gọi API thêm phiên bản sản phẩm và trả về dữ liệu từ server
-export const addVariant = async (variant: Variant): Promise<Variant> => {
+export const addVariant = async (variant: VariantRequest): Promise<VariantRequest> => {
   try {
     const response = await axiosInstance.post("/variants", variant);
     return response.data; 

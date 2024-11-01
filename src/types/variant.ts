@@ -12,13 +12,16 @@ export interface Variant {
   status: string;
 }
 //src/types/variant.ts
-export interface VariantDTO {
+export interface VariantRequest {
   id: number;
   name: string;
   image: string;
   quantity: number;
+  available: number;
   price: number;
   minStock: number;
   costPrice: number;
   productId: number;
+  status: string;
+
 }

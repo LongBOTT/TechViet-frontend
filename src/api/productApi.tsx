@@ -1,5 +1,5 @@
 import axiosInstance from "./index";
-import { Product } from "../types/product";
+import { Product, ProductRequest } from "../types/product";
 import { handleApiError } from "./errorHandler"; // Hàm xử lý lỗi
 import { Variant } from "../types/variant";
 
@@ -62,7 +62,7 @@ export const searchProductByVariants = async (variants: Variant[]) => {
 };
 
 // Gọi API thêm sản phẩm và trả về dữ liệu từ server
-export const addProduct = async (product: Product): Promise<Product> => {
+export const addProduct = async (product: ProductRequest): Promise<ProductRequest> => {
   try {
     const response = await axiosInstance.post("/products", product);
     return response.data; // Trả về dữ liệu sản phẩm đã được thêm từ server

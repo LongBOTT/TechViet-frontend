@@ -68,11 +68,7 @@ export default function ProductClassification() {
               label="Chọn loại sản phẩm"
               options={CategoryOptions}
               onFilterChange={(value) => {
-                const selectedCategory = categories.find(
-                  (category) => category.id === Number(value)
-              
-                );
-                handleProductChange("category", selectedCategory);
+                handleProductChange("categoryId", value);
               }}
               sx={{ width: "100%" }}
             />
@@ -100,10 +96,7 @@ export default function ProductClassification() {
               label="Chọn thương hiệu"
               options={BrandOptions}
               onFilterChange={(value) => {
-                const selectedBrand = brands.find(
-                  (brand) => brand.id === Number(value)
-                );
-                handleProductChange("brand", selectedBrand);
+                handleProductChange("brandId", value);
               }}
               sx={{ width: "100%" }}
             />
@@ -131,10 +124,7 @@ export default function ProductClassification() {
               label="Chọn chính sách bảo hành"
               options={WarrantyOptions}
               onFilterChange={(value) => {
-                const selectedWarranty = warranties.find(
-                  (warranty) => warranty.id === Number(value)
-                );
-                handleProductChange("warranty", selectedWarranty);
+                handleProductChange("warrantyId", value);
               }}
               sx={{ width: "100%" }}
             />

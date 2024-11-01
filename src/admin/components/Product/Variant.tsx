@@ -21,8 +21,8 @@ import { getCategoryAttributesByCategoryId } from "../../../api/category_attribu
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
-import { VariantDTO } from "../../../types/variant";
-import { VariantAttributeDTO } from "../../../types/variant_attribute";
+import { VariantRequest } from "../../../types/variant";
+import { VariantAttributeRequest } from "../../../types/variant_attribute";
 import { useProductContext } from "../../../context/ProductContext";
 
 // Định nghĩa kiểu dữ liệu cho các giá trị của thuộc tính
@@ -33,8 +33,8 @@ interface AttributeValues {
 interface VariantProps {
   categoryId: number | null;
   productName: string;
-  onVariantsChange: (variants: VariantDTO[]) => void; // Callback để truyền danh sách phiên bản lên AddProductPage
-  onVariantAttributesChange: (attributes: VariantAttributeDTO[]) => void; // Callback để truyền danh sách thuộc tính phiên bản lên AddProductPage
+  onVariantsChange: (variants: VariantRequest[]) => void; // Callback để truyền danh sách phiên bản lên AddProductPage
+  onVariantAttributesChange: (attributes: VariantAttributeRequest[]) => void; // Callback để truyền danh sách thuộc tính phiên bản lên AddProductPage
 }
 
 // Component Variant với các props cần thiết và dùng `React.memo` để tối ưu render
@@ -45,7 +45,7 @@ const Variant = React.memo(({ categoryId, productName, onVariantsChange, onVaria
   const [selectedAttributeId, setSelectedAttributeId] = useState<string | null>(null); // ID thuộc tính đang chọn
   const [resetFilter, setResetFilter] = useState<boolean>(false); // Trạng thái reset bộ lọc
   const [attributeValues, setAttributeValues] = useState<AttributeValues>({}); // Giá trị của các thuộc tính
-  const [variants, setVariants] = useState<VariantDTO[]>([]); // Danh sách các phiên bản sản phẩm
+  const [variants, setVariants] = useState<VariantRequest[]>([]); // Danh sách các phiên bản sản phẩm
   const {variant, handleVariantChange} = useProductContext(); // Danh sách phiên bản
   // Lấy danh sách thuộc tính dựa trên categoryId khi thay đổi
   useEffect(() => {
@@ -57,7 +57,6 @@ const Variant = React.memo(({ categoryId, productName, onVariantsChange, onVaria
           categoryId === 1 ? [3, 24].includes(attr.attribute.id) : attr.attribute.id === 3
         ) || [];
         setAttributesData(relevantAttributes);
-        console.log("relevantAttributes", relevantAttributes);
       };
       fetchAttributes();
     }
@@ -66,7 +65,6 @@ const Variant = React.memo(({ categoryId, productName, onVariantsChange, onVaria
   // Hàm tạo và cập nhật danh sách phiên bản dựa trên giá trị các thuộc tính
   const updateVariants = useCallback(() => {
     const attributeKeys = Object.keys(attributeValues);
-    console.log("attributeKeys", attributeKeys);
     if (attributeKeys.length === 0) {
       setVariants([]);
       return;
@@ -80,22 +78,24 @@ const Variant = React.memo(({ categoryId, productName, onVariantsChange, onVaria
 
  
     // Tạo danh sách các phiên bản mới dựa trên tổ hợp các thuộc tính
-    const newVariants: VariantDTO[] = combinations.map((combination, index) => ({
+    const newVariants: VariantRequest[] = combinations.map((combination, index) => ({
       id: index,
       name: `${productName}-${combination.join("-")}`,
       image: "",
       quantity: 0,
+      available: 0,
       price: 0,
       minStock: 0,
       costPrice: 0,
       productId: 0,
+      status:"Đang giao dịch"
     }));
 
     // Tạo danh sách thuộc tính phiên bản
-    const newVariantAttributes: VariantAttributeDTO[] = combinations.flatMap((combination, variantIndex) =>
+    const newVariantAttributes: VariantAttributeRequest[] = combinations.flatMap((combination, variantIndex) =>
       combination.map((value, attrIndex) => ({
-        variantID: variantIndex,
-        attributeID: Number(attributeKeys[attrIndex]),
+        variantId: variantIndex,
+        attributeId: Number(attributeKeys[attrIndex]),
         value: value,
       }))
     );
@@ -192,6 +192,20 @@ const Variant = React.memo(({ categoryId, productName, onVariantsChange, onVaria
       const imageUrl = URL.createObjectURL(file);
       setVariants((prev) => prev.map((v, i) => (i === index ? { ...v, image: imageUrl } : v)));
     }
+  };
+
+  
+  const handleUpdateVariant = (index: number, field: string, value: number) => {
+    setVariants((prevVariants) => {
+      const updatedVariants = prevVariants.map((variant, i) =>
+        i === index ? { ...variant, [field]: value } : variant
+      );
+  
+      // Gọi lại hàm onVariantsChange để truyền các phiên bản đã cập nhật lên component cha
+      onVariantsChange(updatedVariants);
+  
+      return updatedVariants;
+    });
   };
 
   return (
@@ -306,10 +320,9 @@ const Variant = React.memo(({ categoryId, productName, onVariantsChange, onVaria
                       type="number"
                       value={variant.quantity}
                       onChange={(e) =>
-                        setVariants((prev) =>
-                          prev.map((v, i) => (i === index ? { ...v, quantity: +e.target.value } : v))
-                        )
+                        handleUpdateVariant(index, "quantity", +e.target.value)
                       }
+                      
                     />
                   </TableCell>
                   <TableCell>
@@ -319,9 +332,7 @@ const Variant = React.memo(({ categoryId, productName, onVariantsChange, onVaria
                       type="number"
                       value={variant.costPrice}
                       onChange={(e) =>
-                        setVariants((prev) =>
-                          prev.map((v, i) => (i === index ? { ...v, costPrice: +e.target.value } : v))
-                        )
+                        handleUpdateVariant(index, "costPrice", +e.target.value)
                       }
                     />
                   </TableCell>
@@ -332,9 +343,7 @@ const Variant = React.memo(({ categoryId, productName, onVariantsChange, onVaria
                       type="number"
                       value={variant.minStock}
                       onChange={(e) =>
-                        setVariants((prev) =>
-                          prev.map((v, i) => (i === index ? { ...v, minStock: +e.target.value } : v))
-                        )
+                        handleUpdateVariant(index, "minStock", +e.target.value)
                       }
                     />
                   </TableCell>
@@ -345,9 +354,7 @@ const Variant = React.memo(({ categoryId, productName, onVariantsChange, onVaria
                       type="number"
                       value={variant.price}
                       onChange={(e) =>
-                        setVariants((prev) =>
-                          prev.map((v, i) => (i === index ? { ...v, price: +e.target.value } : v))
-                        )
+                        handleUpdateVariant(index, "price", +e.target.value)
                       }
                     />
                   </TableCell>

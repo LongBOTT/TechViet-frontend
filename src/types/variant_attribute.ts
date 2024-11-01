@@ -8,8 +8,8 @@ export interface Variant_Attribute {
   value: string;
 
 }
-export interface VariantAttributeDTO {
-  variantID: number;
-  attributeID: number;
+export interface VariantAttributeRequest {
+  variantId: number;
+  attributeId: number;
   value: string;
 }

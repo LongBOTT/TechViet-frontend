@@ -21,35 +21,33 @@ import Variant from "../../components/Product/Variant";
 import { WarrantyProvider } from "../../../context/WarrantyContext";
 import { useProductContext } from "../../../context/ProductContext";
 import { Product } from "../../../types/product";
-import { VariantDTO } from "../../../types/variant";
+import { VariantRequest } from "../../../types/variant";
 import { addProduct } from "../../../api/productApi";
 import { addVariant } from "../../../api/variantApi";
 import { addVariantAttribute } from "../../../api/variant_attributeApi";
-import { VariantAttributeDTO } from "../../../types/variant_attribute";
+import { VariantAttributeRequest } from "../../../types/variant_attribute";
 export default function AddProductPage() {
   const navigate = useNavigate();
 
   const handleGoBack = () => navigate("/products");
 
   const handleExit = () => navigate("/products");
-  const { createProduct,product } = useProductContext();
+  const { createProduct, product } = useProductContext();
 
- 
-  const [variantsData, setVariantsData] = useState<VariantDTO[]>([]);
+  const [variantsData, setVariantsData] = useState<VariantRequest[]>([]);
   const [attributesData, setAttributesData] = React.useState<
     { attributeId: number; value: string }[]
   >([]);
   const [variantAttributeData, setVariantAttributeData] = useState<
-    VariantAttributeDTO[]
+    VariantAttributeRequest[]
   >([]);
 
-
   // Tạo các callback để chỉ được gọi khi cần thiết
-  const handleVariantsChange = useCallback((variants: VariantDTO[]) => {
+  const handleVariantsChange = useCallback((variants: VariantRequest[]) => {
     setVariantsData(variants);
   }, []);
   const handleVariantAttributesChange = useCallback(
-    (attributes: VariantAttributeDTO[]) => {
+    (attributes: VariantAttributeRequest[]) => {
       setVariantAttributeData(attributes);
     },
     []
@@ -62,66 +60,72 @@ export default function AddProductPage() {
   };
 
   const handleSave = async () => {
-    console.log("Lưu sản phẩm: ", product);
     try {
-     
       // Step 1: Lưu sản phẩm vào cơ sở dữ liệu và lấy productId
       if (!product) {
         throw new Error("Product data is undefined");
       }
       const savedProduct = await createProduct(product); // Gọi API để lưu productData vào bảng 'product'
       const productId = savedProduct.id; // Lấy productId trả về từ server
+      console.log("id san pham: ", productId);
+      console.log("Danh sách variant: ", variantsData);
+      // Step 2: Lưu từng phiên bản của sản phẩm
 
-    //   // Step 2: Lưu từng phiên bản của sản phẩm
-    //   const savedVariants = await Promise.all(
-    //     variantsData.map(
-    //       (variant) => addVariant({ ...variant, productId }) // Gọi API để lưu mỗi phiên bản vào bảng 'variant'
-    //     )
-    //   );
+      const savedVariants = await Promise.all(
+        variantsData.map(
+          (variant) => addVariant({ ...variant, productId }) // Gán productId đúng trước khi lưu
+        )
+      );
+      console.log("Danh sách phiên bản đã lưu: ", savedVariants);
 
-    //   // Step 3: Lưu các thông số kỹ thuật vào variant_attribute chỉ cho phiên bản đầu tiên
-    //   if (savedVariants.length > 0) {
-    //     const firstVariantId = savedVariants[savedVariants.length - 1].id; // Lấy variantId của phiên bản đầu tiên
-    //     console.log("id phien ban dau tien: ", firstVariantId);
-    //     // Chuẩn bị dữ liệu cho variant_attribute từ attributesData
-    //     const variantAttributes = attributesData.map((attribute) => ({
-    //       variantID: firstVariantId,
-    //       attributeID: attribute.attributeId,
-    //       value: attribute.value,
-    //     }));
+      // Step 3: Lưu các thông số kỹ thuật vào variant_attribute chỉ cho phiên bản đầu tiên
+      if (savedVariants.length > 0) {
+        const minVariantId = Math.min(
+          ...savedVariants.map((variant) => variant.id)
+        );
+        // Lấy variantId của phiên bản đầu tiên
+        console.log("id phien ban dau tien: ", minVariantId);
 
-    //     // Gọi API để lưu các variant_attributes vào cơ sở dữ liệu
-    //     const list = await Promise.all(
-    //       variantAttributes.map((attributeData) =>
-    //         addVariantAttribute(attributeData)
-    //       )
-    //     );
-    //     console.log("danh sach thuoc tinh da luu vao database", list);
-    //   }
+        const variantAttributes = attributesData.map((attribute) => ({
+          variantId: minVariantId,
+          attributeId: attribute.attributeId,
+          value: attribute.value,
+        }));
+        console.log("Danh sách thuộc tính của phiên bản : ", variantAttributes);
+        // Gọi API để lưu các variant_attributes vào cơ sở dữ liệu
+        const list = await Promise.all(
+          variantAttributes.map((attributeData) =>
+            addVariantAttribute(attributeData)
+          )
+        );
+        console.log("danh sach thuoc tinh da luu vao database", list);
+      }
 
-    //   // Step 4: Lưu các thuộc tính tạo nên phiên bản cho từng phiên bản trong savedVariants
-    //   // Tạo ánh xạ giữa id tạm và id thật
-    //   const variantIdMap: { [key: number]: number } = {};
-    //   variantsData.forEach((variant, index) => {
-    //     variantIdMap[variant.id] = savedVariants[index].id;
-    //   });
+      // Step 4: Lưu các thuộc tính tạo nên phiên bản cho từng phiên bản trong savedVariants
+      // Tạo ánh xạ giữa id tạm và id thật
+      const variantIdMap: { [key: number]: number } = {};
+      variantsData.forEach((variant, index) => {
+        variantIdMap[variant.id] = savedVariants[index].id;
+      });
 
-
-    //   // Cập nhật variantID trong variantAttributeData từ ánh xạ
-    //   variantAttributeData.forEach((attributeData) => {
-    //     if (variantIdMap[attributeData.variantID] !== undefined) {
-    //       attributeData.variantID = variantIdMap[attributeData.variantID];
-    //     }
-    //   });
-
-    //   // Lưu các thuộc tính của từng phiên bản với id thực
-    //   await Promise.all(
-    //     variantAttributeData.map((attributeData) =>
-    //       addVariantAttribute(attributeData)
-    //     )
-    //   );
-    //   console.log("Dữ liệu đã được lưu thành công.");
-    //   // navigate("/products"); // Quay lại danh sách sản phẩm
+      // Cập nhật variantID trong variantAttributeData từ ánh xạ
+      variantAttributeData.forEach((attributeData) => {
+        if (variantIdMap[attributeData.variantId] !== undefined) {
+          attributeData.variantId = variantIdMap[attributeData.variantId];
+        }
+      });
+      console.log(
+        "Danh sách thuộc tính của từng phiên bản : ",
+        variantAttributeData
+      );
+      // Lưu các thuộc tính của từng phiên bản với id thực
+      await Promise.all(
+        variantAttributeData.map((attributeData) =>
+          addVariantAttribute(attributeData)
+        )
+      );
+      console.log("Dữ liệu đã được lưu thành công.");
+      // navigate("/products"); // Quay lại danh sách sản phẩm
     } catch (error) {
       console.error("Lỗi khi lưu dữ liệu sản phẩm:", error);
     }
@@ -188,7 +192,7 @@ export default function AddProductPage() {
         }}
       >
         <Variant
-          categoryId={product?.category.id ?? null}
+          categoryId={product?.categoryId ?? null}
           productName={product?.name ?? ""}
           onVariantsChange={handleVariantsChange}
           onVariantAttributesChange={handleVariantAttributesChange}
@@ -202,7 +206,7 @@ export default function AddProductPage() {
         }}
       >
         <Attribute
-          categoryId={product?.category.id ?? null}
+          categoryId={product?.categoryId ?? null}
           onAttributesChange={handleAttributesChange}
         />
       </Box>
