@@ -1,10 +1,5 @@
-import React, { useState } from "react";
-import {
-  Box,
-  Typography,
-  IconButton,
-  Divider,
-} from "@mui/material";
+import React, { useEffect } from "react";
+import { Box, Typography, IconButton, Divider } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import FilterDropdown from "../Util/FilterDropdown";
 import { useBrandContext } from "../../../context/BrandContex";
@@ -12,11 +7,22 @@ import { useCategoryContext } from "../../../context/CategoryContext";
 import { useWarrantyContext } from "../../../context/WarrantyContext";
 import { useProductContext } from "../../../context/ProductContext";
 
-export default function ProductClassification() {
+interface ProductClassificationProps {
+  initialCategory?: string;
+  initialBrand?: string;
+  initialWarranty?: string;
+}
+
+export default function ProductClassification({
+  initialCategory,
+  initialBrand,
+  initialWarranty,
+}: ProductClassificationProps) {
   const { categories } = useCategoryContext();
   const { brands } = useBrandContext();
   const { warranties } = useWarrantyContext();
-  const {handleProductChange} = useProductContext();
+  const { handleProductChange } = useProductContext();
+
   const CategoryOptions = categories.map((category: any) => ({
     value: category.id,
     label: category.name,
@@ -40,26 +46,15 @@ export default function ProductClassification() {
         width: "40%",
       }}
     >
-      {/* Header */}
       <Box sx={{ margin: "10px" }}>
-        <Typography
-          variant="h6"
-          sx={{ fontFamily: "roboto", fontWeight: "bold" }}
-        >
+        <Typography variant="h6" sx={{ fontFamily: "roboto", fontWeight: "bold" }}>
           Phân loại
         </Typography>
         <Divider />
       </Box>
 
-      {/* Loại sản phẩm */}
       <Box sx={{ margin: "20px" }}>
-        <Typography
-          sx={{
-            fontFamily: "Roboto",
-            fontWeight: "bold",
-            marginBottom: "10px",
-          }}
-        >
+        <Typography sx={{ fontFamily: "Roboto", fontWeight: "bold", marginBottom: "10px" }}>
           Loại sản phẩm
         </Typography>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -67,9 +62,8 @@ export default function ProductClassification() {
             <FilterDropdown
               label="Chọn loại sản phẩm"
               options={CategoryOptions}
-              onFilterChange={(value) => {
-                handleProductChange("categoryId", value);
-              }}
+              selectedValue={initialCategory}
+              onFilterChange={(value) => handleProductChange("categoryId", value)}
               sx={{ width: "100%" }}
             />
           </Box>
@@ -79,15 +73,8 @@ export default function ProductClassification() {
         </Box>
       </Box>
 
-      {/* Thương hiệu */}
       <Box sx={{ margin: "20px" }}>
-        <Typography
-          sx={{
-            fontFamily: "Roboto",
-            fontWeight: "bold",
-            marginBottom: "10px",
-          }}
-        >
+        <Typography sx={{ fontFamily: "Roboto", fontWeight: "bold", marginBottom: "10px" }}>
           Thương hiệu
         </Typography>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -95,9 +82,8 @@ export default function ProductClassification() {
             <FilterDropdown
               label="Chọn thương hiệu"
               options={BrandOptions}
-              onFilterChange={(value) => {
-                handleProductChange("brandId", value);
-              }}
+              selectedValue={initialBrand}
+              onFilterChange={(value) => handleProductChange("brandId", value)}
               sx={{ width: "100%" }}
             />
           </Box>
@@ -107,15 +93,8 @@ export default function ProductClassification() {
         </Box>
       </Box>
 
-      {/* Chính sách bảo hành */}
       <Box sx={{ margin: "20px" }}>
-        <Typography
-          sx={{
-            fontFamily: "Roboto",
-            fontWeight: "bold",
-            marginBottom: "10px",
-          }}
-        >
+        <Typography sx={{ fontFamily: "Roboto", fontWeight: "bold", marginBottom: "10px" }}>
           Chính sách bảo hành
         </Typography>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -123,9 +102,8 @@ export default function ProductClassification() {
             <FilterDropdown
               label="Chọn chính sách bảo hành"
               options={WarrantyOptions}
-              onFilterChange={(value) => {
-                handleProductChange("warrantyId", value);
-              }}
+              selectedValue={initialWarranty}
+              onFilterChange={(value) => handleProductChange("warrantyId", value)}
               sx={{ width: "100%" }}
             />
           </Box>

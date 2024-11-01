@@ -1,10 +1,34 @@
 // src/components/GeneralProduct.tsx
-import React from "react";
+import React, { useEffect } from "react";
 import { Box, Divider, TextField, Typography } from "@mui/material";
 import ImageUploader from "./ImageUploader";
 import { useProductContext } from "../../../context/ProductContext";
-const GeneralProduct: React.FC = () => {
+import { ProductRequest } from "../../../types/product";
+interface GeneralProductProps {
+  productData?: {
+    name: string;
+    unit: string;
+    weight: number;
+    description: string;
+    image: string;
+  };
+  isEditMode: boolean;
+}
+const GeneralProduct: React.FC<GeneralProductProps> = ({
+  productData,
+  isEditMode,
+}) => {
   const { handleProductChange } = useProductContext();
+
+  useEffect(() => {
+    // Khi load dữ liệu từ database, cập nhật các giá trị trong context
+    if (isEditMode && productData) {
+      Object.entries(productData).forEach(([key, value]) => {
+        handleProductChange(key as keyof ProductRequest, value); // Ép kiểu key
+      });
+    }
+  }, [isEditMode, productData, handleProductChange]);
+
   return (
     <Box
       sx={{
@@ -37,7 +61,9 @@ const GeneralProduct: React.FC = () => {
           placeholder="Nhập tên sản phẩm"
           variant="outlined"
           size="small"
+          value={productData?.name || ""}
           onChange={(e) => handleProductChange("name", e.target.value)}
+          disabled={!isEditMode}
         />
       </Box>
       <Box sx={{ width: "100%", display: "flex" }}>
@@ -53,7 +79,9 @@ const GeneralProduct: React.FC = () => {
                 placeholder="Nhập đơn vị"
                 variant="outlined"
                 size="small"
+                value={productData?.weight || ""}
                 onChange={(e) => handleProductChange("unit", e.target.value)}
+                disabled={!isEditMode}
               />
             </Box>
             <Box sx={{ flex: 1 }}>
@@ -65,80 +93,15 @@ const GeneralProduct: React.FC = () => {
                 placeholder="Nhập khối lượng"
                 variant="outlined"
                 size="small"
-                onChange={(e) => handleProductChange("weight", parseFloat(e.target.value))}
+                value={productData?.weight || ""}
+                onChange={(e) =>
+                  handleProductChange("weight", parseFloat(e.target.value))
+                }
+                disabled={!isEditMode}
               />
             </Box>
           </Box>
-
-          {/* Giá vốn và Giá bán */}
-          <Box sx={{ m: 2, display: "flex", gap: 2 }}>
-            <Box sx={{ flex: 1 }}>
-              <Typography sx={{ fontFamily: "Roboto", mb: 1 }}>
-                Giá vốn *
-              </Typography>
-              <TextField
-                fullWidth
-                placeholder="Nhập giá vốn"
-                variant="outlined"
-                size="small"
-                type="number"
-                defaultValue={0}
-                inputProps={{ min: 0 }}
-              />
-            </Box>
-            <Box sx={{ flex: 1 }}>
-              <Typography sx={{ fontFamily: "Roboto", mb: 1 }}>
-                Giá bán *
-              </Typography>
-              <TextField
-                fullWidth
-                placeholder="Nhập giá bán"
-                variant="outlined"
-                size="small"
-                type="number"
-                defaultValue={0}
-                inputProps={{ min: 0 }}
-              />
-            </Box>
-          </Box>
-
-          {/* Tồn kho và Định mức tối thiểu */}
-          <Box sx={{ m: 2, display: "flex", gap: 2 }}>
-            <Box sx={{ flex: 1 }}>
-              <Typography sx={{ fontFamily: "Roboto", mb: 1 }}>
-                Tồn kho *
-              </Typography>
-              <TextField
-                fullWidth
-                placeholder="Số lượng tồn kho"
-                variant="outlined"
-                size="small"
-                type="number"
-                defaultValue={0}
-                inputProps={{ min: 0 }}
-              />
-            </Box>
-            <Box sx={{ flex: 1 }}>
-              <Typography sx={{ fontFamily: "Roboto", mb: 1 }}>
-                Định mức tối thiểu *
-              </Typography>
-              <TextField
-                fullWidth
-                placeholder="Nhập định mức tối thiểu"
-                variant="outlined"
-                size="small"
-                type="number"
-                defaultValue={0}
-                inputProps={{ min: 0 }}
-              />
-            </Box>
-          </Box>
-        </Box>
-        <Box sx={{ width: "40%", margin: "auto" }}>
-          <ImageUploader  onImageChange={(imageUrl) => handleProductChange("image", imageUrl)} />
-        </Box>
-      </Box>
-      {/* Mô tả sản phẩm */}
+            {/* Mô tả sản phẩm */}
       <Box sx={{ margin: "20px" }}>
         <Typography
           sx={{
@@ -154,9 +117,19 @@ const GeneralProduct: React.FC = () => {
           variant="outlined"
           size="small"
           multiline
-          rows={4} // Đặt số hàng để tạo khung nhập văn bản cao hơn
+          rows={4} 
         />
       </Box>
+        </Box>
+        <Box sx={{ width: "40%", margin: "auto" }}>
+          <ImageUploader
+            imageUrl={productData?.image || ""}
+            onImageChange={(imageUrl) => handleProductChange("image", imageUrl)}
+            disabled={!isEditMode}
+          />
+        </Box>
+      </Box>
+   
     </Box>
   );
 };

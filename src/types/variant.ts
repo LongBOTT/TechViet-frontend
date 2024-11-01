@@ -1,4 +1,7 @@
+import { extend } from "lodash";
 import { Product } from "./product";
+import Variant from "../admin/components/Product/Variant";
+import { Variant_Attribute } from "./variant_attribute";
 
 export interface Variant {
   id: number;
@@ -25,3 +28,8 @@ export interface VariantRequest {
   status: string;
 
 }
+
+export interface Variant extends VariantRequest {
+  attributes: Variant_Attribute[];
+}
+

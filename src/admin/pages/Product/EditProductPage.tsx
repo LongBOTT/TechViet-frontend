@@ -12,16 +12,21 @@ import { useProductContext } from "../../../context/ProductContext";
 import { VariantRequest } from "../../../types/variant";
 import { VariantAttributeRequest } from "../../../types/variant_attribute";
 import LoadingSnackbar from "../../components/Util/LoadingSnackbar";
-import { deleteProduct, getProductById, updateProduct } from "../../../api/productApi";
+import {
+  deleteProduct,
+  getProductWithVariantsAndAttribute,
+  updateProduct,
+} from "../../../api/productApi";
 import { CategoryProvider } from "../../../context/CategoryContext";
 import { BrandProvider } from "../../../context/BrandContex";
 import { WarrantyProvider } from "../../../context/WarrantyContext";
+import { Product, ProductWithVariants } from "../../../types/product";
 
 export default function EditProductPage() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>(); // Get product ID from URL
   const [isEditing, setIsEditing] = React.useState(false);
-  const { product, setProductData } = useProductContext();
+  const { productWithVariants } = useProductContext();
   const [loading, setLoading] = React.useState(false);
   const [snackbarOpen, setSnackbarOpen] = React.useState(false);
   const [snackbarMessage, setSnackbarMessage] = React.useState("");
@@ -33,16 +38,18 @@ export default function EditProductPage() {
   const [variantAttributeData, setVariantAttributeData] = React.useState<
     VariantAttributeRequest[]
   >([]);
+  const [productData, setProductData] =
+    React.useState<ProductWithVariants | null>(null);
 
   // Load product data when the page loads
   React.useEffect(() => {
     if (id) {
       setLoading(true);
-      getProductById(Number(id))
+      getProductWithVariantsAndAttribute(Number(id))
         .then((data) => {
-          setProductData(data); // Load product into context
+          setProductData(data);
           setVariantsData(data.variants || []);
-          setAttributesData(data.attributes || []);
+          setAttributesData(data.variants || []);
           setVariantAttributeData(data.variantAttributes || []);
         })
         .catch((error) => {
@@ -53,19 +60,30 @@ export default function EditProductPage() {
     }
   }, [id, setProductData]);
 
+  // Cấu trúc dữ liệu truyền vào `GeneralProduct`
+  const generalProductData = productData
+    ? {
+        name: productData.name,
+        unit: productData.unit,
+        weight: productData.weight,
+        description: productData.description,
+        image: productData.image,
+      }
+    : undefined;
+
   // Handle save updates
   const handleSave = async () => {
-    setLoading(true);
-    try {
-      await updateProduct(Number(id), { ...product, variants: variantsData, attributes: attributesData });
-      showSnackbar("Product updated successfully!");
-      setIsEditing(false);
-    } catch (error) {
-      console.error("Error updating product:", error);
-      showSnackbar("Failed to update product!");
-    } finally {
-      setLoading(false);
-    }
+    // setLoading(true);
+    // try {
+    //   await updateProduct(Number(id), { ...product, variants: variantsData, attributes: attributesData });
+    //   showSnackbar("Product updated successfully!");
+    //   setIsEditing(false);
+    // } catch (error) {
+    //   console.error("Error updating product:", error);
+    //   showSnackbar("Failed to update product!");
+    // } finally {
+    //   setLoading(false);
+    // }
   };
 
   // Handle product deletion
@@ -130,18 +148,35 @@ export default function EditProductPage() {
       </Box>
 
       {/* Main Form Sections */}
-      <Box sx={{ display: "flex", margin: "20px 100px 20px 100px", borderRadius: "8px", height: "85%" }}>
-        <GeneralProduct isEditing={isEditing} /> {/* Pass isEditing prop */}
+      <Box
+        sx={{
+          display: "flex",
+          margin: "20px 100px 20px 100px",
+          borderRadius: "8px",
+          height: "60%",
+        }}
+      >
+        <GeneralProduct
+          productData={generalProductData} // Dữ liệu lấy từ API khi xem chi tiết
+          isEditMode={isEditing}
+        />
         <CategoryProvider>
           <BrandProvider>
             <WarrantyProvider>
-              <ProductClassification isEditing={isEditing} />
+            {productData && (
+              <ProductClassification 
+              initialCategory={productData?.category.id.toString()}
+              initialBrand={productData?.brand.id.toString()}
+              initialWarranty={productData?.warranty.id.toString()}
+              />
+            )}
+
             </WarrantyProvider>
           </BrandProvider>
         </CategoryProvider>
       </Box>
 
-      <Box sx={{ display: "flex", margin: "20px 100px 20px 100px", borderRadius: "8px" }}>
+      {/* <Box sx={{ display: "flex", margin: "20px 100px 20px 100px", borderRadius: "8px" }}>
         <Variant
           isEditing={isEditing}
           categoryId={product?.categoryId ?? null}
@@ -159,7 +194,7 @@ export default function EditProductPage() {
           attributes={attributesData}
           onAttributesChange={setAttributesData}
         />
-      </Box>
+      </Box> */}
 
       <LoadingSnackbar
         loading={loading}

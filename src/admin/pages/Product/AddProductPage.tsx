@@ -186,10 +186,10 @@ export default function AddProductPage() {
           display: "flex",
           margin: "20px 100px 20px 100px",
           borderRadius: "8px",
-          height: "85%",
+          height: "60%",
         }}
       >
-        <GeneralProduct />
+        <GeneralProduct isEditMode />
         <CategoryProvider>
           <BrandProvider>
             <WarrantyProvider>

@@ -16,13 +16,24 @@ export const getProducts = async () => {
 // Gọi API lấy danh sách sản phẩm và danh sách phiên bản của sản phẩm
 export const getProductsWithVariants = async () => {
   try {
-    const response = await axiosInstance.get("/products/getProductsAndVariantsAndAttributes");
+    const response = await axiosInstance.get("/products/getProductsAndVariants");
     return response.data;
   } catch (error: any) {
     handleApiError(error, "lấy danh sách sản phẩm và phiên bản");
   }
 };
 
+// Gọi API lấy thông tin sản phẩm theo id trả về danh sach sách phiên bản của sản phẩm và thuộc tính của phiên bản
+export const getProductWithVariantsAndAttribute = async (id: number) => {
+  try {
+    const response = await axiosInstance.get(
+      `/products/getProductAndVariantsAndAttributes/${id}`
+    );
+    return response.data;
+  } catch (error: any) {
+    handleApiError(error, "lấy thông tin sản phẩm");
+  }
+};
 // Gọi API lấy danh sách thương hiệu theo thể loại sản phẩm
 export const searchProductsByBrand_Id = async (id: number) => {
   try {

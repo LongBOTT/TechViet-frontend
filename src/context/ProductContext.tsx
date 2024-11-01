@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { Product, ProductRequest, ProductWithVariants } from "../types/product";
+import { Product, ProductRequest } from "../types/product";
 import {
   addProduct,
   deleteProduct,
@@ -15,16 +15,12 @@ import { Brand } from "../types/brand";
 import { Warranty } from "../types/warranty";
 import { Variant, VariantRequest } from "../types/variant";
 import { addVariant, updateVariant } from "../api/variantApi";
+import {ProductWithVariants} from "../types/product";
 
 interface ProductContextType {
   products: Product[];
   product: ProductRequest | undefined;
   handleProductChange: (key: keyof ProductRequest, value: any) => void;
-  variant: Variant | undefined;
-  handleVariantChange: (key: keyof Variant, value: any) => void;
-  addVariant: (variant: VariantRequest) => Promise<VariantRequest>;
-  editVariant: (id: number, variant: Variant) => Promise<Variant>;
-  deleteVariant: (id: number) => Promise<void>;
   productWithVariants: ProductWithVariants[] | undefined;
   setProducts: React.Dispatch<React.SetStateAction<Product[]>>;
   fetchProducts: () => Promise<void>;
@@ -38,6 +34,7 @@ interface ProductContextType {
   setSelectedProduct: React.Dispatch<React.SetStateAction<Product | null>>;
   editDialogOpen: boolean;
   setEditDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  ProductVariants: ProductWithVariants| undefined;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
@@ -46,6 +43,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [ProductVariants, setProductVariants] = useState<ProductWithVariants | undefined>(undefined);
   const [product, setProduct] = useState<ProductRequest>({
     id: 0, // Giá trị mặc định cho ID
     name: '',
@@ -58,17 +56,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
     warrantyId: 0,
     status: 'Đang giao dịch',
   });
-  const [variant, setVariant] = useState<Variant>({
-    id: 0, // Giá trị mặc định cho ID
-    name: '',
-    image: '',
-    quantity: 0,
-    minStock: 0,
-    costPrice: 0,
-    price: 0,
-    products: {} as Product,
-    status: 'Đang giao dịch',
-  });
+
 
   const [loading, setLoading] = useState(true);
   const [productWithVariants, setProductWithVariants] =
@@ -97,15 +85,6 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
     });
   };
 
-  const handleVariantChange = (key: keyof Variant, value: any) => {
-    setVariant((prevVariant) => {
-      if (!prevVariant) return prevVariant;
-      return {
-        ...prevVariant,
-        [key]: value,
-      };
-    });
-  }
   const createProduct = async (product: ProductRequest): Promise<ProductRequest> => {
    const response = await addProduct(product);
    fetchProductsWithVariants();
@@ -157,23 +136,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
       setLoading(false);
     }
   };
-    // Quản lý Variant
-    const createVariant = async (variant: VariantRequest) => {
-      const data = await addVariant(variant);
-      fetchProductsWithVariants(); 
-      return data;
-    };
   
-    const editVariant = async (id: number, variant: Variant) => {
-      const data = await updateVariant(id, variant);
-      fetchProductsWithVariants(); 
-      return data;
-    };
-  
-    const deleteVariant = async (id: number) => {
-      const data = await deleteVariant(id);
-      fetchProductsWithVariants(); 
-    };
 
   useEffect(() => {
     fetchProducts();
@@ -187,11 +150,6 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
         product,
         handleProductChange,
         productWithVariants,
-        variant,
-        handleVariantChange,
-        addVariant: createVariant,
-        editVariant,
-        deleteVariant,
         setProducts,
         fetchProducts,
         searchProductByCategoryId,
@@ -204,6 +162,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
         removeProduct,
         searchProductsByName,
         loading,
+        ProductVariants
       }}
     >
       {children}

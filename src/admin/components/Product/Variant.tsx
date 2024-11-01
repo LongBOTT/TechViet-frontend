@@ -46,12 +46,13 @@ const Variant = React.memo(({ categoryId, productName, onVariantsChange, onVaria
   const [resetFilter, setResetFilter] = useState<boolean>(false); // Trạng thái reset bộ lọc
   const [attributeValues, setAttributeValues] = useState<AttributeValues>({}); // Giá trị của các thuộc tính
   const [variants, setVariants] = useState<VariantRequest[]>([]); // Danh sách các phiên bản sản phẩm
-  const {variant, handleVariantChange} = useProductContext(); // Danh sách phiên bản
+
   // Lấy danh sách thuộc tính dựa trên categoryId khi thay đổi
   useEffect(() => {
     if (categoryId !== null) {
       const fetchAttributes = async () => {
         const data = await getCategoryAttributesByCategoryId(categoryId);
+        console.log("data", data);
         // Lọc thuộc tính dựa trên categoryId
         const relevantAttributes = data?.filter(attr => 
           categoryId === 1 ? [3, 24].includes(attr.attribute.id) : attr.attribute.id === 3
