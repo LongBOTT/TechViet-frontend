@@ -26,8 +26,13 @@ import { addProduct } from "../../../api/productApi";
 import { addVariant } from "../../../api/variantApi";
 import { addVariantAttribute } from "../../../api/variant_attributeApi";
 import { VariantAttributeRequest } from "../../../types/variant_attribute";
+import LoadingSnackbar from "../../components/Util/LoadingSnackbar";
 export default function AddProductPage() {
   const navigate = useNavigate();
+
+  const [loading, setLoading] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
 
   const handleGoBack = () => navigate("/products");
 
@@ -60,6 +65,7 @@ export default function AddProductPage() {
   };
 
   const handleSave = async () => {
+    setLoading(true);
     try {
       // Step 1: Lưu sản phẩm vào cơ sở dữ liệu và lấy productId
       if (!product) {
@@ -67,7 +73,7 @@ export default function AddProductPage() {
       }
       const savedProduct = await createProduct(product); // Gọi API để lưu productData vào bảng 'product'
       const productId = savedProduct.id; // Lấy productId trả về từ server
-      console.log("id san pham: ", productId);
+      // console.log("id san pham: ", productId);
       console.log("Danh sách variant: ", variantsData);
       // Step 2: Lưu từng phiên bản của sản phẩm
 
@@ -76,7 +82,7 @@ export default function AddProductPage() {
           (variant) => addVariant({ ...variant, productId }) // Gán productId đúng trước khi lưu
         )
       );
-      console.log("Danh sách phiên bản đã lưu: ", savedVariants);
+      // console.log("Danh sách phiên bản đã lưu: ", savedVariants);
 
       // Step 3: Lưu các thông số kỹ thuật vào variant_attribute chỉ cho phiên bản đầu tiên
       if (savedVariants.length > 0) {
@@ -98,7 +104,7 @@ export default function AddProductPage() {
             addVariantAttribute(attributeData)
           )
         );
-        console.log("danh sach thuoc tinh da luu vao database", list);
+        // console.log("danh sach thuoc tinh da luu vao database", list);
       }
 
       // Step 4: Lưu các thuộc tính tạo nên phiên bản cho từng phiên bản trong savedVariants
@@ -114,23 +120,31 @@ export default function AddProductPage() {
           attributeData.variantId = variantIdMap[attributeData.variantId];
         }
       });
-      console.log(
-        "Danh sách thuộc tính của từng phiên bản : ",
-        variantAttributeData
-      );
+      // console.log(
+      //   "Danh sách thuộc tính của từng phiên bản : ",
+      //   variantAttributeData
+      // );
       // Lưu các thuộc tính của từng phiên bản với id thực
       await Promise.all(
         variantAttributeData.map((attributeData) =>
           addVariantAttribute(attributeData)
         )
       );
-      console.log("Dữ liệu đã được lưu thành công.");
-      // navigate("/products"); // Quay lại danh sách sản phẩm
+      showSnackbar("Thêm sản phẩm thành công!");
+
     } catch (error) {
       console.error("Lỗi khi lưu dữ liệu sản phẩm:", error);
+      showSnackbar("Thêm sản phẩm thất bại!");
+    } finally {
+      setTimeout(() => setLoading(false), 1000);
     }
   };
+  const showSnackbar = (message: string) => {
+    setSnackbarOpen(true);
+    setSnackbarMessage(message);
+  };
 
+  const handleSnackbarClose = () => setSnackbarOpen(false);
   return (
     <Box
       sx={{
@@ -210,6 +224,12 @@ export default function AddProductPage() {
           onAttributesChange={handleAttributesChange}
         />
       </Box>
+      <LoadingSnackbar
+        loading={loading}
+        snackbarOpen={snackbarOpen}
+        snackbarMessage={snackbarMessage}
+        onClose={handleSnackbarClose}
+      />
     </Box>
   );
 }

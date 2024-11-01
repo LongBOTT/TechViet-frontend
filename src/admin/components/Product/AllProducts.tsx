@@ -37,7 +37,7 @@ const AllProducts: React.FC = () => {
 
       return {
         id: product.id,
-        image: product.image,         
+        image:`/assets/products/${product.image}`,
         name: product.name,            
         stock: stock,                  
         available: 0,               
@@ -61,21 +61,14 @@ const AllProducts: React.FC = () => {
     label: brand.name,
   }));
 
-  const StatusOptions = [
-    { value: "all", label: "Tất cả" },
-    { value: "active", label: "Đang giao dịch" },
-    { value: "inactive", label: "Ngưng giao dịch" },
-  ];
 
-  // Cấu trúc cột cho bảng sản phẩm
   const productColumns = [
-    { label: "Ảnh", key: "image" },
+    { label: "Ảnh", key: "image" }, 
     { label: "Sản phẩm", key: "name" },
     { label: "Tồn kho", key: "stock" },
     { label: "Có thể bán", key: "available" },
-    { label: "Thể loại", key: "categoryName" }, // Sử dụng `categoryName`
-    { label: "Thương hiệu", key: "brandName" }, // Sử dụng `brandName`
-    { label: "Trạng thái", key: "status" },
+    { label: "Thể loại", key: "categoryName" },
+    { label: "Thương hiệu", key: "brandName" },
   ];
 
   // Xử lý khi người dùng bấm vào hàng sản phẩm
@@ -130,7 +123,7 @@ const AllProducts: React.FC = () => {
         {/* Search Box */}
         <Box sx={{ flexGrow: 1 }}>
           <SearchBox
-            placeholder="Tìm kiếm theo mã sản phẩm, tên sản phẩm"
+            placeholder="Nhập tên sản phẩm"
             onSearch={searchProductsByName} // Sử dụng hàm từ ProductContext
             resetSearch={resetFilter}
           />
@@ -164,15 +157,7 @@ const AllProducts: React.FC = () => {
           />
         </Box>
 
-        {/* Trạng thái Dropdown */}
-        <Box sx={{ minWidth: 200 }}>
-          <FilterDropdown
-            label="Trạng thái"
-            options={StatusOptions}
-            onFilterChange={handleFilterStatus}
-            resetFilter={resetFilter}
-          />
-        </Box>
+  
       </Box>
 
       {/* Table */}

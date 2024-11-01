@@ -62,14 +62,25 @@ function App() {
             element={
               <CategoryProvider>
                 <BrandProvider>
-                <ProductProvider>
-                  <AddProductPage />
-                </ProductProvider>
+                  <ProductProvider>
+                    <AddProductPage />
+                  </ProductProvider>
                 </BrandProvider>
               </CategoryProvider>
             }
           />
-          <Route path="/EditProduct/:id" element={<EditProductPage />} />
+          <Route
+            path="/EditProduct/:id"
+            element={
+              <CategoryProvider>
+                <BrandProvider>
+                  <ProductProvider>
+                    <EditProductPage />
+                  </ProductProvider>
+                </BrandProvider>
+              </CategoryProvider>
+            }
+          />
           <Route
             path="suppliers"
             element={
