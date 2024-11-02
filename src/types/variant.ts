@@ -5,15 +5,17 @@ import { Variant_Attribute } from "./variant_attribute";
 
 export interface Variant {
   id: number;
+  products: Product;
   name: string;
-  image: string;
-  quantity: number;
-  minStock: number;
   costPrice: number;
   price: number;
-  products: Product;
+  quantity: number;
   status: string;
+  image: string;
+  // minStock: number;
 }
+
+//   status: string;
 //src/types/variant.ts
 export interface VariantRequest {
   id: number;
