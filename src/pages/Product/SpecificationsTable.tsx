@@ -87,7 +87,7 @@ const SpecificationsTable: React.FC<SpecificationsTableProps> = ({
            attributeList = attributeList.filter(
              (attr) => attr.attribute.name !== "Màu sắc"
            );
-
+           attributeList.sort((a, b) => a.attribute.id - b.attribute.id);
            // Set final attribute list
            setAttributes(attributeList ?? []);
            console.log(attributeList);
@@ -115,7 +115,7 @@ const renderData = () => {
     <>
       {displayedAttributes.map((parent) => (
         <React.Fragment key={`parent-${parent}`}>
-          <TableRow >
+          <TableRow>
             <TableCell
               colSpan={2}
               variant={"head"}
@@ -130,14 +130,19 @@ const renderData = () => {
               <TableRow
                 key={`attribute-${parent}-${attribute.attribute.name}-${attribute.value}`}
               >
-                <TableCell sx={{width:'50%'}}>{attribute.attribute.name}</TableCell>
-                <TableCell sx={{width:'50%'}}>{attribute.value}</TableCell>
+                <TableCell style={{ width: "50%" }}>
+                  {attribute.attribute.name}
+                </TableCell>
+                <TableCell style={{ width: "50%" }}>
+                  {attribute.value}
+                </TableCell>
               </TableRow>
             ))}
         </React.Fragment>
       ))}
       {parentAttributes.length > 3 && (
         <TableRow>
+          <TableCell colSpan={2} align="center">
             <Button
               variant="text"
               color="primary"
@@ -148,11 +153,13 @@ const renderData = () => {
             >
               {isSpecificationsExpanded ? "Rút gọn" : "Xem thêm"}
             </Button>
+          </TableCell>
         </TableRow>
       )}
     </>
   );
 };
+
 
 
 
@@ -166,14 +173,6 @@ return (
          {renderData()}
         </TableBody>
       </Table>
-      {/* <Button
-        variant="text"
-        color="primary"
-        onClick={() => setIsSpecificationsExpanded(!isSpecificationsExpanded)}
-        sx={{ mt: 1 }}
-      >
-        {isSpecificationsExpanded ? "Rút gọn" : "Xem thêm"}
-      </Button> */}
     </div>
   );
 };

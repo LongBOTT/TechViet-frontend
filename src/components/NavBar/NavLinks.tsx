@@ -139,8 +139,7 @@ const NavLinks = () => {
             display: 'flex', 
             width: '50%', 
             height: '500px', 
-            marginTop: '8px', 
-            background:'red'
+            marginTop: '8px'
           } 
         }}
       >
