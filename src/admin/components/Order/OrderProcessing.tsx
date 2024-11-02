@@ -69,7 +69,6 @@ const OrderProcessing: React.FC = () => {
           />
         ))}
       </Box>
-      <Divider sx={{ marginY: 2 }} />
     </Box>
   );
 };

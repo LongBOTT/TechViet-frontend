@@ -1,5 +1,5 @@
 import axiosInstance from "./index";
-import { Product } from "../types/product";
+import { Product, ProductRequest } from "../types/product";
 import { handleApiError } from "./errorHandler"; // Hàm xử lý lỗi
 import { Variant } from "../types/variant";
 
@@ -13,6 +13,27 @@ export const getProducts = async () => {
   }
 };
 
+// Gọi API lấy danh sách sản phẩm và danh sách phiên bản của sản phẩm
+export const getProductsWithVariants = async () => {
+  try {
+    const response = await axiosInstance.get("/products/getProductsAndVariants");
+    return response.data;
+  } catch (error: any) {
+    handleApiError(error, "lấy danh sách sản phẩm và phiên bản");
+  }
+};
+
+// Gọi API lấy thông tin sản phẩm theo id trả về danh sach sách phiên bản của sản phẩm và thuộc tính của phiên bản
+export const getProductWithVariantsAndAttribute = async (id: number) => {
+  try {
+    const response = await axiosInstance.get(
+      `/products/getProductAndVariantsAndAttributes/${id}`
+    );
+    return response.data;
+  } catch (error: any) {
+    handleApiError(error, "lấy thông tin sản phẩm");
+  }
+};
 // Gọi API lấy danh sách thương hiệu theo thể loại sản phẩm
 export const searchProductsByBrand_Id = async (id: number) => {
   try {
@@ -51,12 +72,14 @@ export const searchProductByVariants = async (variants: Variant[]) => {
   }
 };
 
-// Gọi API thêm sản phẩm
-export const addProduct = async (product: Product) => {
+// Gọi API thêm sản phẩm và trả về dữ liệu từ server
+export const addProduct = async (product: ProductRequest): Promise<ProductRequest> => {
   try {
-    await axiosInstance.post("/products", product);
+    const response = await axiosInstance.post("/products", product);
+    return response.data; // Trả về dữ liệu sản phẩm đã được thêm từ server
   } catch (error: any) {
     handleApiError(error, "thêm sản phẩm");
+    throw error; // Quăng lỗi để bên ngoài biết có lỗi xảy ra
   }
 };
 

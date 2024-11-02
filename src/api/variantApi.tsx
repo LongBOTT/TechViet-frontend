@@ -1,20 +1,21 @@
 import axiosInstance from "./index";
-import { Variant } from "../types/variant";
+import { Variant,VariantRequest } from "../types/variant";
 import { handleApiError } from "./errorHandler"; // Hàm xử lý lỗi
 import { Product } from "../types/product";
 
-// Gọi API thêm phiên bản
-export const addVariant = async (variant: Variant) => {
+// Gọi API thêm phiên bản sản phẩm và trả về dữ liệu từ server
+export const addVariant = async (variant: VariantRequest): Promise<VariantRequest> => {
   try {
     const response = await axiosInstance.post("/variants", variant);
-    return response.data;
+    return response.data; 
   } catch (error: any) {
-    handleApiError(error, "thêm phiên bản");
+    handleApiError(error, "thêm phiên bản sản phẩm");
+    throw error; 
   }
 };
 
 // Gọi API sửa phiên bản
-export const updateBrand = async (id: number, variant: Variant) => {
+export const updateVariant = async (id: number,variant: Variant) => {
   try {
     const response = await axiosInstance.put(`/Variants/${id}`, variant);
     return response.data;

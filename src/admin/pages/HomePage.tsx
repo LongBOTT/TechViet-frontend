@@ -24,6 +24,7 @@ const drawerWidth = 240;
 
 export default function PermanentDrawerLeft() {
   const navigate = useNavigate();
+  const [selectedMenu, setSelectedMenu] = React.useState("Tổng quan");
 
   const iconMap: any = {
     "Tổng quan": <DashboardIcon />,
@@ -47,6 +48,11 @@ export default function PermanentDrawerLeft() {
     "Báo cáo": "/reports",
   };
 
+  const handleMenuClick = (text: string) => {
+    setSelectedMenu(text);
+    navigate(menuRoutes[text]);
+  };
+
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
@@ -62,19 +68,8 @@ export default function PermanentDrawerLeft() {
         variant="permanent"
         anchor="left"
       >
-        <Toolbar
-          sx={{
-            backgroundColor: "rgb(25, 118, 210)",
-          }}
-        >
-          <Box
-            sx={{
-              position: "absolute",
-              left: 8,
-              top: 10,
-              display: "flex",
-            }}
-          >
+        <Toolbar sx={{ backgroundColor: "rgb(25, 118, 210)" }}>
+          <Box sx={{ position: "absolute", left: 8, top: 10, display: "flex" }}>
             <img
               src="/logo-icon.png"
               alt="Logo"
@@ -102,10 +97,23 @@ export default function PermanentDrawerLeft() {
             <ListItem
               key={text}
               disablePadding
-              onClick={() => navigate(menuRoutes[text])}
+              onClick={() => handleMenuClick(text)}
             >
-              <ListItemButton>
-                <ListItemIcon>{iconMap[text]}</ListItemIcon>
+              <ListItemButton
+                sx={{
+                  backgroundColor:
+                    selectedMenu === text ? "rgba(25, 118, 210, 0.2)" : "inherit",
+                  color: selectedMenu === text ? "rgb(25, 118, 210)" : "inherit",
+                  borderBottom: "1px solid rgba(0, 0, 0, 0.1)", // Border dưới
+                  "&:hover": {
+                    backgroundColor: "rgba(25, 118, 210, 0.05)",
+                  },
+                }}
+              >
+                <ListItemIcon>
+                  {/* Không áp dụng màu sắc đặc biệt cho icon */}
+                  {iconMap[text]}
+                </ListItemIcon>
                 <ListItemText primary={text} />
               </ListItemButton>
             </ListItem>

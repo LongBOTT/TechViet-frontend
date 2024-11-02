@@ -78,18 +78,7 @@ export const BrandProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  // const searchBrandByCategoryName = async (name: string) => {
-  //   setLoading(true);
-  //   try {
-  //     const data = await searchBrandByCategory_Name(name);
-  //     setBrands(data || []);
-  //   } catch (error) {
-  //     console.error("Error searching brands:", error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
+ 
   const searchBrandByCategoryId = async (id: number) => {
     setLoading(true);
     try {

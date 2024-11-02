@@ -16,8 +16,8 @@ import {
 interface EntityTableProps {
   entities: any[];
   loading: boolean;
-  columns: Array<{ label: string; key: string }>;
-  onRowClick?: (entity: any) => void; // Đặt ? để tùy chọn
+  columns: Array<{ label: string; key: string; isImageColumn?: boolean }>; // Thêm isImageColumn
+  onRowClick?: (entity: any) => void;
 }
 
 const EntityTable: React.FC<EntityTableProps> = ({
@@ -30,10 +30,13 @@ const EntityTable: React.FC<EntityTableProps> = ({
   const rowsPerPage = 12;
 
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" }); // Cuộn mượt lên đầu trang khi thay đổi trang
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, [page]);
 
-  const handleChangePage = (event: React.ChangeEvent<unknown>, newPage: number) => {
+  const handleChangePage = (
+    event: React.ChangeEvent<unknown>,
+    newPage: number
+  ) => {
     setPage(newPage);
   };
 
@@ -51,7 +54,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
               {columns.map((column) => (
                 <TableCell
                   key={column.key}
-                  sx={{ flexGrow: 1, textAlign: 'center' }} // Căn giữa và đảm bảo các cột co giãn đều nhau
+                  sx={{ flexGrow: 1, textAlign: "center" }}
                 >
                   {column.label}
                 </TableCell>
@@ -70,20 +73,28 @@ const EntityTable: React.FC<EntityTableProps> = ({
               paginatedEntities.map((entity) => (
                 <TableRow
                   key={entity.id}
-                  onClick={() => onRowClick && onRowClick(entity)} // Gọi hàm nếu onRowClick tồn tại
+                  onClick={() => onRowClick && onRowClick(entity)}
                   sx={{
-                    '&:hover': {
-                      backgroundColor: '#f0f0f0',
-                      cursor: 'pointer',
+                    "&:hover": {
+                      backgroundColor: "#f0f0f0",
+                      cursor: "pointer",
                     },
                   }}
                 >
                   {columns.map((column) => (
                     <TableCell
                       key={column.key}
-                      sx={{ flexGrow: 1, textAlign: 'center' }} // Đảm bảo nội dung được căn giữa
+                      sx={{ flexGrow: 1, textAlign: "center" }}
                     >
-                      {entity[column.key]}
+                      {column.key === "image" ? (
+                        <img
+                          src={entity[column.key]}
+                          alt={entity.name}
+                          style={{ width: 50, height: 50, objectFit: "cover" }}
+                        />
+                      ) : (
+                        entity[column.key]
+                      )}
                     </TableCell>
                   ))}
                 </TableRow>
