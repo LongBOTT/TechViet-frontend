@@ -6,7 +6,7 @@ import HeaderActions from "../../components/Product/HeaderActions";
 import GeneralProduct from "../../components/Product/GeneralProduct";
 import ProductClassification from "../../components/Product/ProductClassification";
 import Attribute from "../../components/Product/Attribute";
-import Variant from "../../components/Product/Variant";
+import Variant from "../../components/Product/EditVariant";
 import { useNavigate, useParams } from "react-router-dom";
 import { useProductContext } from "../../../context/ProductContext";
 import { VariantRequest } from "../../../types/variant";

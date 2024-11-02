@@ -1,6 +1,6 @@
 import { extend } from "lodash";
 import { Product } from "./product";
-import Variant from "../admin/components/Product/Variant";
+import Variant from "../admin/components/Product/EditVariant";
 import { Variant_Attribute } from "./variant_attribute";
 
 export interface Variant {
@@ -20,16 +20,12 @@ export interface VariantRequest {
   name: string;
   image: string;
   quantity: number;
-  available: number;
   price: number;
-  minStock: number;
   costPrice: number;
   productId: number;
-  status: string;
-
 }
 
-export interface Variant extends VariantRequest {
+export interface Variants extends VariantRequest {
   attributes: Variant_Attribute[];
 }
 
