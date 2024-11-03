@@ -22,7 +22,7 @@ import { WarrantyProvider } from "../../../context/WarrantyContext";
 import { useProductContext } from "../../../context/ProductContext";
 import { Product } from "../../../types/product";
 import { VariantRequest } from "../../../types/variant";
-import { addProduct } from "../../../api/productApi";
+import { addProduct, checkDuplicateProductName } from "../../../api/productApi";
 import { addVariant } from "../../../api/variantApi";
 import { addVariantAttribute } from "../../../api/variant_attributeApi";
 import { VariantAttributeRequest } from "../../../types/variant_attribute";
@@ -75,7 +75,47 @@ export default function AddProductPage() {
     setLoading(true);
     try {
       if (!product) throw new Error("Product data is undefined");
+  // Kiểm tra xem tên sản phẩm có trống không
+  if (!product || !product.name.trim()) {
+    alert("Tên sản phẩm không được để trống!");
+    setLoading(false);
+    return;
+  }
 
+  // Kiểm tra xem thể loại có trống không
+  if (!product || product.categoryId === 0) {
+    alert("Chưa chọn thể loại!");
+    setLoading(false);
+    return;
+  }
+
+  // kiểm tra thương hiệu có trống không
+  if (!product || product.brandId === 0) {
+    alert("Chưa chọn thương hiệu!");
+    setLoading(false);
+    return;
+  }
+
+  // kiểm tra chính sách bảo hành 
+  if (!product || product.warrantyId === 0) {
+    alert("Chưa chọn chính sách bảo hành!");
+    setLoading(false);
+    return;
+  }
+  // Kiểm tra xem có ít nhất một phiên bản không
+  if (variantsData.length === 0) {
+    alert("Phải có ít nhất một phiên bản sản phẩm!");
+    setLoading(false);
+    return;
+  }
+
+  // Kiểm tra xem tên sản phẩm đã tồn tại chưa
+  const isNameExists = await checkDuplicateProductName(product.name, product.id);
+  if (isNameExists) {
+    alert("Tên sản phẩm đã tồn tại!");
+    setLoading(false);
+    return;
+  }
       const savedProduct = await createProduct(product);
       const productId = savedProduct.id;
 

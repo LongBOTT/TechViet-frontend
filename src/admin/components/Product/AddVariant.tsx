@@ -70,7 +70,7 @@ const AddVariant: React.FC<AddVariantProps> = ({
     if (file) {
       setFormVariant((prev) => ({
         ...prev,
-        image: URL.createObjectURL(file),
+        image: "/src/assets/products/"+file.name,
       }));
     }
   };

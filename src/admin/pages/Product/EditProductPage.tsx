@@ -3,38 +3,32 @@ import * as React from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import HeaderActions from "../../components/Product/HeaderActions";
-import GeneralProduct from "../../components/Product/GeneralProduct";
-import ProductClassification from "../../components/Product/ProductClassification";
-import Attribute from "../../components/Product/Attribute";
-import Variant from "../../components/Product/EditVariant";
+import GeneralProductEdit from "../../components/Product/GeneralProductEdit";
+import ProductClassificationEdit from "../../components/Product/ProductClassificationEdit";
+import EditVariant from "../../components/Product/EditVariant";
+import EditAttribute from "../../components/Product/EditAttribute";
 import { useNavigate, useParams } from "react-router-dom";
 import { useProductContext } from "../../../context/ProductContext";
 import { VariantRequest } from "../../../types/variant";
 import { VariantAttributeRequest } from "../../../types/variant_attribute";
 import LoadingSnackbar from "../../components/Util/LoadingSnackbar";
 import {
+  checkDuplicateProductName,
   deleteProduct,
   getProductWithVariantsAndAttribute,
+  searchProductByName,
   updateProduct,
 } from "../../../api/productApi";
 import { CategoryProvider } from "../../../context/CategoryContext";
 import { BrandProvider } from "../../../context/BrandContex";
 import { WarrantyProvider } from "../../../context/WarrantyContext";
-import {
-  Product,
-  ProductRequest,
-  ProductWithVariants,
-} from "../../../types/product";
-import GeneralProductEdit from "../../components/Product/GeneralProductEdit";
-import EditVariant from "../../components/Product/EditVariant";
-import EditAttribute from "../../components/Product/EditAttribute";
+import { ProductRequest, ProductWithVariants } from "../../../types/product";
 import { addVariant, deleteVariantByProduct } from "../../../api/variantApi";
-import ProductClassificationEdit from "../../components/Product/ProductClassificationEdit";
 import { addVariantAttribute } from "../../../api/variant_attributeApi";
 
 export default function EditProductPage() {
   const navigate = useNavigate();
-  const { id } = useParams<{ id: string }>(); // Get product ID from URL
+  const { id } = useParams<{ id: string }>();
   const [isEditing, setIsEditing] = React.useState(false);
   const { productWithVariants } = useProductContext();
   const [loading, setLoading] = React.useState(false);
@@ -45,78 +39,78 @@ export default function EditProductPage() {
   const [variantAttributeData, setVariantAttributeData] = React.useState<
     VariantAttributeRequest[][]
   >([]);
-  const [commonAttributesData, setCommonAttributesData] = React.useState<VariantAttributeRequest[]>([]);
-
-  const [productData, setProductData] =
-    React.useState<ProductWithVariants | null>(null);
+  const [commonAttributesData, setCommonAttributesData] = React.useState<
+    VariantAttributeRequest[]
+  >([]);
 
   // Hàm chuyển đổi từ API response sang ProductRequest
-function transformProductDataToRequests(productData: ProductWithVariants) {
-  // Chuyển đổi ProductData thành ProductRequest
-  const productRequest: ProductRequest = {
-    id: productData.id,
-    name: productData.name,
-    description: productData.description,
-    weight: productData.weight,
-    unit: productData.unit,
-    categoryId: productData.category.id,
-    brandId: productData.brand.id,
-    warrantyId: productData.warranty.id,
-    image: productData.image,
-    status: productData.status,
-  };
+  function transformProductDataToRequests(productData: ProductWithVariants) {
+    const productRequest: ProductRequest = {
+      id: productData.id,
+      name: productData.name,
+      description: productData.description,
+      weight: productData.weight,
+      unit: productData.unit,
+      categoryId: productData.category.id,
+      brandId: productData.brand.id,
+      warrantyId: productData.warranty.id,
+      image: productData.image,
+      status: productData.status,
+    };
 
-  // Chuyển đổi các variants thành VariantRequest[]
-  const variantRequests: VariantRequest[] = productData.variants.map(
-    (variant) => ({
-      id: variant.id,
-      name: variant.name,
-      image: variant.image,
-      quantity: variant.quantity,
-      costPrice: variant.costPrice,
-      price: variant.price,
-      productId: productData.id,
-    })
-  );
+    const variantRequests: VariantRequest[] = productData.variants.map(
+      (variant) => ({
+        id: variant.id,
+        name: variant.name,
+        image: variant.image,
+        quantity: variant.quantity,
+        costPrice: variant.costPrice,
+        price: variant.price,
+        productId: productData.id,
+      })
+    );
 
-  // Tách các attributes thành hai mảng: VariantAttributeData và CommonAttributesData
-  const variantAttributeData: VariantAttributeRequest[][] = [];
-  let commonAttributesData: VariantAttributeRequest[] = [];
+    const variantAttributeData: VariantAttributeRequest[][] = [];
+    let commonAttributesData: VariantAttributeRequest[] = [];
 
-  // Lặp qua từng phiên bản để phân loại thuộc tính
-  productData.variants.forEach((variant, index) => {
-    const variantAttributes: VariantAttributeRequest[] = [];
-    const commonAttributes: VariantAttributeRequest[] = [];
+    productData.variants.forEach((variant, index) => {
+      const variantAttributes: VariantAttributeRequest[] = [];
+      const commonAttributes: VariantAttributeRequest[] = [];
 
-    variant.attributes.forEach((attribute) => {
-      if (attribute.attribute.id === 3 || (productData.category.id === 1 && attribute.attribute.id === 24)) {
-        // Thuộc tính phân biệt phiên bản (màu sắc hoặc dung lượng nếu là điện thoại)
-        variantAttributes.push({
-          variantId: variant.id,
-          attributeId: attribute.attribute.id,
-          value: attribute.value,
-        });
-      } else {
-        // Thuộc tính thông số kỹ thuật chung
-        commonAttributes.push({
-          variantId: variant.id,
-          attributeId: attribute.attribute.id,
-          value: attribute.value,
-        });
+      variant.attributes.forEach((attribute) => {
+        if (
+          attribute.attribute.id === 3 ||
+          (productData.category.id === 1 && attribute.attribute.id === 24)
+        ) {
+          variantAttributes.push({
+            variantId: variant.id,
+            attributeId: attribute.attribute.id,
+            value: attribute.value,
+          });
+        } else {
+          commonAttributes.push({
+            variantId: variant.id,
+            attributeId: attribute.attribute.id,
+            value: attribute.value,
+          });
+        }
+      });
+
+      if (index === 0) {
+        commonAttributesData = commonAttributes;
       }
+
+      variantAttributeData.push(variantAttributes);
     });
 
-    // Chỉ cần lấy thông số kỹ thuật chung của một phiên bản duy nhất
-    if (index === 0) {
-      commonAttributesData = commonAttributes;
-    }
+    return {
+      productRequest,
+      variantRequests,
+      variantAttributeData,
+      commonAttributesData,
+    };
+  }
 
-    variantAttributeData.push(variantAttributes);
-  });
-
-  return { productRequest, variantRequests, variantAttributeData, commonAttributesData };
-}
-  // Load product data when the page loads
   React.useEffect(() => {
     if (id) {
       setLoading(true);
@@ -128,11 +122,11 @@ function transformProductDataToRequests(productData: ProductWithVariants) {
             variantAttributeData,
             commonAttributesData,
           } = transformProductDataToRequests(data);
-          
-          setProduct(productRequest); // Cập nhật dữ liệu sản phẩm
-          setVariantsData(variantRequests); // Cập nhật dữ liệu biến thể
-          setVariantAttributeData(variantAttributeData); // Cập nhật thuộc tính phân biệt phiên bản
-          setCommonAttributesData(commonAttributesData); // Cập nhật thông số kỹ thuật chung
+          setProduct(productRequest);
+          setVariantsData(variantRequests);
+          setVariantAttributeData(variantAttributeData);
+          setCommonAttributesData(commonAttributesData);
+          console.log("commonAttributes Data :", commonAttributesData);
         })
         .catch((error) => {
           console.error("Error fetching product:", error);
@@ -142,44 +136,67 @@ function transformProductDataToRequests(productData: ProductWithVariants) {
     }
   }, [id]);
 
-   // Hàm xử lý khi lưu các thay đổi của thông số kỹ thuật
-   const handleAttributesChange = (updatedAttributes: VariantAttributeRequest[][]) => {
-    setVariantAttributeData(updatedAttributes);
+  const handleAttributesChange = (
+    updatedAttributes: VariantAttributeRequest[]
+  ) => {
+    setCommonAttributesData(updatedAttributes);
   };
-  // Hàm cập nhật danh sách các phiên bản
+
   const handleUpdateVariantList = (
     updatedVariants: VariantRequest[],
     updatedAttributes: VariantAttributeRequest[][]
   ) => {
     setVariantsData(updatedVariants);
-    setVariantAttributeData(updatedAttributes); // Cập nhật thuộc tính của biến thể
+    setVariantAttributeData(updatedAttributes);
   };
-  // Handle save updates
+
   const handleSave = async () => {
     setLoading(true);
     try {
       if (!product) throw new Error("Product data is undefined");
+      // Kiểm tra xem tên sản phẩm có trống không
+      if (!product || !product.name.trim()) {
+        alert("Tên sản phẩm không được để trống!");
+        setLoading(false);
+        return;
+      }
+  
+      // Kiểm tra xem tên sản phẩm đã tồn tại chưa
+      const isNameExists = await checkDuplicateProductName(product.name, product.id);
+      if (isNameExists) {
+        alert("Tên sản phẩm đã tồn tại!");
+        setLoading(false);
+        return;
+      }
+      // Bước 1: Cập nhật thông tin sản phẩm
       await updateProduct(product.id, product);
 
-      // Xóa tất cả phiên bản và thuộc tính hiện có
+      // Bước 2: Xóa tất cả các phiên bản của sản phẩm trước khi thêm lại
       await deleteVariantByProduct(product.id);
 
-      // Thêm lại các phiên bản mới và lưu lại id của phiên bản mới
+      // Bước 3: Thêm lại các phiên bản trong `variantsData`
       const savedVariants = await Promise.all(
-        variantsData.map((variant) => addVariant({ ...variant, productId: product.id }))
+        variantsData.map((variant) =>
+          addVariant({ ...variant, productId: product.id })
+        )
       );
 
+      // Tạo bản đồ ID tạm -> ID thực sau khi thêm
       const variantIdMap = variantsData.reduce((map, variant, index) => {
         map[variant.id] = savedVariants[index].id;
         return map;
       }, {} as { [tempId: number]: number });
 
-      // Thêm thuộc tính của phiên bản và thông số kỹ thuật chung
+      // Bước 4: Cập nhật `variantAttributeData` với ID chính xác cho các thuộc tính của từng phiên bản
       const updatedVariantAttributesData = [
-        ...variantAttributeData.flat().map((attribute) => ({
-          ...attribute,
-          variantId: variantIdMap[attribute.variantId],
-        })),
+        // Cập nhật thuộc tính riêng của từng phiên bản
+        ...variantAttributeData.flatMap((attributeGroup) =>
+          attributeGroup.map((attribute) => ({
+            ...attribute,
+            variantId: variantIdMap[attribute.variantId], // Đổi từ ID tạm sang ID thực
+          }))
+        ),
+        // Thêm các thông số kỹ thuật chung cho tất cả các phiên bản
         ...savedVariants.flatMap((variant) =>
           commonAttributesData.map((commonAttr) => ({
             variantId: variant.id,
@@ -189,8 +206,16 @@ function transformProductDataToRequests(productData: ProductWithVariants) {
         ),
       ];
 
-      await Promise.all(updatedVariantAttributesData.map((attribute) => addVariantAttribute(attribute)));
-      showSnackbar("Sửa sản phẩm thành công!");
+      // Bước 5: Lưu lại tất cả thuộc tính và thông số kỹ thuật của phiên bản vào cơ sở dữ liệu
+      await Promise.all(
+        updatedVariantAttributesData.map((attribute) =>
+          addVariantAttribute(attribute)
+        )
+      );
+
+      // Cập nhật trạng thái
+      showSnackbar("Cập nhật sản phẩm thành công!");
+      setIsEditing(false);
     } catch (error) {
       console.error("Error updating product:", error);
       showSnackbar("Failed to update product!");
@@ -199,7 +224,6 @@ function transformProductDataToRequests(productData: ProductWithVariants) {
     }
   };
 
-  // Handle product deletion
   const handleDelete = async () => {
     setLoading(true);
     try {
@@ -260,7 +284,6 @@ function transformProductDataToRequests(productData: ProductWithVariants) {
         </Typography>
       </Box>
 
-      {/* Main Form Sections */}
       <Box
         sx={{
           display: "flex",
@@ -298,7 +321,6 @@ function transformProductDataToRequests(productData: ProductWithVariants) {
           borderRadius: "8px",
         }}
       >
-        {/* Gọi component EditVariant */}
         <EditVariant
           productName={product?.name ?? ""}
           productCategoryId={product?.categoryId ?? 0}
@@ -308,13 +330,19 @@ function transformProductDataToRequests(productData: ProductWithVariants) {
         />
       </Box>
 
-      {<Box sx={{ display: "flex", margin: "20px 100px 20px 100px", borderRadius: "8px" }}>
-      <EditAttribute
-        categoryId={product?.categoryId ?? null}
-        initialAttributes={variantAttributeData}
-        onAttributesChange={handleAttributesChange}
-      /> 
-      </Box>  }
+      <Box
+        sx={{
+          display: "flex",
+          margin: "20px 100px 20px 100px",
+          borderRadius: "8px",
+        }}
+      >
+        <EditAttribute
+          categoryId={product?.categoryId ?? null}
+          initialAttributes={commonAttributesData}
+          onAttributesChange={handleAttributesChange}
+        />
+      </Box>
 
       <LoadingSnackbar
         loading={loading}

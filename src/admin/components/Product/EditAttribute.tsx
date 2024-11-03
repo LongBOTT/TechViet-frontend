@@ -5,9 +5,9 @@ import { getCategoryAttributesByCategoryId } from "../../../api/category_attribu
 import { category_attribute } from "../../../types/category_attribute";
 
 interface EditAttributeProps {
-  categoryId: number | null; // Nhận ID thể loại
-  initialAttributes: VariantAttributeRequest[][]; // Nhận dữ liệu của các thuộc tính dưới dạng mảng hai chiều
-  onAttributesChange: (updatedAttributes: VariantAttributeRequest[][]) => void; // Callback khi có thay đổi
+  categoryId: number | null;
+  initialAttributes: VariantAttributeRequest[];
+  onAttributesChange: (updatedAttributes: VariantAttributeRequest[]) => void;
 }
 
 const EditAttribute: React.FC<EditAttributeProps> = ({
@@ -15,51 +15,51 @@ const EditAttribute: React.FC<EditAttributeProps> = ({
   initialAttributes,
   onAttributesChange,
 }) => {
-  const [attributes, setAttributes] = useState<VariantAttributeRequest[][]>([]);
+  const [attributes, setAttributes] = useState<VariantAttributeRequest[]>([]);
   const [categoryAttributes, setCategoryAttributes] = useState<category_attribute[]>([]);
 
-  // Load dữ liệu ban đầu từ initialAttributes khi component được mount
+  // Khi categoryAttributes thay đổi, khởi tạo lại attributes để đảm bảo đủ thuộc tính
   useEffect(() => {
-    setAttributes([...initialAttributes]);
-  }, [initialAttributes]);
+    if (categoryId) {
+      getCategoryAttributesByCategoryId(categoryId).then((data) => {
+        if (data) {
+          // Áp dụng điều kiện lọc dựa trên categoryId
+          const filteredAttributes = data.filter((attr) => {
+            if (categoryId === 1) {
+              // Loại bỏ màu sắc và dung lượng cho categoryId = 1
+              return attr.attribute.id !== 3 && attr.attribute.id !== 24;
+            } else {
+              // Loại bỏ chỉ màu sắc cho categoryId khác 1
+              return attr.attribute.id !== 3;
+            }
+          });
 
-  // Fetch category attributes khi categoryId thay đổi
-  useEffect(() => {
-    const fetchCategoryAttributes = async () => {
-      if (categoryId) {
-        const data = await getCategoryAttributesByCategoryId(categoryId);
-        const filteredData = data?.filter((attr) => {
-          // Nếu là Điện thoại, bỏ màu sắc (id=3) và dung lượng (id=24)
-          if (categoryId === 1) {
-            return attr.attribute.id !== 3 && attr.attribute.id !== 24;
-          } else {
-            // Nếu là danh mục khác, chỉ loại bỏ màu sắc (id=3)
-            return attr.attribute.id !== 3;
-          }
-        });
-        if (filteredData) {
-          setCategoryAttributes(filteredData);
+          setCategoryAttributes(filteredAttributes);
+
+          // Đồng bộ `attributes` để đảm bảo có tất cả các thuộc tính
+          const fullAttributes = data.map((attr) => {
+            const existingAttribute = initialAttributes.find(
+              (a) => a.attributeId === attr.attribute.id
+            );
+            return existingAttribute || { attributeId: attr.attribute.id, variantId: -1, value: "" };
+          });
+          setAttributes(fullAttributes);
         }
-      }
-    };
-
-    fetchCategoryAttributes();
-  }, [categoryId]);
-
-  // Tạo mảng `parentAttributes` để lưu tên của các thuộc tính cha
-  const parentAttributes = [...new Set(categoryAttributes.map(attr => attr.attribute.parent))];
+      });
+    }
+  }, [categoryId, initialAttributes]);
 
   // Hàm xử lý khi thay đổi giá trị của một thuộc tính
-  const handleAttributeChange = (
-    outerIndex: number,
-    innerIndex: number,
-    value: string
-  ) => {
-    const updatedAttributes = [...attributes];
-    updatedAttributes[outerIndex][innerIndex].value = value;
+  const handleAttributeChange = (attributeId: number, value: string) => {
+    const updatedAttributes = attributes.map((attr) =>
+      attr.attributeId === attributeId ? { ...attr, value } : attr
+    );
     setAttributes(updatedAttributes);
-    onAttributesChange(updatedAttributes); // Gửi dữ liệu đã thay đổi về component cha ngay lập tức
+    onAttributesChange(updatedAttributes);
   };
+
+  // Nhóm thuộc tính theo parent để hiển thị theo nhóm
+  const parentAttributes = [...new Set(categoryAttributes.map((attr) => attr.attribute.parent))];
 
   return (
     <Box sx={{ width: "100%", padding: 2 }}>
@@ -67,35 +67,42 @@ const EditAttribute: React.FC<EditAttributeProps> = ({
       <Divider sx={{ my: 2 }} />
 
       {parentAttributes.map((parent) => (
-        <Box key={parent} sx={{ mb: 4, padding: 2, border: "1px solid #ddd", borderRadius: "8px" }}>
-          <Typography variant="h6" sx={{ fontWeight: "bold", fontFamily: "Roboto", mb: 1 }}>
+        <Box
+          key={parent}
+          sx={{
+            mb: 4,
+            padding: 2,
+            border: "1px solid #ddd",
+            borderRadius: "8px",
+          }}
+        >
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: "bold", fontFamily: "Roboto", mb: 1 }}
+          >
             {parent}
           </Typography>
           <Divider sx={{ mb: 2 }} />
 
-          {/* Hiển thị các thuộc tính trong từng nhóm `parent` */}
+          {/* Hiển thị các thuộc tính theo từng nhóm `parent` */}
           {categoryAttributes
             .filter((attr) => attr.attribute.parent === parent)
             .map((attr) => {
-              const attributeIndex = attributes.findIndex((group) =>
-                group.some((a) => a.attributeId === attr.attribute.id)
-              );
-              const attribute = attributeIndex !== -1
-                ? attributes[attributeIndex].find((a) => a.attributeId === attr.attribute.id)
-                : { value: "", attributeId: attr.attribute.id };
-
+              const attributeValue = attributes.find((a) => a.attributeId === attr.attribute.id)?.value || "";
+              
               return (
-                <Box key={attr.id} sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                <Box
+                  key={attr.attribute.id}
+                  sx={{ display: "flex", alignItems: "center", mb: 2 }}
+                >
                   <Typography sx={{ width: "30%", fontFamily: "Roboto" }}>
                     {attr.attribute.name}
                   </Typography>
                   <TextField
                     variant="outlined"
                     size="small"
-                    value={attribute?.value || ""}
-                    onChange={(e) =>
-                      handleAttributeChange(attributeIndex, 0, e.target.value)
-                    }
+                    value={attributeValue}
+                    onChange={(e) => handleAttributeChange(attr.attribute.id, e.target.value)}
                     sx={{ width: "70%" }}
                   />
                 </Box>

@@ -86,9 +86,10 @@ export const addProduct = async (product: ProductRequest): Promise<ProductReques
 // Gọi API cập nhật sản phẩm
 export const updateProduct = async (id: number, product: ProductRequest) => {
   try {
-    await axiosInstance.put(`/products/${id}`, product);
+    const data = await axiosInstance.put(`/products/${id}`, product);
+    console.log("data"+ data);
   } catch (error: any) {
-    handleApiError(error, "cập nhật sản phẩm");
+    throw error;
   }
 };
 
@@ -124,3 +125,27 @@ export const searchProductBy_Id = async (id: number) => {
     handleApiError(error, "tìm kiếm san pham id");
   }
 };
+
+// src/api/productApi.ts
+export const checkDuplicateProductName = async (
+  name: string,
+  id: number
+): Promise<boolean> => {
+  try {
+    const response = await axiosInstance.get<Product>(
+      `/products/search/name/exact?name=${name}`
+    );
+
+    // Nếu tồn tại sản phẩm với tên đó và id khác với id hiện tại, thì có trùng lặp
+    if (response.data && response.data.id !== id) {
+      return true;
+    }
+
+    return false; // Không có trùng lặp hoặc là chính sản phẩm hiện tại
+  } catch (error: any) {
+    console.log("Lỗi API kiểm tra trùng lặp tên sản phẩm:", error);
+    handleApiError(error, "kiểm tra trùng lặp tên sản phẩm");
+    return false;
+  }
+};
+
