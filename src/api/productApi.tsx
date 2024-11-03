@@ -84,7 +84,7 @@ export const addProduct = async (product: ProductRequest): Promise<ProductReques
 };
 
 // Gọi API cập nhật sản phẩm
-export const updateProduct = async (id: number, product: Product) => {
+export const updateProduct = async (id: number, product: ProductRequest) => {
   try {
     await axiosInstance.put(`/products/${id}`, product);
   } catch (error: any) {

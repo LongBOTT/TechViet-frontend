@@ -1,16 +1,26 @@
-// src/components/GeneralProduct.tsx
-import React, { useEffect } from "react";
+import React from "react";
 import { Box, Divider, TextField, Typography } from "@mui/material";
+import ImageUploader from "./ImageUploader"; // Component để upload hình ảnh
+import { ProductRequest } from "../../../types/product";
 
-import { useProductContext } from "../../../context/ProductContext";
-import ImageUploader from "./ImageUploader";
-interface GeneralProductProps {
+interface GeneralProductEditProps {
   isEditMode: boolean;
+  product: ProductRequest; // Dữ liệu sản phẩm
+  onProductChange: (updatedProduct: any) => void; // Hàm để cập nhật dữ liệu sản phẩm
 }
-const GeneralProduct: React.FC<GeneralProductProps> = ({
+
+const GeneralProductEdit: React.FC<GeneralProductEditProps> = ({
   isEditMode,
+  product,
+  onProductChange,
 }) => {
-  const { handleProductChange, product } = useProductContext();
+  // Hàm xử lý khi có thay đổi trong các trường dữ liệu
+  const handleInputChange = (field: string, value: string) => {
+    onProductChange({
+      ...product,
+      [field]: value,
+    });
+  };
 
   return (
     <Box
@@ -23,7 +33,6 @@ const GeneralProduct: React.FC<GeneralProductProps> = ({
         marginRight: "30px",
       }}
     >
-      {/* Tiêu đề */}
       <Box sx={{ m: 2 }}>
         <Typography
           variant="h6"
@@ -34,7 +43,6 @@ const GeneralProduct: React.FC<GeneralProductProps> = ({
         <Divider />
       </Box>
 
-      {/* Tên sản phẩm */}
       <Box sx={{ m: 2 }}>
         <Typography sx={{ fontFamily: "Roboto", mb: 1 }}>
           Tên sản phẩm *
@@ -44,14 +52,14 @@ const GeneralProduct: React.FC<GeneralProductProps> = ({
           placeholder="Nhập tên sản phẩm"
           variant="outlined"
           size="small"
-          value={product?.name ?? ""}
-          onChange={(e) => handleProductChange("name", e.target.value)}
+          value={product.name || ""}
+          onChange={(e) => handleInputChange("name", e.target.value)}
           disabled={!isEditMode}
         />
       </Box>
+
       <Box sx={{ width: "100%", display: "flex" }}>
         <Box sx={{ width: "60%" }}>
-          {/* Đơn vị và Khối lượng */}
           <Box sx={{ m: 2, display: "flex", gap: 2 }}>
             <Box sx={{ flex: 1 }}>
               <Typography sx={{ fontFamily: "Roboto", mb: 1 }}>
@@ -62,8 +70,8 @@ const GeneralProduct: React.FC<GeneralProductProps> = ({
                 placeholder="Nhập đơn vị"
                 variant="outlined"
                 size="small"
-                value={product?.unit ?? ""}
-                onChange={(e) => handleProductChange("unit", e.target.value)}
+                value={product.unit || ""}
+                onChange={(e) => handleInputChange("unit", e.target.value)}
                 disabled={!isEditMode}
               />
             </Box>
@@ -76,45 +84,41 @@ const GeneralProduct: React.FC<GeneralProductProps> = ({
                 placeholder="Nhập khối lượng"
                 variant="outlined"
                 size="small"
-                value={product?.weight || ""}
-                onChange={(e) =>
-                  handleProductChange("weight",e.target.value)
-                }
+                value={product.weight || ""}
+                onChange={(e) => handleInputChange("weight", e.target.value)}
                 disabled={!isEditMode}
               />
             </Box>
           </Box>
-            {/* Mô tả sản phẩm */}
-      <Box sx={{ margin: "20px" }}>
-        <Typography
-          sx={{
-            fontFamily: "Roboto",
-            marginBottom: "10px",
-          }}
-        >
-          Mô tả sản phẩm
-        </Typography>
-        <TextField
-          fullWidth
-          placeholder="Nhập mô tả sản phẩm"
-          variant="outlined"
-          size="small"
-          multiline
-          rows={4} 
-        />
-      </Box>
+
+          <Box sx={{ margin: "20px" }}>
+            <Typography sx={{ fontFamily: "Roboto", marginBottom: "10px" }}>
+              Mô tả sản phẩm
+            </Typography>
+            <TextField
+              fullWidth
+              placeholder="Nhập mô tả sản phẩm"
+              variant="outlined"
+              size="small"
+              multiline
+              rows={4}
+              value={product.description || ""}
+              onChange={(e) => handleInputChange("description", e.target.value)}
+              disabled={!isEditMode}
+            />
+          </Box>
         </Box>
+
         <Box sx={{ width: "40%", margin: "auto" }}>
           <ImageUploader
-            imageUrl={product?.image ?? ""}
-            onImageChange={(imageUrl) => handleProductChange("image", imageUrl)}
+            imageUrl={product.image || ""}
+            onImageChange={(imageUrl) => handleInputChange("image", imageUrl)}
             disabled={!isEditMode}
           />
         </Box>
       </Box>
-   
     </Box>
   );
 };
 
-export default GeneralProduct;
+export default GeneralProductEdit;

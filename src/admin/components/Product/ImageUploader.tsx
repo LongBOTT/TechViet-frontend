@@ -23,7 +23,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ imageUrl, onImageChange, 
     if (file) {
       const imageUrl = URL.createObjectURL(file);
       setImagePreview(imageUrl);
-      onImageChange(file.name); // Truyền tên file ảnh lên component cha
+      onImageChange("/src/assets/products/"+file.name); // Truyền tên file ảnh lên component cha
     }
   };
 

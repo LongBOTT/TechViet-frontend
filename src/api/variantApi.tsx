@@ -34,6 +34,16 @@ export const deleteVariant = async (id: number) => {
   }
 };
 
+// Gọi API xóa phiên bản sản phẩm theo id sản phẩm
+export const deleteVariantByProduct = async (productID: number) => {
+  try {
+    const response = await axiosInstance.delete(`/variants/product/${productID}`);
+    return response.data;
+  } catch (error: any) {
+    handleApiError(error, "xóa phiên bản theo id sản phẩm");
+  }
+};
+
 // Gọi API lấy tất cả danh sách phiên bản
 export const getVariants = async () => {
   try {

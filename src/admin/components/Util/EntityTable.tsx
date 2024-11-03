@@ -92,7 +92,8 @@ const EntityTable: React.FC<EntityTableProps> = ({
                           alt={entity.name}
                           style={{ width: 50, height: 50, objectFit: "cover" }}
                         />
-                      ) : (
+                      ) 
+                      : (
                         entity[column.key]
                       )}
                     </TableCell>

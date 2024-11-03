@@ -16,6 +16,8 @@ import { Warranty } from "../types/warranty";
 import { Variant, VariantRequest } from "../types/variant";
 import { addVariant, updateVariant } from "../api/variantApi";
 import {ProductWithVariants} from "../types/product";
+import { VariantAttributeRequest } from "../types/variant_attribute";
+import { addVariantAttribute } from "../api/variant_attributeApi";
 
 interface ProductContextType {
   products: Product[];
@@ -26,7 +28,7 @@ interface ProductContextType {
   fetchProducts: () => Promise<void>;
   searchProductByCategoryId: (id: number) => Promise<void>;
   createProduct: (product: ProductRequest) => Promise<ProductRequest>;
-  editProduct: (id: number, product: Product) => Promise<void>;
+  // editProduct: (id: number, product: Product) => Promise<void>;
   removeProduct: (id: number) => Promise<void>;
   searchProductsByName: (query: string) => Promise<void>;
   loading: boolean;
@@ -35,6 +37,7 @@ interface ProductContextType {
   editDialogOpen: boolean;
   setEditDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
   ProductVariants: ProductWithVariants| undefined;
+  fetchProductsWithVariants: () => Promise<void>;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
@@ -49,7 +52,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
     name: '',
     unit: '',
     image: '',
-    weight: 0,
+    weight:'',
     description: '',
     categoryId: 0,
     brandId: 0 ,
@@ -90,11 +93,12 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
    fetchProductsWithVariants();
     return response;
   };
+ 
 
-  const editProduct = async (id: number, product: Product) => {
-    await updateProduct(id, product);
-    fetchProductsWithVariants();
-  };
+  // const editProduct = async (id: number, product: Product) => {
+  //   await updateProduct(id, product);
+  //   fetchProductsWithVariants();
+  // };
 
   const removeProduct = async (id: number) => {
     await deleteProduct(id);
@@ -152,13 +156,14 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
         productWithVariants,
         setProducts,
         fetchProducts,
+        fetchProductsWithVariants,
         searchProductByCategoryId,
         selectedProduct,
         setSelectedProduct,
         editDialogOpen,
         setEditDialogOpen,
         createProduct,
-        editProduct,
+ 
         removeProduct,
         searchProductsByName,
         loading,

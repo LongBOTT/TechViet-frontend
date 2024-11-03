@@ -34,11 +34,13 @@ const AllProducts: React.FC = () => {
     const transformed = productWithVariants.map((product) => {
       // Tính tổng tồn kho bằng cách cộng dồn `quantity` của các `variants`
       const stock = product.variants.reduce((total, variant) => total + variant.quantity, 0);
+      const variantCount = product.variants.length;
 
       return {
         id: product.id,
-        image:`/assets/products/${product.image}`,
-        name: product.name,            
+        image:`${product.image}`,
+        name: product.name,    
+        variantCount: variantCount,        
         stock: stock,                  
         available: 0,               
         brandName: product.brand.name,  
@@ -65,8 +67,8 @@ const AllProducts: React.FC = () => {
   const productColumns = [
     { label: "Ảnh", key: "image" }, 
     { label: "Sản phẩm", key: "name" },
+    { label: "Số phiên bản", key: "variantCount" },
     { label: "Tồn kho", key: "stock" },
-    { label: "Có thể bán", key: "available" },
     { label: "Thể loại", key: "categoryName" },
     { label: "Thương hiệu", key: "brandName" },
   ];
