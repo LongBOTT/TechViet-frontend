@@ -19,8 +19,10 @@ const AllProducts: React.FC = () => {
   const {
     loading,
     productWithVariants,
-    searchProductsByName,
-    searchProductByCategoryId,
+    searchProductsWithVariantsByName,
+    searchProductsWithVariantsByCategoryId,
+    searchProductsWithVariantsByBrandId,
+    fetchProductsWithVariants,
   } = useProductContext(); // Lấy dữ liệu và hàm từ ProductContext
 
   const navigate = useNavigate();
@@ -86,16 +88,18 @@ const AllProducts: React.FC = () => {
   const handleReset = () => {
     setResetFilter(true);
     setTimeout(() => setResetFilter(false), 0);
+    fetchProductsWithVariants(); // Lấy lại dữ liệu sản phẩm
   };
 
   // Hàm lọc theo danh mục
   const handleFilterCategory = (value: string) => {
-    searchProductByCategoryId(parseInt(value)); // Sử dụng hàm từ ProductContext
+    searchProductsWithVariantsByCategoryId(parseInt(value));
+
   };
 
   // Hàm lọc theo thương hiệu
   const handleFilterBrand = (value: string) => {
-    console.log("Filtering by brand:", value);
+    searchProductsWithVariantsByBrandId(parseInt(value));
   };
 
   // Hàm lọc theo trạng thái
@@ -126,7 +130,7 @@ const AllProducts: React.FC = () => {
         <Box sx={{ flexGrow: 1 }}>
           <SearchBox
             placeholder="Nhập tên sản phẩm"
-            onSearch={searchProductsByName} // Sử dụng hàm từ ProductContext
+            onSearch={searchProductsWithVariantsByName} // Sử dụng hàm từ ProductContext
             resetSearch={resetFilter}
           />
         </Box>

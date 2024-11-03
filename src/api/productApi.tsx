@@ -23,6 +23,42 @@ export const getProductsWithVariants = async () => {
   }
 };
 
+// Gọi API tìm kiếm sản phẩm và variant theo tên sản phẩm 
+export const getProductsWithVariantsByName = async (name: string) => {
+  try {
+    const response = await axiosInstance.get(
+      `/products/search/name/searchProductWithVariantByName?name=${name}`
+    );
+    return response.data;
+  } catch (error: any) {
+    handleApiError(error, "tìm kiếm sản phẩm theo tên");
+  }
+};
+
+// Gọi API tìm kiếm sản phẩm và variant theo categoryId 
+export const getProductsWithVariantsByCategoryId= async (id: number) => {
+  try {
+    const response = await axiosInstance.get(
+      `/products/search/category/searchProductWithVariantByCategoryId/${id}`
+    );
+    return response.data;
+  } catch (error: any) {
+    handleApiError(error, "tìm kiếm sản phẩm theo tên");
+  }
+};
+
+// Gọi API tìm kiếm sản phẩm và variant theo brandId
+export const getProductsWithVariantsByBrandId= async (id: number) => {
+  try {
+    const response = await axiosInstance.get(
+      `/products/search/category/searchProductWithVariantByBrandId/${id}`
+    );
+    return response.data;
+  } catch (error: any) {
+    handleApiError(error, "tìm kiếm sản phẩm theo tên");
+  }
+};
+
 // Gọi API lấy thông tin sản phẩm theo id trả về danh sach sách phiên bản của sản phẩm và thuộc tính của phiên bản
 export const getProductWithVariantsAndAttribute = async (id: number) => {
   try {
@@ -34,6 +70,8 @@ export const getProductWithVariantsAndAttribute = async (id: number) => {
     handleApiError(error, "lấy thông tin sản phẩm");
   }
 };
+
+
 // Gọi API lấy danh sách thương hiệu theo thể loại sản phẩm
 export const searchProductsByBrand_Id = async (id: number) => {
   try {

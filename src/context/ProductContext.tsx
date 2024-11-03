@@ -5,6 +5,9 @@ import {
   deleteProduct,
   getProducts,
   getProductsWithVariants,
+  getProductsWithVariantsByBrandId,
+  getProductsWithVariantsByCategoryId,
+  getProductsWithVariantsByName,
   searchProductByCategory_Id,
   searchProductByName,
   searchProductsByBrand_Id,
@@ -31,6 +34,9 @@ interface ProductContextType {
   // editProduct: (id: number, product: Product) => Promise<void>;
   removeProduct: (id: number) => Promise<void>;
   searchProductsByName: (query: string) => Promise<void>;
+  searchProductsWithVariantsByName: (query: string) => Promise<void>;
+  searchProductsWithVariantsByCategoryId: (id: number) => Promise<void>;
+  searchProductsWithVariantsByBrandId: (id: number) => Promise<void>;
   loading: boolean;
   selectedProduct: Product | null;
   setSelectedProduct: React.Dispatch<React.SetStateAction<Product | null>>;
@@ -141,7 +147,40 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
   
+  const searchProductsWithVariantsByName = async (query: string) => {
+    setLoading(true);
+    try {
+      const data = await getProductsWithVariantsByName(query);
+      setProductWithVariants(data || []);
+    } catch (error) {
+      console.error("Error searching products:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const searchProductsWithVariantsByCategoryId = async (id: number) => {
+    setLoading(true);
+    try {
+      const data = await getProductsWithVariantsByCategoryId(id);
+      setProductWithVariants(data || []);
+    } catch (error) {
+      console.error("Error searching products:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  const searchProductsWithVariantsByBrandId = async (id: number) => {
+    setLoading(true);
+    try {
+      const data = await getProductsWithVariantsByBrandId(id);
+      setProductWithVariants(data || []);
+    } catch (error) {
+      console.error("Error searching products:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
   useEffect(() => {
     fetchProducts();
     fetchProductsWithVariants();
@@ -166,6 +205,9 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
  
         removeProduct,
         searchProductsByName,
+        searchProductsWithVariantsByName,
+        searchProductsWithVariantsByCategoryId,
+        searchProductsWithVariantsByBrandId,
         loading,
         ProductVariants
       }}
