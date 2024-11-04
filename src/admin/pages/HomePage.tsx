@@ -19,7 +19,7 @@ import GppGoodIcon from "@mui/icons-material/GppGood";
 import PeopleIcon from "@mui/icons-material/People";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import BarChartIcon from "@mui/icons-material/BarChart";
-
+import MoveToInboxIcon from '@mui/icons-material/MoveToInbox'
 const drawerWidth = 240;
 
 export default function PermanentDrawerLeft() {
@@ -30,6 +30,7 @@ export default function PermanentDrawerLeft() {
     "Tổng quan": <DashboardIcon />,
     "Đơn hàng": <ReceiptLongIcon />,
     "Sản phẩm": <CategoryIcon />,
+    "Nhập hàng": <MoveToInboxIcon />,
     "Nhà cung cấp": <LocalShippingIcon />,
     "Bảo hành": <GppGoodIcon />,
     "Khách hàng": <PeopleIcon />,
@@ -41,6 +42,7 @@ export default function PermanentDrawerLeft() {
     "Tổng quan": "/overview",
     "Đơn hàng": "/orders",
     "Sản phẩm": "/products",
+    "Nhập hàng": "/import",
     "Nhà cung cấp": "/suppliers",
     "Bảo hành": "/warranty",
     "Khách hàng": "/customers",

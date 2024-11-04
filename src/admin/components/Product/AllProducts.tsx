@@ -77,7 +77,6 @@ const AllProducts: React.FC = () => {
 
   // Xử lý khi người dùng bấm vào hàng sản phẩm
   const handleRowClick = (product: any) => {
-    console.log("Row clicked:", product);
     navigate(`/EditProduct/${product.id}`); // Chuyển hướng đến trang chỉnh sửa sản phẩm
   };
 
@@ -102,10 +101,6 @@ const AllProducts: React.FC = () => {
     searchProductsWithVariantsByBrandId(parseInt(value));
   };
 
-  // Hàm lọc theo trạng thái
-  const handleFilterStatus = (value: string) => {
-    console.log("Filtering by status:", value);
-  };
 
   return (
     <Box
