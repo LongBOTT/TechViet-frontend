@@ -18,6 +18,7 @@ import {
   getProductWithVariantsAndAttribute,
   searchProductByName,
   updateProduct,
+  updateProductStatus,
 } from "../../../api/productApi";
 import { CategoryProvider } from "../../../context/CategoryContext";
 import { BrandProvider } from "../../../context/BrandContex";
@@ -227,7 +228,7 @@ export default function EditProductPage() {
   const handleDelete = async () => {
     setLoading(true);
     try {
-      await deleteProduct(Number(id));
+      await updateProductStatus(Number(id));
       showSnackbar("Sản phẩm đã được xóa!");
       navigate("/products");
     } catch (error) {

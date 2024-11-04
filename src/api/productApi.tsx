@@ -51,7 +51,7 @@ export const getProductsWithVariantsByCategoryId= async (id: number) => {
 export const getProductsWithVariantsByBrandId= async (id: number) => {
   try {
     const response = await axiosInstance.get(
-      `/products/search/category/searchProductWithVariantByBrandId/${id}`
+      `/products/search/brand/searchProductWithVariantByBrandId/${id}`
     );
     return response.data;
   } catch (error: any) {
@@ -184,6 +184,15 @@ export const checkDuplicateProductName = async (
     console.log("Lỗi API kiểm tra trùng lặp tên sản phẩm:", error);
     handleApiError(error, "kiểm tra trùng lặp tên sản phẩm");
     return false;
+  }
+};
+
+// API cập nhật trạng thái sản phẩm 
+export const updateProductStatus = async (id: number) => {
+  try {
+    await axiosInstance.put(`/products/updateStatus/${id}`);
+  } catch (error: any) {
+    handleApiError(error, "Xóa sản phẩm bằng cập nhật trạng thái ");
   }
 };
 
