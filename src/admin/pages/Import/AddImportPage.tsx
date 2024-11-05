@@ -32,12 +32,38 @@ import { Category } from "../../../types/category";
 import { getCategories } from "../../../api/categoryApi";
 import { getBrands } from "../../../api/brandApi";
 import { ProductWithVariants } from "../../../types/product";
-import { getProductsWithVariants } from "../../../api/productApi";
+import {
+  getProductsWithVariants,
+  getProductsWithVariantsByBrandId,
+  getProductsWithVariantsByCategoryId,
+  getProductsWithVariantsByName,
+} from "../../../api/productApi";
 import TableImport from "../../components/Import/AddImport/TableImport";
+import { importDetailRequest } from "../../../types/import";
+import { currencyFormatter } from "../../components/Util/Formatter";
 
 export default function AddImportPage() {
   const navigate = useNavigate();
+  const [resetFilter, setResetFilter] = React.useState(false);
+  const [loading, setLoading] = React.useState(true);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [brands, setBrands] = useState<Brand[]>([]);
+  // State cho danh sách sản phẩm đã chọn
+  const [selectedProducts, setSelectedProducts] = useState<any[]>([]);
+  // State cho phiếu nhập (importRequest)
+  const [importRequest, setImportRequest] = useState({
+    id: 0,
+    date: new Date().toISOString().slice(0, 10),
+    total: 0,
+    importNote: "",
+    supplierId: 0,
+  });
 
+  // State cho danh sách chi tiết phiếu nhập
+  const [importDetails, setImportDetails] = useState<importDetailRequest[]>([]);
+  const [productWithVariants, setProductWithVariants] =
+    useState<ProductWithVariants[]>();
+  const [transformedProducts, setTransformedProducts] = useState<any[]>([]);
   const onGoBack = () => {
     navigate("/import");
   };
@@ -50,9 +76,6 @@ export default function AddImportPage() {
     console.log("Hủy");
   };
 
-  const [loading, setLoading] = React.useState(true);
-  // Tạo các tùy chọn cho dropdown từ categories và brands
-  const [categories, setCategories] = useState<Category[]>([]);
   const fetchCategories = async () => {
     setLoading(true);
     try {
@@ -64,11 +87,7 @@ export default function AddImportPage() {
       setLoading(false);
     }
   };
-  const CategoryOptions = categories.map((category: any) => ({
-    value: category.id,
-    label: category.name,
-  }));
-  const [brands, setBrands] = useState<Brand[]>([]);
+
   const fetchBrands = async () => {
     setLoading(true);
     try {
@@ -80,32 +99,67 @@ export default function AddImportPage() {
       setLoading(false);
     }
   };
+
+  const CategoryOptions = categories.map((category: any) => ({
+    value: category.id,
+    label: category.name,
+  }));
+
   const BrandOptions = brands.map((brand: any) => ({
     value: brand.id,
     label: brand.name,
   }));
+
   // Hàm lọc theo danh mục
-  const handleFilterCategory = (value: string) => {};
+  const handleFilterCategory = async (value: string) => {
+    setLoading(true);
+    try {
+      const data = await getProductsWithVariantsByCategoryId(parseInt(value));
+      setProductWithVariants(data || []);
+    } catch (error) {
+      console.error("Error searching products:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Hàm lọc theo thương hiệu
-  const handleFilterBrand = (value: string) => {};
+  const handleFilterBrand = async (value: string) => {
+    setLoading(true);
+    try {
+      const data = await getProductsWithVariantsByBrandId(parseInt(value));
+      setProductWithVariants(data || []);
+    } catch (error) {
+      console.error("Error searching products:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const searchProductsWithVariantsByName = (name: string) => {};
+  const searchProductsWithVariantsByName = async (name: string) => {
+    setLoading(true);
+    try {
+      const data = await getProductsWithVariantsByName(name);
+      setProductWithVariants(data || []);
+    } catch (error) {
+      console.error("Error searching products:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchCategories();
     fetchBrands();
     fetchProductsWithVariants();
   }, []);
 
-  const [resetFilter, setResetFilter] = React.useState(false);
-
   const handleReset = () => {
     setResetFilter(true);
     setTimeout(() => setResetFilter(false), 0);
+    fetchProductsWithVariants();
   };
-  const [productWithVariants, setProductWithVariants] =
-    useState<ProductWithVariants[]>();
-  const [transformedProducts, setTransformedProducts] = useState<any[]>([]);
+
   const fetchProductsWithVariants = async () => {
     setLoading(true);
     try {
@@ -120,36 +174,61 @@ export default function AddImportPage() {
   useEffect(() => {
     // Kiểm tra nếu `productWithVariants` tồn tại
     if (!productWithVariants) return;
-    // Biến đổi dữ liệu `productWithVariants` thành `transformedProducts`
-    const transformed = productWithVariants.map((product) => {
-      // Tính tổng tồn kho bằng cách cộng dồn `quantity` của các `variants`
-      const stock = product.variants.reduce(
-        (total, variant) => total + variant.quantity,
-        0
-      );
-      const variantCount = product.variants.length;
 
-      return {
-        id: product.id,
-        image: `${product.image}`,
+    // Biến đổi dữ liệu `productWithVariants` thành `transformedProducts`
+    const transformed = productWithVariants.flatMap((product) =>
+      product.variants.map((variant) => ({
+        id: variant.id,
+        image: product.image,
+        variantName: variant.name,
+        stock: variant.quantity,
+        price:currencyFormatter.format(variant.price),
+        costPrice: currencyFormatter.format(variant.costPrice),
         name: product.name,
-        stock: stock,
         brandName: product.brand.name,
         categoryName: product.category.name,
-      };
-    });
+      }))
+    );
 
     setTransformedProducts(transformed);
   }, [productWithVariants]);
+
   const productColumns = [
     { label: "Ảnh", key: "image", isImageColumn: true },
-    { label: "Phiên bản", key: "nameVariant" },
+    { label: "Phiên bản", key: "variantName" },
     { label: "Tồn kho", key: "stock" },
-    { label: "Sản phẩm", key: "nameProduct" },
+    { label: "Giá bán", key: "price" },
+    { label: "Giá nhập", key: "costPrice" },
+    { label: "Sản phẩm", key: "name" },
     { label: "Thể loại", key: "categoryName" },
     { label: "Thương hiệu", key: "brandName" },
   ];
-  const handleRowClick = (product: any) => {};
+  const handleRowClick = (product: any) => {
+    console.log("Row clicked:", product);
+    setSelectedProducts((prevProducts) => {
+      const existingProduct = prevProducts.find(
+        (item) => item.variantId === product.id
+      );
+      if (existingProduct) {
+        // Nếu sản phẩm đã tồn tại, hiển thị thông báo
+        alert("Phiên bản đã được chọn!");
+        return prevProducts;
+      }
+      // Nếu sản phẩm chưa tồn tại, thêm vào danh sách với quantity mặc định là 1
+      return [
+        ...prevProducts,
+        {
+          variantId: product.id,
+          name: product.name,
+          variantName: product.variantName,
+          quantity: 1,
+          price: product.costPrice,
+          total: product.costPrice,
+        },
+      ];
+    });
+  };
+
   return (
     <Box sx={{ width: "100%", p: 3, bgcolor: "rgb(249, 249, 249)" }}>
       {/* Header */}
@@ -297,54 +376,146 @@ export default function AddImportPage() {
           boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.1)",
         }}
       >
-        <Box sx={{  padding: "20px"}}>
-        <Typography variant="h6" gutterBottom >
-          Sản phẩm đã chọn
-        </Typography>
+        <Box sx={{ padding: "20px" }}>
+          <Typography variant="h6" gutterBottom>
+            Sản phẩm đã chọn
+          </Typography>
         </Box>
-       
-        <Box sx={{ display: "flex", gap: 2 }}>
+
+        <Box
+          sx={{
+            display: "flex",
+            gap: 2,
+            boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.1)",
+            width: "100%",
+          }}
+        >
           <TableContainer component={Paper}>
-            <Table>
+            <Table sx={{ tableLayout: "fixed", width: "100%" }}>
               <TableHead>
                 <TableRow>
-                  <TableCell>Tên sản phẩm</TableCell>
-                  <TableCell>Số lượng</TableCell>
-                  <TableCell>Giá nhập</TableCell>
-                  <TableCell>Thành tiền</TableCell>
-                  <TableCell>Thao tác</TableCell>
+                  <TableCell sx={{ width: "30%" }}>Tên phiên bản</TableCell>
+                  <TableCell sx={{ width: "15%", textAlign: "center" }}>
+                    Số lượng
+                  </TableCell>
+                  <TableCell sx={{ width: "20%", textAlign: "center" }}>
+                    Giá nhập
+                  </TableCell>
+                  <TableCell sx={{ width: "20%", textAlign: "center" }}>
+                    Thành tiền
+                  </TableCell>
+                  <TableCell sx={{ width: "15%", textAlign: "center" }}>
+                    Thao tác
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {/* Placeholder row for selected products */}
-                <TableRow>
-                  <TableCell>Điện thoại A</TableCell>
-                  <TableCell>
-                    <TextField
-                      type="number"
-                      variant="outlined"
-                      size="small"
-                      defaultValue={1}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <TextField
-                      type="number"
-                      variant="outlined"
-                      size="small"
-                      defaultValue={1000}
-                    />
-                  </TableCell>
-                  <TableCell>1000</TableCell>
-                  <TableCell>
-                    <IconButton color="error">
-                      <DeleteIcon />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
+                {selectedProducts.map((product) => (
+                  <TableRow key={product.variantId}>
+                    <TableCell>{product.name}</TableCell>
+                    <TableCell sx={{ textAlign: "center" }}>
+                      <TextField
+                        type="number"
+                        variant="outlined"
+                        size="small"
+                        value={product.quantity}
+                        onChange={(e) => {
+                          const newQuantity = parseInt(e.target.value) || 0;
+                          setSelectedProducts((prevProducts) =>
+                            prevProducts.map((item) =>
+                              item.variantId === product.variantId
+                                ? {
+                                    ...item,
+                                    quantity: newQuantity,
+                                    total: newQuantity * item.price,
+                                  }
+                                : item
+                            )
+                          );
+                        }}
+                        sx={{
+                          "& .MuiOutlinedInput-root": {
+                            height: 36,
+                            fontSize: 14,
+                            padding: "0 8px",
+                          },
+                          "& .MuiInputBase-input": {
+                            textAlign: "center",
+                          },
+                          "& .MuiOutlinedInput-notchedOutline": {
+                            borderColor: "#b0bec5",
+                          },
+                          "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline":
+                            {
+                              borderColor: "#1976d2",
+                            },
+                        }}
+                      />
+                    </TableCell>
+
+                    <TableCell sx={{ textAlign: "center" }}>
+                      <TextField
+                        type="text"
+                        variant="outlined"
+                        size="small"
+                        value={currencyFormatter.format(product.price || 0)}
+                        onChange={(e) => {
+                          const newPrice =
+                            parseFloat(e.target.value.replace(/\D/g, "")) || 0;
+                          setSelectedProducts((prevProducts) =>
+                            prevProducts.map((item) =>
+                              item.variantId === product.variantId
+                                ? {
+                                    ...item,
+                                    price: newPrice,
+                                    total: newPrice * item.quantity,
+                                  }
+                                : item
+                            )
+                          );
+                        }}
+                        sx={{
+                          "& .MuiOutlinedInput-root": {
+                            height: 36,
+                            fontSize: 14,
+                            padding: "0 8px",
+                          },
+                          "& .MuiInputBase-input": {
+                            textAlign: "center",
+                          },
+                          "& .MuiOutlinedInput-notchedOutline": {
+                            borderColor: "#b0bec5",
+                          },
+                          "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline":
+                            {
+                              borderColor: "#1976d2",
+                            },
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell sx={{ textAlign: "center" }}>
+                      {currencyFormatter.format(product.total || 0)}
+                    </TableCell>
+                    <TableCell sx={{ textAlign: "center" }}>
+                      <IconButton
+                        color="error"
+                        onClick={() =>
+                          setSelectedProducts((prevProducts) =>
+                            prevProducts.filter(
+                              (item) => item.variantId !== product.variantId
+                            )
+                          )
+                        }
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </TableContainer>
+
           {/* Right - Form Information */}
           <Box sx={{ width: "40%" }}>
             <Paper sx={{ p: 2 }}>
