@@ -63,7 +63,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
     categoryId: 0,
     brandId: 0 ,
     warrantyId: 0,
-    status: 'Đang giao dịch',
+    status: 'active',
   });
 
 

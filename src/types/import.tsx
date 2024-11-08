@@ -1,22 +1,23 @@
-export interface importRequest{
+export interface stockReceiveRequest{
     id: number;
-    date: string;
+    receive_date: string;
     total: number;
-    importNote: string;
+    note: string;
     supplierId: number;
 }
 
-export interface importDetailRequest{
+export interface stockReceiveDetailRequest{
     id: number;
-    importId: number;
+    stockReceiveId: number;
     variantId: number;
     quantity: number;
     price: number;
 }
 
-export interface serialRequest{
+export interface imeiRequest{
     id: number;
-    serial: string;
-    importDetailId: number;
+    imei_code: string;
+    receiveDetailId: number;
+    status: string;
 }
 

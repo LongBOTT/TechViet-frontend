@@ -34,10 +34,10 @@ import ProductDetail from "./pages/Product/ProductDetail";
 
 import AddProductPage from "./admin/pages/Product/AddProductPage";
 import EditProductPage from "./admin/pages/Product/EditProductPage";
-import Import from "./admin/pages/Import/ImportPage";
-import AddImportPage from "./admin/pages/Import/AddImportPage";
+import AddImportPage from "./admin/pages/Import/AddStockReceivePage";
 import DetailImportPage from "./admin/pages/Import/DetailImportPage";
 import ImportPage from "./admin/pages/Import/ImportPage";
+
 function App() {
   return (
     // <Router>
