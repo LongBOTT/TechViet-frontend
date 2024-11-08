@@ -12,4 +12,33 @@ export const createStockReceive = async (stockReceive: stockReceiveRequest) => {
   }
 };
 
+export const getStockReceives = async () => {
+  try {
+    const response = await axiosInstance.get("/stock-receives/getAllStockReceives");
+    return response.data;
+  } catch (error: any) {
+    handleApiError(error, "lấy danh sách phiếu nhập");
+    throw error;
+  }
+}
+
+export const getStockReceiveById = async (id: number) => {
+  try {
+    const response = await axiosInstance.get(`/stock-receives/getStockReceiveByIdContaining/${id}`);
+    return response.data;
+  } catch (error: any) {
+    handleApiError(error, "lấy thông tin phiếu nhập");
+    throw error;
+  }
+}
+
+export const getStockReceivesBySupplierId = async (supplierId: number) => {
+  try {
+    const response = await axiosInstance.get(`/stock-receives/getStockReceiveBySupplierId/${supplierId}`);
+    return response.data;
+  } catch (error: any) {
+    handleApiError(error, "lấy danh sách phiếu nhập theo nhà cung cấp");
+    throw error;
+  }
+}
 

@@ -10,42 +10,101 @@ import EntityTable from "../../components/Util/EntityTable";
 import SearchBox from "../../components/Util/Search";
 import { useSupplierContext } from "../../../context/SupplierContext";
 import { useNavigate } from "react-router-dom";
+import {
+  getStockReceiveById,
+  getStockReceives,
+  getStockReceivesBySupplierId,
+} from "../../../api/stock_receiveApi";
+import { useEffect } from "react";
+import { currencyFormatter } from "../../components/Util/Formatter";
 export default function Import() {
   const navigate = useNavigate();
- 
-  const {suppliers} = useSupplierContext();
+  const [loading, setLoading] = React.useState(true);
+  const { suppliers } = useSupplierContext();
   const [resetFilter, setResetFilter] = React.useState(false);
   const [transformedImport, setTransformedImport] = React.useState<any[]>([]);
   const SuppliersOptions = suppliers.map((supplier: any) => ({
     value: supplier.id,
     label: supplier.name,
   }));
-    // Xử lý khi người dùng bấm vào hàng sản phẩm
-    const handleRowClick = (import_note: any) => {
-      navigate(`/detailImport/${import_note.id}`); // Chuyển hướng đến trang chỉnh sửa sản phẩm
-    };
+  // Xử lý khi người dùng bấm vào hàng sản phẩm
+  const handleRowClick = (import_note: any) => {
+    navigate(`/detailImport/${import_note.id}`); // Chuyển hướng đến trang chỉnh sửa sản phẩm
+  };
   const handleReset = () => {
     setResetFilter(true);
     setTimeout(() => setResetFilter(false), 0);
-    
+    fetchStockReceives();
+   
   };
+  const fetchStockReceives = async () => {
+    try {
+      const data = await getStockReceives(); // Gọi API để lấy dữ liệu
+      const transformedData = data.map((item: any) => ({
+        id: item.id,
+        created_at: new Date(item.receive_date).toLocaleDateString("vi-VN"),
+        total_amount: currencyFormatter.format(item.total),
+        supplier_name: item.supplier.name,
+        note: item.note,
+      }));
+      setTransformedImport(transformedData); // Cập nhật state
+    } catch (error) {
+      console.error("Lỗi khi lấy dữ liệu phiếu nhập:", error);
+    }
+  };
+
+  // Hàm lấy dữ liệu từ API khi component được tải
+  useEffect(() => {
+   
+    fetchStockReceives(); // Gọi hàm khi component được tải
+  }, []);
   const onOpenAddDialog = () => {
-    navigate("/addImport");  
-  }
-  const searchProductsById = (id: string) => {
-    console.log(`Tìm phiếu nhập có mã: ${id}`);
-  }
-  
+    navigate("/addImport");
+  };
+  const searchProductsById = async (id: string) => {
+    setLoading(true);
+    try {
+      const data = await getStockReceiveById(parseInt(id));
+      const transformedData = data.map((item: any) => ({
+        id: item.id,
+        created_at: new Date(item.receive_date).toLocaleDateString("vi-VN"),
+        total_amount: currencyFormatter.format(item.total),
+        supplier_name: item.supplier.name,
+        note: item.note,
+      }));
+      setTransformedImport(transformedData); // Cập nhật state
+    } catch (error) {
+      console.error("Error searching products:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Hàm lọc theo danh mục
-  const handleFilterSupplier = (value: string) => {
-    console.log(`Lọc theo nhà cung cấp: ${value}`);
+  const handleFilterSupplier = async (value: string) => {
+    setLoading(true);
+    try {
+      const data = await getStockReceivesBySupplierId(parseInt(value));
+      const transformedData = data.map((item: any) => ({
+        id: item.id,
+        created_at: new Date(item.receive_date).toLocaleDateString("vi-VN"),
+        total_amount: currencyFormatter.format(item.total),
+        supplier_name: item.supplier.name,
+        note: item.note,
+      }));
+      setTransformedImport(transformedData); // Cập nhật state
+    } catch (error) {
+      console.error("Error searching products:", error);
+    } finally {
+      setLoading(false);
+    }
   };
   const importColumns = [
-    { label: "Mã phiếu nhập", key: "import_id" }, 
-    { label: "Ngày tạo", key: "created_at" }, 
-    { label: "Tổng tiền", key: "total_amount" }, 
-    { label: "Nhà cung cấp", key: "supplier_name" }, 
-    { label: "Ghi chú", key: "note" }, 
+    { label: "Mã phiếu nhập", key: "id" },
+    { label: "Ngày tạo", key: "created_at" },
+    { label: "Tổng tiền", key: "total_amount" },
+    { label: "Nhà cung cấp", key: "supplier_name" },
+    { label: "Ghi chú", key: "note" },
   ];
   return (
     <Box
@@ -78,17 +137,19 @@ export default function Import() {
         >
           Danh sách phiếu nhập
         </Typography>
-        <Box sx={{ display: "flex", alignItems: "center",marginRight:'20px' }}>
+        <Box
+          sx={{ display: "flex", alignItems: "center", marginRight: "20px" }}
+        >
           {" "}
           <AddButton
             icon={<AddCircleIcon />}
-            text= "Tạo phiếu nhập"
+            text="Tạo phiếu nhập"
             onClick={onOpenAddDialog}
           />
         </Box>
       </Box>
-            {/* Main Content */}
-            <Box
+      {/* Main Content */}
+      <Box
         sx={{
           margin: "20px",
           padding: "10px",
@@ -132,7 +193,7 @@ export default function Import() {
               entities={transformedImport}
               loading={false}
               columns={importColumns}
-              onRowClick={() => {}}
+              onRowClick={handleRowClick}
             />
           </TableContainer>
         </Box>

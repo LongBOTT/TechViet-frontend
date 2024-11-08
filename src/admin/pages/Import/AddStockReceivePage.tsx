@@ -124,7 +124,6 @@ export default function AddImportPage() {
       // Gửi `StockReceiveRequest` lên server và nhận lại `id`
       const response = await createStockReceive(newStockReceiveRequest);
       const importId = response.id; // Đảm bảo rằng `id` tồn tại trong phản hồi
-      console.log("importId", importId);
 
       // Tạo `stockReceiveDetails` dựa trên `selectedProducts` và `importId`
       const newStockReceiveDetails = selectedProducts.map((product) => ({
@@ -158,10 +157,10 @@ export default function AddImportPage() {
       // Gọi API để lưu từng IMEI vào database
       if (imeiRequests.length > 0) {
         await Promise.all(imeiRequests.map((imei) => createImei(imei)));
-        console.log("IMEIs đã được lưu thành công");
+     
       }
-
-      console.log("Lưu thành công");
+      alert("Lưu thành công");
+      navigate("/import");
     } catch (error) {
       console.error("Lỗi khi lưu dữ liệu:", error);
     }
