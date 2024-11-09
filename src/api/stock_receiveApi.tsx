@@ -42,3 +42,13 @@ export const getStockReceivesBySupplierId = async (supplierId: number) => {
   }
 }
 
+export const getStockReceiveAndStockReceiveDetailById = async (id: number) => {
+  try {
+    const response = await axiosInstance.get(`/stock-receives/getStockReceiveAndStockReceiveDetailById/${id}`);
+    return response.data;
+  } catch (error: any) {
+    handleApiError(error, "lấy thông tin phiếu nhập và chi tiết phiếu nhập");
+    throw error;
+  }
+}
+
