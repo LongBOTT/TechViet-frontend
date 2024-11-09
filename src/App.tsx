@@ -25,7 +25,7 @@ import ProductPage from "./admin/pages/Product/ProductPage";
 import CustomerPage from "./admin/pages/CustomerPage";
 import DashboardPage from "./admin/pages/DashboardPage";
 import DiscountPage from "./admin/pages/DiscountPage";
-import OrderPage from "./admin/pages/OrderPage";
+import OrderPage from "./admin/pages/Order/OrderPage";
 import OverviewPage from "./admin/pages/OverviewPage";
 import SupplierPage from "./admin/pages/SupplierPage";
 import WarrantyPage from "./admin/pages/WarrantyPage";
@@ -37,6 +37,7 @@ import EditProductPage from "./admin/pages/Product/EditProductPage";
 import AddImportPage from "./admin/pages/Import/AddStockReceivePage";
 import DetailImportPage from "./admin/pages/Import/DetailImportPage";
 import ImportPage from "./admin/pages/Import/ImportPage";
+import OrderDetailPage from "./admin/pages/Order/OrderDetailPage";
 
 function App() {
   return (
@@ -105,6 +106,8 @@ function App() {
           />
           <Route path ="addImport" element={<AddImportPage />} />"
           <Route path = "detailImport/:id" element={<DetailImportPage />} />
+          <Route path="order" element={<OrderPage />} />
+          <Route path="orderDetail/:id" element={<OrderDetailPage />} />
           <Route
             path="suppliers"
             element={
