@@ -161,9 +161,12 @@ export default function EditProductPage() {
         setLoading(false);
         return;
       }
-  
+
       // Kiểm tra xem tên sản phẩm đã tồn tại chưa
-      const isNameExists = await checkDuplicateProductName(product.name, product.id);
+      const isNameExists = await checkDuplicateProductName(
+        product.name,
+        product.id
+      );
       if (isNameExists) {
         alert("Tên sản phẩm đã tồn tại!");
         setLoading(false);
@@ -229,7 +232,7 @@ export default function EditProductPage() {
     setLoading(true);
     try {
       await updateProductStatus(Number(id));
-      showSnackbar("Sản phẩm đã được xóa!");
+      alert("Xóa sản phẩm thành công!");
       navigate("/products");
     } catch (error) {
       console.error("Error deleting product:", error);
