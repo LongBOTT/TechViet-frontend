@@ -49,7 +49,7 @@ const ItemCard: FC<ItemCardProps> = ({ productVariant, onCompareToggle, isInComp
       setName(productVariant.product.name + " " + selectedVariant.value)
 
       const attributeColorList = productVariant.variants_attributes.filter(x => (x.attribute.name === "Màu sắc" && x.variant.id == selectedVariant.variant.id)); // Các lựa chọn dung lượng
-      if (attributeColorList.length > 1) {
+      if (attributeColorList) {
         setColors([]);
         const colorList: string[] = [];
 

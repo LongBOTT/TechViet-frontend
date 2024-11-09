@@ -31,7 +31,9 @@ import {
 import { useState } from "react";
 import Login from "../../pages/Login/Login"; // Import component Login
 import NavLinks from "./NavLinks";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { BASE, CART } from "../../constants/routeConstants";
+import { useCart } from "../../context/CartContex";
 
 const settings = ["Thông tin", "Lịch sử mua hàng", "Đăng xuất"];
 const Search = styled("div")(({ theme }) => ({
@@ -74,7 +76,6 @@ function NavBar() {
     null
   );
 
-
   const [openLoginDialog, setOpenLoginDialog] = useState(false); // Trạng thái mở hộp thoại đăng nhập
 
   const [loggedIn, setLoggedIn] = useState(false); // Trạng thái đăng nhập
@@ -89,25 +90,24 @@ function NavBar() {
     setAnchorElNav(null);
   };
 
-   // Hàm gọi khi đăng xuất
-   const handleLogout = () => {
-    setLoggedIn(false); 
+  // Hàm gọi khi đăng xuất
+  const handleLogout = () => {
+    setLoggedIn(false);
     setAnchorElUser(null);
   };
-  
+
   // Hàm gọi khi đăng nhập thành công
   const handleLoginSuccess = () => {
-    setLoggedIn(true); 
-    setOpenLoginDialog(false); 
+    setLoggedIn(true);
+    setOpenLoginDialog(false);
   };
 
   // Mở menu user hoặc hộp thoại đăng nhập
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
-
     if (!loggedIn) {
-      setOpenLoginDialog(true); 
+      setOpenLoginDialog(true);
     } else {
-      setAnchorElUser(event.currentTarget); 
+      setAnchorElUser(event.currentTarget);
     }
   };
 
@@ -121,19 +121,32 @@ function NavBar() {
     setAnchorElUser(null);
   };
 
+  const navigate = useNavigate();
+
+  const handleCartClick = () => {
+    navigate(CART); // Điều hướng về trang chủ hoặc trang sản phẩm
+  };
+
+  const handleBaseClick = () => {
+    navigate(BASE); // Điều hướng về trang chủ hoặc trang sản phẩm
+  };
+
+  const { cart } = useCart(); // Lấy cart từ CartContext
+  // Tính tổng số lượng sản phẩm trong giỏ hàng
+  const totalQuantity = cart.length;
+
   return (
     <AppBar position="static" sx={{ background: "#da031b", height: "100px" }}>
       <Container>
         <Toolbar sx={{ alignItems: "center", justifyContent: "center" }}>
           {/* Logo */}
-          <Link to={"/"} >
           <Box
+            onClick={handleBaseClick}
             component="img"
             src="/src/assets/logo.png"
             alt="Logo"
             sx={{ height: "100px", marginRight: "5px" }}
           />
-          </Link>
 
           {/* Ẩn trong md */}
           <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
@@ -202,7 +215,7 @@ function NavBar() {
                 justifyContent: "center",
               }}
             > */}
-              <NavLinks/>
+            <NavLinks />
             {/* </Box> */}
           </Box>
           {/* Icon profile */}
@@ -237,8 +250,13 @@ function NavBar() {
                 {/* Hiện menu khi click */}
                 {settings.map((setting) => (
                   <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                    <Typography sx={{ textAlign: "center", fontSize: "15px" }}
-                     onClick={setting === "Đăng xuất" ? handleLogout : handleCloseUserMenu}
+                    <Typography
+                      sx={{ textAlign: "center", fontSize: "15px" }}
+                      onClick={
+                        setting === "Đăng xuất"
+                          ? handleLogout
+                          : handleCloseUserMenu
+                      }
                     >
                       {setting}
                     </Typography>
@@ -248,16 +266,16 @@ function NavBar() {
             ) : (
               // Nếu chưa đăng nhập, mở hộp thoại đăng nhập
               <Login
-              open={openLoginDialog}
-              onClose={handleCloseLoginDialog}
-              onLoginSuccess={handleLoginSuccess} // Được gọi khi mã SMS hợp lệ
-            />
+                open={openLoginDialog}
+                onClose={handleCloseLoginDialog}
+                onLoginSuccess={handleLoginSuccess} // Được gọi khi mã SMS hợp lệ
+              />
             )}
           </Box>
 
           {/* Giỏ hàng */}
-          <IconButton>
-            <Badge badgeContent={2} color="secondary">
+          <IconButton onClick={handleCartClick}>
+            <Badge badgeContent={totalQuantity} color="secondary">
               <ShoppingCartIcon sx={{ height: "30px", width: "30px" }} />
             </Badge>
           </IconButton>
@@ -267,8 +285,6 @@ function NavBar() {
         </Toolbar>
       </Container>
     </AppBar>
-
-
   );
 }
 

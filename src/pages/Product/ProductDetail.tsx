@@ -1,4 +1,4 @@
-import { Box, Breadcrumbs, Link, Typography, Grid, Chip, Button, Avatar, Divider, Grid2, Paper, Table, TableBody, TableCell, TableRow, Tab, Tabs } from '@mui/material';
+import { Box, Breadcrumbs, Link, Typography, Grid, Chip, Button, Avatar, Divider, Grid2, Paper, Table, TableBody, TableCell, TableRow, Tab, Tabs, Modal, Alert, IconButton } from '@mui/material';
 import React, { FC, ReactElement, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { CATEGORY } from '../../constants/routeConstants';
@@ -14,76 +14,9 @@ import { searchVariant_AttributeByVariant } from '../../api/variant_attributeApi
 import { Category } from '../../types/category';
 import ProductDescription from './ProductDescription';
 import SpecificationsTable from './SpecificationsTable';
-
-interface ProductDetailProps {}
-
-// interface Product {
-//   id: number;
-//   name: string;
-//   rating: number;
-//   reviews: number;
-//   price: number;
-//   installmentPrice: number;
-//   storageOptions: string[];
-//   colorOptions: { name: string, imageUrl: string }[]; // Array of objects to store color and image mapping
-//   promotions: string[];
-//   reviewContent: string;
-//   specifications: {
-//     general: {
-//       origin: string;
-//       launchDate: string;
-//       warranty: string;
-//     };
-//     design: {
-//       dimensions: string;
-//       weight: string;
-//       waterResistance: string;
-//       material: string;
-//     };
-//     processor: {
-//       cpu: string;
-//       coreCount: string;
-//       ram: string;
-//     };
-//     display: {
-//       size: string;
-//       type: string;
-//       resolution: string;
-//       brightness: string;
-//       contrast: string;
-//       glass: string;
-//     };
-//     storage: {
-//       rom: string;
-//       expandable: string;
-//     };
-//     camera: {
-//       rear: string;
-//       front: string;
-//       rearVideo: string;
-//       selfieVideo: string;
-//       features: string[];
-//     };
-//     sensors: string[];
-//     connectivity: {
-//       sim: string;
-//       network: string;
-//       usb: string;
-//       wifi: string;
-//       bluetooth: string;
-//       gps: string[];
-//     };
-//     battery: {
-//       type: string;
-//       capacity: string;
-//       fastCharging: string;
-//       wirelessCharging: string;
-//       reverseCharging: string;
-//     };
-//     os: string;
-//     accessories: string[];
-//   };
-// }
+import { useCart } from '../../context/CartContex';
+import { CartItem } from '../../types/cartItem';
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 
 interface Product_Variant {
   product: Product;
@@ -91,7 +24,7 @@ interface Product_Variant {
   variants_attributes: Variant_Attribute[];
 }
 
-const ProductDetail: FC<ProductDetailProps> = (): ReactElement => {
+const ProductDetail: FC = (): ReactElement => {
   const params = useParams<{ id: string }>();
   const safeProductId = parseInt(params.id?.replace(":", "") || "0", 10);
   const [isReviewExpanded, setIsReviewExpanded] = useState(false);
@@ -107,7 +40,35 @@ const ProductDetail: FC<ProductDetailProps> = (): ReactElement => {
   const [storedList, setStoredList] = useState<Variant_Attribute[]>([]);
   const [colorList, setColorList] = useState<Variant_Attribute[]>([]);
   const [category, setCategory] = useState<Category | null>(null);
+  const { addToCart } = useCart();
+  const [cartItem, setCartItem] = useState<CartItem>();
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
+  // Clear the alert after 3 seconds
+  useEffect(() => {
+    if (alertMessage) {
+      const timer = setTimeout(() => setAlertMessage(null), 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [alertMessage]);
 
+  const handleAddToCart = () => {
+    if (selectedVariant) {
+      const selectCartItem: CartItem = {
+        id: selectedVariant.id,
+        products: selectedVariant.products,
+        name: selectedVariant.name,
+        costPrice: selectedVariant.costPrice,
+        price: selectedVariant.price,
+        quantity: selectedVariant.quantity,
+        status: selectedVariant.status,
+        image: selectedVariant.image,
+        buyQuantity: 1
+      };
+      addToCart(selectCartItem);
+      setAlertMessage("Thêm sản phẩm thành công.")
+    }
+    
+  };
   useEffect(() => {
     const fetchProductData = async () => {
       try {
@@ -213,6 +174,23 @@ const ProductDetail: FC<ProductDetailProps> = (): ReactElement => {
 
   return (
     <Box p={4} sx={{ backgroundColor: "#FFFFFF" }}>
+      {/* Centered Modal Alert */}
+      <Modal
+        open={Boolean(alertMessage)}
+        onClose={() => setAlertMessage(null)}
+        aria-labelledby="alert-message"
+        closeAfterTransition
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          backdropFilter: "blur(3px)", // Optional: blur background
+        }}
+      >
+        <Alert severity="success" sx={{ mb: 2 }}>
+          <Typography id="alert-message">{alertMessage}</Typography>
+        </Alert>
+      </Modal>
       {/* Breadcrumbs */}
       <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 2 }}>
         <Link underline="hover" color="inherit" href="/">
@@ -401,8 +379,23 @@ const ProductDetail: FC<ProductDetailProps> = (): ReactElement => {
           </Box>
 
           {/* Purchase and Installment Buttons */}
-          <Box mt={2} mb={2}>
+          <Box mt={2} mb={2} sx={{ display: "flex", gap: 2 }}>
+            <IconButton
+              onClick={handleAddToCart}
+              sx={{
+                border: "1px solid #e01516",
+                color: "#e01516",
+                borderRadius: "8px",
+                padding: "10px",
+                "&:hover": {
+                  backgroundColor: "#fff5f5",
+                },
+              }}
+            >
+              <ShoppingCartIcon />
+            </IconButton>
             <Button
+              // onClick={handleAddToCart}
               variant="contained"
               size="large"
               sx={{
@@ -490,9 +483,7 @@ const ProductDetail: FC<ProductDetailProps> = (): ReactElement => {
 
         {tabIndex === 1 && (
           <Paper elevation={3} sx={{ p: 3, margin: "50px" }}>
-            <SpecificationsTable
-              variant={selectedVariant}
-            />
+            <SpecificationsTable variant={selectedVariant} />
           </Paper>
         )}
       </Box>

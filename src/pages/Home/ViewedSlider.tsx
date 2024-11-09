@@ -69,7 +69,7 @@ const ViewedSlider: React.FC<ViewedSliderProps> = ({ sliderRef }) => {
     <Box sx={{padding: '30px', borderRadius:'10px',
                 backgroundSize: '100% 100%',
                 backgroundPosition: 'center',
-                backgroundImage: `url("src/assets/GoRec.webp")`}}>
+                backgroundImage: `url("src/assets/Backgroung.png")`}}>
     <Typography variant="h4" fontWeight="bold" sx={{ color: '#000000', textAlign: 'center' }}>SẢN PHẨM ĐÃ XEM</Typography>
 
     <Slider ref={sliderRef} {...settings}>
