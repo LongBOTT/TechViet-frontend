@@ -24,8 +24,16 @@ import { CategoryProvider } from "../../../context/CategoryContext";
 import { BrandProvider } from "../../../context/BrandContex";
 import { WarrantyProvider } from "../../../context/WarrantyContext";
 import { ProductRequest, ProductWithVariants } from "../../../types/product";
-import { addVariant, deleteVariantByProduct } from "../../../api/variantApi";
-import { addVariantAttribute } from "../../../api/variant_attributeApi";
+import {
+  addVariant,
+  deleteVariant,
+  deleteVariantByProduct,
+  updateVariant,
+} from "../../../api/variantApi";
+import {
+  addVariantAttribute,
+  deleteVariantAttributes,
+} from "../../../api/variant_attributeApi";
 
 export default function EditProductPage() {
   const navigate = useNavigate();
@@ -43,6 +51,12 @@ export default function EditProductPage() {
   const [commonAttributesData, setCommonAttributesData] = React.useState<
     VariantAttributeRequest[]
   >([]);
+
+  const [updatedVariants, setUpdatedVariants] = React.useState<
+    VariantRequest[]
+  >([]);
+  const [updatedVariantAttributes, setUpdatedVariantAttributes] =
+    React.useState<VariantAttributeRequest[][]>([]);
 
   // Hàm chuyển đổi từ API response sang ProductRequest
   function transformProductDataToRequests(productData: ProductWithVariants) {
@@ -68,6 +82,7 @@ export default function EditProductPage() {
         costPrice: variant.costPrice,
         price: variant.price,
         productId: productData.id,
+        status: variant.status,
       })
     );
 
@@ -127,6 +142,8 @@ export default function EditProductPage() {
           setVariantsData(variantRequests);
           setVariantAttributeData(variantAttributeData);
           setCommonAttributesData(commonAttributesData);
+          setUpdatedVariants(variantRequests);
+          setUpdatedVariantAttributes(variantAttributeData);
         })
         .catch((error) => {
           console.error("Error fetching product:", error);
@@ -143,11 +160,11 @@ export default function EditProductPage() {
   };
 
   const handleUpdateVariantList = (
-    updatedVariants: VariantRequest[],
-    updatedAttributes: VariantAttributeRequest[][]
+    variants: VariantRequest[],
+    attributes: VariantAttributeRequest[][]
   ) => {
-    setVariantsData(updatedVariants);
-    setVariantAttributeData(updatedAttributes);
+    setUpdatedVariants(variants);
+    setUpdatedVariantAttributes(attributes);
   };
 
   const handleSave = async () => {
@@ -174,49 +191,67 @@ export default function EditProductPage() {
       // Bước 1: Cập nhật thông tin sản phẩm
       await updateProduct(product.id, product);
 
-      // Bước 2: Xóa tất cả các phiên bản của sản phẩm trước khi thêm lại
-      await deleteVariantByProduct(product.id);
-
-      // Bước 3: Thêm lại các phiên bản trong `variantsData`
-      const savedVariants = await Promise.all(
-        variantsData.map((variant) =>
-          addVariant({ ...variant, productId: product.id })
-        )
+      // Cập nhật, thêm, hoặc xóa các biến thể
+      const newVariants = updatedVariants.filter(
+        (variant) => !variantsData.some((v) => v.id === variant.id)
       );
+      console.log("New variants to add:", newVariants);
 
-      // Tạo bản đồ ID tạm -> ID thực sau khi thêm
-      const variantIdMap = variantsData.reduce((map, variant, index) => {
-        map[variant.id] = savedVariants[index].id;
-        return map;
-      }, {} as { [tempId: number]: number });
-
-      // Bước 4: Cập nhật `variantAttributeData` với ID chính xác cho các thuộc tính của từng phiên bản
-      const updatedVariantAttributesData = [
-        // Cập nhật thuộc tính riêng của từng phiên bản
-        ...variantAttributeData.flatMap((attributeGroup) =>
-          attributeGroup.map((attribute) => ({
-            ...attribute,
-            variantId: variantIdMap[attribute.variantId], // Đổi từ ID tạm sang ID thực
-          }))
-        ),
-        // Thêm các thông số kỹ thuật chung cho tất cả các phiên bản
-        ...savedVariants.flatMap((variant) =>
-          commonAttributesData.map((commonAttr) => ({
-            variantId: variant.id,
-            attributeId: commonAttr.attributeId,
-            value: commonAttr.value,
-          }))
-        ),
-      ];
-
-      // Bước 5: Lưu lại tất cả thuộc tính và thông số kỹ thuật của phiên bản vào cơ sở dữ liệu
-      await Promise.all(
-        updatedVariantAttributesData.map((attribute) =>
-          addVariantAttribute(attribute)
-        )
+      const variantsToUpdate = updatedVariants.filter((variant) =>
+        variantsData.some((v) => v.id === variant.id)
       );
+      console.log("Variants to update:", variantsToUpdate);
 
-      // Cập nhật trạng thái
+      const variantIdsToDelete = variantsData
+        .filter((v) => !updatedVariants.some((updated) => updated.id === v.id))
+        .map((v) => v.id);
+      console.log("Variant IDs to delete:", variantIdsToDelete);
+
+      // // Cập nhật, thêm mới, xóa biến thể
+      // Thêm mới và cập nhật `id` thực
+      for (const variant of newVariants) {
+        const response = await addVariant(variant); 
+        const realId = response.id;
+
+        // Cập nhật lại `id` thực trong `updatedVariants` và `updatedVariantAttributes`
+        variant.id = realId;
+        const attributeIndex = updatedVariants.findIndex(
+          (v) => v.id === variant.id
+        );
+        if (attributeIndex !== -1) {
+          updatedVariants[attributeIndex].id = realId;
+          updatedVariantAttributes[attributeIndex].forEach((attr) => {
+            attr.variantId = realId;
+          });
+        }
+      }
+      for (const variant of variantsToUpdate) {
+        await updateVariant(variant.id, variant);
+      }
+      for (const id of variantIdsToDelete) {
+        await deleteVariant(id);
+      }
+
+      // Cập nhật các thuộc tính kỹ thuật cho từng phiên bản
+      for (let i = 0; i < updatedVariantAttributes.length; i++) {
+        const variantId = updatedVariants[i].id;
+        await deleteVariantAttributes(Number(variantId));
+
+        // Thêm các thuộc tính đặc thù của phiên bản
+        for (const attr of updatedVariantAttributes[i]) {
+          await addVariantAttribute(attr);
+        }
+
+        // Thêm các thông số kỹ thuật chung
+        for (const commonAttr of commonAttributesData) {
+          const attributeToAdd = {
+            ...commonAttr,
+            variantId, // Gắn variantId hiện tại
+          };
+          await addVariantAttribute(attributeToAdd);
+        }
+      }
+
       showSnackbar("Cập nhật sản phẩm thành công!");
       setIsEditing(false);
     } catch (error) {
@@ -325,6 +360,7 @@ export default function EditProductPage() {
         }}
       >
         <EditVariant
+          productId={Number(id)}
           productName={product?.name ?? ""}
           productCategoryId={product?.categoryId ?? 0}
           initialVariants={variantsData}

@@ -15,9 +15,9 @@ export const addVariant = async (variant: VariantRequest): Promise<VariantReques
 };
 
 // Gọi API sửa phiên bản
-export const updateVariant = async (id: number,variant: Variant) => {
+export const updateVariant = async (id: number,variant: VariantRequest) => {
   try {
-    const response = await axiosInstance.put(`/Variants/${id}`, variant);
+    const response = await axiosInstance.put(`/variants/${id}`, variant);
     return response.data;
   } catch (error: any) {
     handleApiError(error, "cập nhật phiên bản");
@@ -27,7 +27,7 @@ export const updateVariant = async (id: number,variant: Variant) => {
 // Gọi API xóa phiên bản
 export const deleteVariant = async (id: number) => {
   try {
-    const response = await axiosInstance.delete(`/Variants/${id}`);
+    const response = await axiosInstance.put(`/variants/deleteVariantById/${id}`)
     return response.data;
   } catch (error: any) {
     handleApiError(error, "xóa phiên bản");

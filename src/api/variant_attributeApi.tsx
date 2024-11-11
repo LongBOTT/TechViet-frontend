@@ -24,3 +24,12 @@ export const addVariantAttribute = async (variant_attribute: VariantAttributeReq
     throw error;
   }
 };
+
+export const deleteVariantAttributes = async (id: number) => {
+  try {
+    const response = await axiosInstance.delete(`/variant_attributes/${id}`);
+    return response.data;
+  } catch (error: any) {
+    handleApiError(error, "xóa variant_attribute");
+  }
+}

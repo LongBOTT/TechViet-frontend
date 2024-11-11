@@ -25,6 +25,7 @@ export interface VariantRequest {
   price: number;
   costPrice: number;
   productId: number;
+  status: string;
 }
 
 export interface Variants extends VariantRequest {
