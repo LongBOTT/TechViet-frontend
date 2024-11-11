@@ -127,7 +127,6 @@ export default function EditProductPage() {
           setVariantsData(variantRequests);
           setVariantAttributeData(variantAttributeData);
           setCommonAttributesData(commonAttributesData);
-          console.log("commonAttributes Data :", commonAttributesData);
         })
         .catch((error) => {
           console.error("Error fetching product:", error);

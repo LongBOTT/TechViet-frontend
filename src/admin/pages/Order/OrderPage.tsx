@@ -21,6 +21,7 @@ import {
   getAllOrders,
   getOrderByPaymentMethod,
   getOrderByStatus,
+  getOrdersByKeyword,
 } from "../../../api/orderApi";
 import { currencyFormatter } from "../../components/Util/Formatter";
 import OrderStatus from "../../components/Order/OrderStatus";
@@ -106,7 +107,7 @@ export default function Order() {
     // Chuyển đổi giá trị tiền thành chuỗi có định dạng
     return Object.values(statusMap).map((status) => ({
       ...status,
-      value: currencyFormatter.format(status.value)
+      value: currencyFormatter.format(status.value),
     }));
   };
   const fetchOrders = async () => {
@@ -125,8 +126,6 @@ export default function Order() {
     fetchOrders(); // Gọi hàm khi component được tải
   }, []);
 
- 
-
   const handleExport = () => console.log("Xuất file");
   const handleImport = () => console.log("Nhập file");
   const handleReset = () => {
@@ -135,8 +134,14 @@ export default function Order() {
     fetchOrders();
   };
 
-  const searchProductsByName = (query: string) => {
-    console.log("Search:", query);
+  const searchOrdersByKeyword = async (query: string) => {
+    try {
+      const data = await getOrdersByKeyword(query);
+      const transformedData = transformOrderData(data);
+      setTransformedOrder(transformedData);
+    } catch (error) {
+      console.error("Lỗi khi lấy dữ liệu phiếu nhập:", error);
+    }
   };
 
   const handleFilterOrderStatus = async (value: string) => {
@@ -157,7 +162,7 @@ export default function Order() {
       console.error("Lỗi khi lấy dữ liệu phiếu nhập:", error);
     }
   };
-  const PaymentStatusOptions = [
+  const StatusOptions = [
     { value: "Chờ duyệt", label: "Chờ duyệt" },
     { value: "Chuẩn bị hàng", label: "Chuẩn bị hàng" },
     { value: "Đang giao", label: "Đang giao" },
@@ -170,8 +175,8 @@ export default function Order() {
     { value: "Cash", label: "Tiền mặt" },
   ];
   const handleRowClick = (order: any) => {
-    navigate(`/orderDetail/${order.id}`)
-  }
+    navigate(`/orderDetail/${order.id}`);
+  };
   return (
     <Box
       sx={{
@@ -234,10 +239,11 @@ export default function Order() {
             margin: "10px",
           }}
         >
-          <Typography sx={{ fontFamily: "roboto", fontWeight: "bold",marginTop:"20px" }}>
+          <Typography
+            sx={{ fontFamily: "roboto", fontWeight: "bold", marginTop: "20px" }}
+          >
             ĐƠN HÀNG CẦN XỬ LÝ
           </Typography>
-    
         </Box>
 
         <Divider sx={{ marginY: 2 }} />
@@ -280,7 +286,7 @@ export default function Order() {
             {" "}
             <SearchBox
               placeholder="Tìm theo mã đơn hàng, tên khách hàng"
-              onSearch={searchProductsByName}
+              onSearch={searchOrdersByKeyword}
               resetSearch={resetFilter}
             />
           </Box>
@@ -302,19 +308,19 @@ export default function Order() {
           <Box sx={{ minWidth: "200px" }}>
             <FilterDropdown
               label="Trạng thái đơn"
-              options={PaymentStatusOptions}
+              options={StatusOptions}
               onFilterChange={handleFilterOrderStatus}
               resetFilter={resetFilter}
             />
           </Box>
-          <Box sx={{ minWidth: "200px" }}>
+          {/* <Box sx={{ minWidth: "200px" }}>
             <FilterDropdown
               label="Ngày tạo"
               options={PaymentStatusOptions}
               onFilterChange={handleFilterOrderStatus}
               resetFilter={resetFilter}
             />
-          </Box>
+          </Box> */}
         </Box>
 
         {/* Table Section */}

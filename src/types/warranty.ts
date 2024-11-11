@@ -6,3 +6,8 @@ export interface Warranty {
   unit: string;     // Đơn vị thời gian bảo hành (ví dụ: tháng, năm)
   note: string;     // Ghi chú, với độ dài tối đa 4096 ký tự
 }
+
+export interface WarrantyNote {
+
+  
+}

@@ -34,7 +34,7 @@ export default function PermanentDrawerLeft() {
     "Nhà cung cấp": <LocalShippingIcon />,
     "Bảo hành": <GppGoodIcon />,
     "Khách hàng": <PeopleIcon />,
-    "Giảm giá": <LocalOfferIcon />,
+    // "Giảm giá": <LocalOfferIcon />,
     "Báo cáo": <BarChartIcon />,
   };
 
@@ -46,7 +46,7 @@ export default function PermanentDrawerLeft() {
     "Nhà cung cấp": "/suppliers",
     "Bảo hành": "/warranty",
     "Khách hàng": "/customers",
-    "Giảm giá": "/discounts",
+    // "Giảm giá": "/discounts",
     "Báo cáo": "/reports",
   };
 
