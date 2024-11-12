@@ -27,7 +27,7 @@ import ProductPage from "./admin/pages/Product/ProductPage";
 import CustomerPage from "./admin/pages/CustomerPage";
 import DashboardPage from "./admin/pages/DashboardPage";
 import DiscountPage from "./admin/pages/DiscountPage";
-import OrderPage from "./admin/pages/OrderPage";
+import OrderPage from "./admin/pages/Order/OrderPage";
 import OverviewPage from "./admin/pages/OverviewPage";
 import SupplierPage from "./admin/pages/SupplierPage";
 import WarrantyPage from "./admin/pages/WarrantyPage";
@@ -60,74 +60,74 @@ function App() {
       <ScrollToTopButton />
     </Router>
 
-    // <Router>
-    //   <Routes>
-    //     {/* Đặt PermanentDrawerLeft làm route cha */}
-    //     <Route path="/" element={<PermanentDrawerLeft />}>
-    //       <Route index element={<Navigate to="/overview" />} />
-    //       <Route path="overview" element={<OverviewPage />} />
-    //       <Route path="orders" element={<OrderPage />} />
-    //       <Route
-    //         path="products"
-    //         element={
-    //           <ProductProvider>
-    //             <CategoryProvider>
-    //               <BrandProvider>
-    //                 <ProductPage />
-    //               </BrandProvider>
-    //             </CategoryProvider>
-    //           </ProductProvider>
-    //         }
-    //       />
-    //       <Route
-    //         path="/AddProduct"
-    //         element={
-    //           <CategoryProvider>
-    //             <BrandProvider>
-    //               <ProductProvider>
-    //                 <AddProductPage />
-    //               </ProductProvider>
-    //             </BrandProvider>
-    //           </CategoryProvider>
-    //         }
-    //       />
-    //       <Route
-    //         path="/EditProduct/:id"
-    //         element={
-    //           <CategoryProvider>
-    //             <BrandProvider>
-    //               <ProductProvider>
-    //                 <EditProductPage />
-    //               </ProductProvider>
-    //             </BrandProvider>
-    //           </CategoryProvider>
-    //         }
-    //       />
-    //       <Route
-    //         path="import"
-    //         element={
-    //           <SupplierProvider>
-    //             <ImportPage />
-    //           </SupplierProvider>
-    //         }
-    //       />
-    //       <Route path ="addImport" element={<AddImportPage />} />"
-    //       <Route path = "detailImport/:id" element={<DetailImportPage />} />
-    //       <Route
-    //         path="suppliers"
-    //         element={
-    //           <SupplierProvider>
-    //             <SupplierPage />
-    //           </SupplierProvider>
-    //         }
-    //       />
-    //       <Route path="warranty" element={<WarrantyPage />} />
-    //       <Route path="customers" element={<CustomerPage />} />
-    //       <Route path="discounts" element={<DiscountPage />} />
-    //       <Route path="reports" element={<DashboardPage />} />
-    //     </Route>
-    //   </Routes>
-    // </Router>
+      //     <Routes>
+      //   {/* Đặt PermanentDrawerLeft làm route cha */}
+      //   <Route path="/" element={<PermanentDrawerLeft />}>
+      //     <Route index element={<Navigate to="/overview" />} />
+      //     <Route path="overview" element={<OverviewPage />} />
+      //     <Route path="orders" element={<OrderPage />} />
+      //     <Route
+      //       path="products"
+      //       element={
+      //         <ProductProvider>
+      //           <CategoryProvider>
+      //             <BrandProvider>
+      //               <ProductPage />
+      //             </BrandProvider>
+      //           </CategoryProvider>
+      //         </ProductProvider>
+      //       }
+      //     />
+      //     <Route
+      //       path="/AddProduct"
+      //       element={
+      //         <CategoryProvider>
+      //           <BrandProvider>
+      //             <ProductProvider>
+      //               <AddProductPage />
+      //             </ProductProvider>
+      //           </BrandProvider>
+      //         </CategoryProvider>
+      //       }
+      //     />
+      //     <Route
+      //       path="/EditProduct/:id"
+      //       element={
+      //         <CategoryProvider>
+      //           <BrandProvider>
+      //             <ProductProvider>
+      //               <EditProductPage />
+      //             </ProductProvider>
+      //           </BrandProvider>
+      //         </CategoryProvider>
+      //       }
+      //     />
+      //     <Route
+      //       path="import"
+      //       element={
+      //         <SupplierProvider>
+      //           <ImportPage />
+      //         </SupplierProvider>
+      //       }
+      //     />
+      //     <Route path ="addImport" element={<AddImportPage />} />"
+      //     <Route path = "detailImport/:id" element={<DetailImportPage />} />
+      //     <Route path="order" element={<OrderPage />} />
+      //     <Route path="orderDetail/:id" element={<OrderDetailPage />} />
+      //     <Route
+      //       path="suppliers"
+      //       element={
+      //         <SupplierProvider>
+      //           <SupplierPage />
+      //         </SupplierProvider>
+      //       }
+      //     />
+      //     <Route path="warranty" element={<WarrantyPage />} />
+      //     <Route path="customers" element={<CustomerPage />} />
+      //     <Route path="discounts" element={<DiscountPage />} />
+      //     <Route path="reports" element={<DashboardPage />} />
+      //   </Route>
+      // </Routes>
   );
 }
 

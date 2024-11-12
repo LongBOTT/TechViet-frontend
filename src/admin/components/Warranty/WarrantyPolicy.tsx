@@ -4,48 +4,38 @@ import SearchBox from "../Util/Search";
 import { Paper, TableContainer } from "@mui/material";
 import EntityTable from "../Util/EntityTable";
 import FilterDropdown from "../Util/FilterDropdown";
+import { useEffect, useState } from "react";
+import { getWarranties } from "../../../api/warrantyApi";
+import type { Warranty } from "../../../types/warranty";
 
 const Warranty: React.FC = () => {
   const searchProductsByName = (query: string) => {
     console.log("Searching for:", query);
   };
-
-
-  const StatusOptions = [
-    { value: "all", label: "Tất cả" },
-    { value: "active", label: "Chưa bán" },
-    { value: "inactive", label: "Đã bán" },
-  ];
-
-  const Guarantees = [
-    {
-      id: "3121410482",
-      name: "Iphone 15 Pro Max",
-      category: "Điện thoại",
-      brand: "Apple",
-      status: "Chưa bán",
-    },
-    {
-        id: "3121410483",
-        name: "Iphone 15 Pro Max",
-        category: "Điện thoại",
-        brand: "Apple",
-        status: "Đã bán",
-    },
-   
-   
-    
-  ];
-
-  const imeiColumns = [
-    { label: "Mã ", key: "image" },
-    { label: "Tên chính sách", key: "name" },
-    { label: "Thời hạn bảo hành", key: "stock" },
-  ];
-
-  const handleRowClick = ( )=> {
-   
+  const [Warranties, setWarranties] = useState<Warranty[]>([]);
+  const fetchWarranties = async () => {
+    try {
+      const data = await getWarranties(); // Gọi API để lấy dữ liệu
+      if (data) {
+        setWarranties(data); // Cập nhật state
+      }
+    } catch (error) {
+      console.error("Lỗi khi lấy dữ liệu phiếu nhập:", error);
+    }
   };
+
+  useEffect(() => {
+    fetchWarranties(); // Gọi hàm khi component được tải
+  }, []);
+  const WarrantyPolicyColumns = [
+    { label: "Mã ", key: "id" },
+    { label: "Tên chính sách", key: "name" },
+    { label: "Giá trị", key: "value" },
+    { label: "Đơn vị", key: "unit" },
+    { label: "Ghi chú", key: "note" },
+  ];
+
+  const handleRowClick = () => {};
   const handleFilterCategory = () => {
     console.log("Nhập file");
   };
@@ -69,16 +59,15 @@ const Warranty: React.FC = () => {
           gap: 2,
         }}
       >
-        {/* Search Box */}
+        {/* Search Box
         <Box sx={{ flexGrow: 1 }}>
-          {/* <SearchBox
+          <SearchBox
             placeholder="Tìm kiếm theo mã sản phẩm, tên sản phẩm"
-            onSearch={searchProductsByName}
-          /> */}
-        </Box>
+            onSearch={searchProductsByName} resetSearch={false}          />
+        </Box> */}
 
-          {/* Trạng thái Dropdown */}
-          <Box sx={{ minWidth: 200 }}>
+        {/* Trạng thái Dropdown */}
+        <Box sx={{ minWidth: 200 }}>
           {/* <FilterDropdown
             label={`Trạng thái`}
             options={StatusOptions}
@@ -91,7 +80,7 @@ const Warranty: React.FC = () => {
       <Box
         sx={{
           flex: 1,
-          overflow: "auto", 
+          overflow: "auto",
           marginTop: "20px",
           boxShadow: "0 0 3px 0 rgba(0, 0, 0, 0.3)",
           height: "100%",
@@ -99,9 +88,9 @@ const Warranty: React.FC = () => {
       >
         <TableContainer component={Paper}>
           <EntityTable
-            entities={Guarantees}
+            entities={Warranties}
             loading={false}
-            columns={imeiColumns}
+            columns={WarrantyPolicyColumns}
             onRowClick={handleRowClick}
           />
         </TableContainer>

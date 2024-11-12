@@ -20,6 +20,7 @@ import { VariantRequest } from "../../../types/variant";
 import { VariantAttributeRequest } from "../../../types/variant_attribute";
 
 interface EditVariantProps {
+  productId: number;
   productName: string;
   productCategoryId: number;
   initialVariants: VariantRequest[];
@@ -31,6 +32,7 @@ interface EditVariantProps {
 }
 
 const EditVariant: React.FC<EditVariantProps> = ({
+  productId,
   productName,
   productCategoryId,
   initialVariants,
@@ -43,7 +45,8 @@ const EditVariant: React.FC<EditVariantProps> = ({
     quantity: 0,
     price: 0,
     costPrice: 0,
-    productId: 0,
+    productId: productId,
+    status: "active",
   });
   const [color, setColor] = useState<string>("");
   const [storage, setStorage] = useState<string>("");
@@ -185,20 +188,20 @@ const EditVariant: React.FC<EditVariantProps> = ({
         productCategoryId === 1 ? `-${storage}` : ""
       }`,
     };
-
+  
     const newAttributes: VariantAttributeRequest[] = [
       { variantId: newVariant.id, attributeId: 3, value: color },
       ...(productCategoryId === 1
         ? [{ variantId: newVariant.id, attributeId: 24, value: storage }]
         : []),
     ];
-
-    setVariants([...variants, newVariant]);
-    setVariantAttributes([...variantAttributes, newAttributes]);
-    onUpdateVariantList(
-      [...variants, newVariant],
-      [...variantAttributes, newAttributes]
-    );
+  
+    const newVariants = [...variants, newVariant];
+    const newVariantAttributes = [...variantAttributes, newAttributes];
+  
+    setVariants(newVariants);
+    setVariantAttributes(newVariantAttributes);
+    onUpdateVariantList(newVariants, newVariantAttributes);
     resetForm();
   };
 
@@ -221,6 +224,7 @@ const EditVariant: React.FC<EditVariantProps> = ({
       price: 0,
       costPrice: 0,
       productId: 0,
+      status: "active",
     });
     setColor("");
     setStorage("");
