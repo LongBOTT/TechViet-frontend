@@ -32,7 +32,7 @@ import { useState } from "react";
 import Login from "../../pages/Login/Login"; // Import component Login
 import NavLinks from "./NavLinks";
 import { Link, useNavigate } from 'react-router-dom';
-import { BASE, CART } from "../../constants/routeConstants";
+import { BASE, CART, SEARCH } from "../../constants/routeConstants";
 import { useCart } from "../../context/CartContex";
 
 const settings = ["Thông tin", "Lịch sử mua hàng", "Đăng xuất"];
@@ -115,6 +115,10 @@ function NavBar() {
   const handleCloseLoginDialog = () => {
     setOpenLoginDialog(false);
   };
+
+ const handleSearchEnter = (value: any) => {
+    navigate(`${SEARCH}?s=${encodeURIComponent(value)}`);
+ };
 
   // Đóng menu user
   const handleCloseUserMenu = () => {
@@ -202,6 +206,12 @@ function NavBar() {
                 placeholder="Nhập tên điện thoại, máy tính, phụ kiện... cần tìm"
                 inputProps={{ "aria-label": "search" }}
                 sx={{ fontSize: { xs: "10px", md: "15px" } }}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    const input = event.currentTarget as HTMLInputElement;
+                    handleSearchEnter(input.value);
+                  }
+                }}
               />
             </Search>
 

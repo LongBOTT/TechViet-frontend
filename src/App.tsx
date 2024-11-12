@@ -14,6 +14,7 @@ import {
   CATEGORY,
   COMPARISON,
   PRODUCT,
+  SEARCH,
 } from "./constants/routeConstants";
 import { ProductProvider } from "./context/ProductContext";
 import { SupplierProvider } from "./context/SupplierContext";
@@ -40,6 +41,7 @@ import DetailImportPage from "./admin/pages/Import/DetailImportPage";
 import ImportPage from "./admin/pages/Import/ImportPage";
 import { CartProvider } from "./context/CartContex";
 import CartPage from "./pages/Cart/CartPage";
+import SearchPage from "./pages/Search/SearchPage";
 function App() {
   return (
     <Router>
@@ -49,6 +51,7 @@ function App() {
           <Route path={BASE} element={<Home />} />
           <Route path={`${CATEGORY}/:id`} element={<CategoryPage />} />
           <Route path={`${COMPARISON}/:params`} element={<ComparePage />} />
+          <Route path={`${SEARCH}`} element={<SearchPage />} />
           <Route path={`${PRODUCT}/:id`} element={<ProductDetail />} />
           <Route path={`${CART}`} element={<CartPage />} />
         </Routes>
