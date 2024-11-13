@@ -4,12 +4,15 @@ import { handleApiError } from "./errorHandler";
 
 export const addOrder = async (order: Order) => {
   try {
-    console.log(order);
     const response = await axiosInstance.post("/orders", order);
     return response.data;
   } catch (error: any) {
+    console.error(
+      "Error creating order:",
+      error.response?.data || error.message
+    );
     handleApiError(error, "thêm đơn hàng mới");
-    throw error; // Ném lỗi để có thể bắt lại nếu cần trong React component
+
   }
 };
 

@@ -34,6 +34,7 @@ import { OrderDetail } from "../../types/orderDetail";
 import { addOrder } from "../../api/orderApi";
 import { getImeis } from "../../api/imeiApi";
 import { Imei } from "../../types/imei";
+import { addOrderDetail } from "../../api/orderDetailApi";
 
 const CartPage: React.FC = () => {
   const { cart, removeFromCart, updateQuantity, updateWarranty, clearCart } =
@@ -116,46 +117,43 @@ const CartPage: React.FC = () => {
         distinct: "",
         city: "",
       };
-      // Đảm bảo customer luôn có giá trị trước khi tạo order
-      if (!customer) {
-        throw new Error("Customer is required and cannot be undefined");
-      }
+
       // Tạo đối tượng Order với thông tin từ form và giỏ hàng
       let order: Order = {
-        customer: customer, // Đảm bảo `customer` không phải là `undefined`
-        orderDate: new Date().toISOString(), // Gán thời gian hiện tại
-        total_amount: totalPrice, // Hàm tính tổng số tiền từ giỏ hàng
-        orderStatus: "Chờ duyệt", // Trạng thái đơn hàng mặc định
-        payment_status: "Chưa thanh toán", // Trạng thái thanh toán mặc định
-        order_details: [], // Khởi tạo mảng rỗng ban đầu, sẽ được cập nhật sau
-        payment_method: PaymentMethod.TRANSFER, // Ví dụ: CASH
+        customer: customer, // Đảm bảo customer không null hoặc undefined
+        orderDate: new Date().toISOString().slice(0, -1),
+        total_amount: totalPrice, // Tổng tiền
+        orderStatus: "Chờ duyệt",
+        payment_status: "Chưa thanh toán",
+        payment_method: PaymentMethod.BankTransfer, // Phương thức thanh toán
         note: note,
         address: address,
         phone: phoneNumber,
       };
 
-      let imeis: Imei[] = await getImeis();
-
-      // Tìm các IMEI có `imeiCode` bằng 0
-      const imeisWithIdZero = imeis.filter(
-        (imei: Imei) => imei.imeiCode === "0"
-      );
-      let orderDetails: OrderDetail[] = cart.map((item) => ({
-        id: 0, // Nếu ID không cần thiết, bạn có thể bỏ qua
-        order: order as Order, // Chuyển kiểu `Partial<Order>` sang `Order` để phù hợp với kiểu `OrderDetail`
-        variantId: item.id,
-        quantity: item.buyQuantity,
-        price: item.price,
-        total: item.buyQuantity * item.price,
-        imei: imeisWithIdZero[0], // Giá trị mặc định nếu `imei` có thể là null hoặc undefined
-      }));
-
-      // Gán `orderDetails` vào `order` sau khi tạo mảng
-      order.order_details = orderDetails;
 
       try {
         // Gọi hàm API để tạo đơn hàng
-        const response = await addOrder(order);
+        const responseOrder = await addOrder(order);
+        
+        let imeis: Imei[] = await getImeis();
+
+        // Tìm các IMEI có `imeiCode` bằng 0
+        const imeisWithIdZero = imeis.filter(
+          (imei: Imei) => imei.imeiCode === "0"
+        );
+        let orderDetails: OrderDetail[] = cart.map((item) => ({
+          order: responseOrder, // Chuyển kiểu `Partial<Order>` sang `Order` để phù hợp với kiểu `OrderDetail`
+          imei: imeisWithIdZero[0], // Giá trị mặc định nếu `imei` có thể là null hoặc undefined
+          quantity: item.buyQuantity,
+          price: item.price,
+          total: item.buyQuantity * item.price,
+          variantId: item.id,
+        }));
+        for (const orderDetail of orderDetails) {
+          const responseOrderDetail = await addOrderDetail(orderDetail);
+        }
+        
         setAlertMessage("Đặt hàng thành công.");
       } catch (error) {
         console.error("Đặt hàng thất bại:", error);

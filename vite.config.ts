@@ -5,7 +5,7 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   server: {
-    host: 'myapp.local', // Tên miền ảo mà bạn đã thiết lập trong file hosts và httpd-vhosts.conf
+    host: true, // Tên miền ảo mà bạn đã thiết lập trong file hosts và httpd-vhosts.conf
     port: 5173, // Cổng bạn muốn mở
   },
 });
