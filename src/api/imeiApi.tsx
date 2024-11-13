@@ -20,3 +20,13 @@ export const checkImeiExists = async (imei: string): Promise<boolean> => {
     return false;
   }
 };
+
+export const getImeis = async () => {
+  try {
+    const response = await axiosInstance.get("/imeis");
+    return response.data;
+  } catch (error) {
+    handleApiError(error, "lấy danh sách imei");
+    throw error;
+  }
+};

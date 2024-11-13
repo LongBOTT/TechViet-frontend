@@ -27,11 +27,18 @@ import { useNavigate } from "react-router-dom";
 import { BASE } from "../../constants/routeConstants";
 import { useCart } from "../../context/CartContex";
 import { Delete, DeleteOutline } from "@mui/icons-material";
+import { CartItem } from "../../types/cartItem";
+import { Order, PaymentMethod } from "../../types/order";
+import { Customer } from "../../types/customer";
+import { OrderDetail } from "../../types/orderDetail";
+import { addOrder } from "../../api/orderApi";
+import { getImeis } from "../../api/imeiApi";
+import { Imei } from "../../types/imei";
 
 const CartPage: React.FC = () => {
   const { cart, removeFromCart, updateQuantity, updateWarranty, clearCart } =
     useCart();
-  const [selectedItems, setSelectedItems] = useState<number[]>([]);
+  const [selectedItems, setSelectedItems] = useState<CartItem[]>([]);
   const navigate = useNavigate();
   const [orderConfirmed, setOrderConfirmed] = useState(false);
   const [paymentMethod, setPaymentMethod] =
@@ -57,11 +64,11 @@ const CartPage: React.FC = () => {
     navigate(BASE);
   };
 
-  const handleSelectItem = (itemId: number) => {
+  const handleSelectItem = (item: CartItem) => {
     setSelectedItems((prev) =>
-      prev.includes(itemId)
-        ? prev.filter((id) => id !== itemId)
-        : [...prev, itemId]
+      prev.includes(item)
+        ? prev.filter((exsitedItem) => exsitedItem.id !== item.id)
+        : [...prev, item]
     );
   };
 
@@ -73,14 +80,14 @@ const CartPage: React.FC = () => {
     if (selectedItems.length === cart.length) {
       setSelectedItems([]);
     } else {
-      setSelectedItems(cart.map((item) => item.id));
+      setSelectedItems(cart.map((item) => item));
     }
   };
 
-  const isSelected = (itemId: number) => selectedItems.includes(itemId);
+  const isSelected = (item: CartItem) => selectedItems.includes(item);
 
   const totalPrice = cart
-    .filter((item) => selectedItems.includes(item.id))
+    .filter((item) => selectedItems.includes(item))
     .reduce((total, item) => total + item.price * item.quantity, 0);
   
     // Validate form fields
@@ -96,15 +103,71 @@ const CartPage: React.FC = () => {
     return !Object.values(newErrors).some((error) => error === true);
   };
 
-  const handleConfirmOrder = () => {
+  const handleConfirmOrder = async () => {
     if (validateForm()) {
-      setSeverity("success")
-      setAlertMessage("Đặt hàng thành công.");
+      setSeverity("success");
+
+      // Tạo đối tượng khách hàng
+      let customer: Customer = {
+        name: customerName,
+        phone: phoneNumber,
+        email: email,
+        address: address,
+        distinct: "",
+        city: "",
+      };
+      // Đảm bảo customer luôn có giá trị trước khi tạo order
+      if (!customer) {
+        throw new Error("Customer is required and cannot be undefined");
+      }
+      // Tạo đối tượng Order với thông tin từ form và giỏ hàng
+      let order: Order = {
+        customer: customer, // Đảm bảo `customer` không phải là `undefined`
+        orderDate: new Date().toISOString(), // Gán thời gian hiện tại
+        total_amount: totalPrice, // Hàm tính tổng số tiền từ giỏ hàng
+        orderStatus: "Chờ duyệt", // Trạng thái đơn hàng mặc định
+        payment_status: "Chưa thanh toán", // Trạng thái thanh toán mặc định
+        order_details: [], // Khởi tạo mảng rỗng ban đầu, sẽ được cập nhật sau
+        payment_method: PaymentMethod.TRANSFER, // Ví dụ: CASH
+        note: note,
+        address: address,
+        phone: phoneNumber,
+      };
+
+      let imeis: Imei[] = await getImeis();
+
+      // Tìm các IMEI có `imeiCode` bằng 0
+      const imeisWithIdZero = imeis.filter(
+        (imei: Imei) => imei.imeiCode === "0"
+      );
+      let orderDetails: OrderDetail[] = cart.map((item) => ({
+        id: 0, // Nếu ID không cần thiết, bạn có thể bỏ qua
+        order: order as Order, // Chuyển kiểu `Partial<Order>` sang `Order` để phù hợp với kiểu `OrderDetail`
+        variantId: item.id,
+        quantity: item.buyQuantity,
+        price: item.price,
+        total: item.buyQuantity * item.price,
+        imei: imeisWithIdZero[0], // Giá trị mặc định nếu `imei` có thể là null hoặc undefined
+      }));
+
+      // Gán `orderDetails` vào `order` sau khi tạo mảng
+      order.order_details = orderDetails;
+
+      try {
+        // Gọi hàm API để tạo đơn hàng
+        const response = await addOrder(order);
+        setAlertMessage("Đặt hàng thành công.");
+      } catch (error) {
+        console.error("Đặt hàng thất bại:", error);
+        setSeverity("error");
+        setAlertMessage("Đã xảy ra lỗi khi đặt hàng.");
+      }
     } else {
-      setSeverity("error")
+      setSeverity("error");
       setAlertMessage("Vui lòng điền đầy đủ thông tin cần thiết.");
     }
   };
+
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
   // Clear the alert after 3 seconds
   useEffect(() => {
@@ -171,7 +234,7 @@ const CartPage: React.FC = () => {
             Sản phẩm trong đơn ({selectedItems.length})
           </Typography>
           {cart
-            .filter((item) => selectedItems.includes(item.id))
+            .filter((item) => selectedItems.includes(item))
             .map((item) => (
               <Box
                 key={item.id}
@@ -381,8 +444,8 @@ const CartPage: React.FC = () => {
               <Box sx={{ display: "flex", alignItems: "center" }}>
                 <Checkbox
                   sx={{ color: "GrayText", "&.Mui-checked": { color: "red" } }}
-                  checked={isSelected(item.id)}
-                  onChange={() => handleSelectItem(item.id)}
+                  checked={isSelected(item)}
+                  onChange={() => handleSelectItem(item)}
                 />
                 <img src={item.image} alt={item.name} width={80} />
                 <Box sx={{ ml: 2, flex: 1 }}>
