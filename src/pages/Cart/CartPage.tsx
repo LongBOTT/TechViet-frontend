@@ -151,8 +151,22 @@ const CartPage: React.FC = () => {
           variantId: item.id,
         }));
         for (const orderDetail of orderDetails) {
-          const responseOrderDetail = await addOrderDetail(orderDetail);
+          if (orderDetail.quantity === 1) {
+            // Directly add the order detail if the quantity is 1
+            const responseOrderDetail = await addOrderDetail(orderDetail);
+          } else if (orderDetail.quantity > 1) {
+            // Split the order detail into multiple entries of quantity 1
+            for (let i = 1; i <= orderDetail.quantity; i++) {
+              // Create a new instance for each entry
+              let newOrderDetail = {
+                ...orderDetail,
+                quantity: 1, // Set quantity to 1 for each new entry
+              };
+              const responseOrderDetail = await addOrderDetail(newOrderDetail);
+            }
+          }
         }
+
         
         setAlertMessage("Đặt hàng thành công.");
       } catch (error) {
