@@ -68,7 +68,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
     setCart((prevCart) =>
       prevCart.map((item) =>
         item.id === cartItemId
-          ? { ...item, quantity: Math.max(1, quantity) }
+          ? { ...item, buyQuantity: Math.max(1, quantity) }
           : item
       )
     );
