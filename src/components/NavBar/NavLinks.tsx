@@ -1,14 +1,14 @@
 import React, { useRef, useState } from "react";
-import { Menu, MenuItem, Box, Button, styled } from "@mui/material";
-import { links } from "./MyLinks"; // Adjust the import based on your file structure
+import { Menu, MenuItem, Box, Button, styled, Typography } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import { links } from "./MyLinks"; // Đảm bảo đường dẫn đúng với tệp liên quan
 import { searchBrandByCategory_Id } from "../../api/brandApi";
+import { searchProductsByBrand_Id } from "../../api/productApi";
 import { Brand } from "../../types/brand";
 import { Apple } from "@mui/icons-material";
-import { searchProductsByBrand_Id } from "../../api/productApi";
-import { Link } from "react-router-dom";
-import { CATEGORY } from "../../constants/routeConstants";
-import '../../App.css'; // Import file CSS
-
+import { CATEGORY, PRODUCT } from "../../constants/routeConstants";
+import "../../App.css"; // Import CSS để hỗ trợ styling
+import { Category } from "../../types/category";
 
 const ButtonCategory = styled(Button)(({ theme }) => ({
   my: 2,
@@ -23,79 +23,59 @@ const ButtonCategory = styled(Button)(({ theme }) => ({
   },
 }));
 
-const ClearBoxItems = (boxRef: React.RefObject<HTMLDivElement>) => {
-  if (boxRef.current) {
-    // Clear all elements in the Box
-    boxRef.current.innerHTML = '';
-  }
-};
-
 const NavLinks = () => {
   const firstButtonRef = useRef<HTMLButtonElement | null>(null);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [currentSubmenu, setCurrentSubmenu] = useState<Brand[]>([]);
   const [selectedSubmenu, setSelectedSubmenu] = useState<any[]>([]);
-  const [openCategory, setOpenCategory] = useState<boolean>(false);
-  const [onMenu, setOnMenu] = useState<boolean>(false);
+  const navigate = useNavigate();
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number>();
 
-  const handleOnClick = async (event: React.MouseEvent<HTMLElement>, link: any) => {
-    if (!firstButtonRef.current) {
-      firstButtonRef.current = event.currentTarget as HTMLButtonElement;
+  const handleOnClickCategory = async (link: any) => {
+    if (firstButtonRef.current) {
+      setAnchorEl(firstButtonRef.current);
     }
-    setOpenCategory(true);
-    setOnMenu(true);
-    setAnchorEl(firstButtonRef.current);
-    
 
     try {
-        // Gọi API lấy danh sách Brand theo Category
-        const brands = await searchBrandByCategory_Id(link.id); 
-        setCurrentSubmenu(brands ?? []); // Nếu brands là undefined, gán giá trị là mảng rỗng
+      setSelectedCategoryId(link.id);
+      const brands = await searchBrandByCategory_Id(link.id);
+      setCurrentSubmenu(brands ?? []);
     } catch (error) {
-        console.error("Error fetching brands:", error);
-        setCurrentSubmenu([]); // Nếu có lỗi, gán giá trị là mảng rỗng
-    }
-
-    setSelectedSubmenu([]); // Reset selected submenu khi click vào category mới
-  };
-
-  const handleMenuItemClick = async (brandId: number) => {
-    try {
-        // Gọi API lấy danh sách Product theo Brand
-        const products = await searchProductsByBrand_Id(brandId); 
-        if (products && products.length > 12) {
-            const limitedProducts = products.slice(0, 12); // Lấy tối đa 12 sản phẩm
-            setSelectedSubmenu(limitedProducts); // Truyền 12 sản phẩm vào setSelectedSubmenu
-        } else {
-            setSelectedSubmenu(products ?? []); // Nếu không có sản phẩm, gán mảng rỗng
-        }
-    } catch (error) {
-        console.error("Error fetching brands:", error);
-        setSelectedSubmenu([]); // Nếu có lỗi, gán giá trị là mảng rỗng
-    }
-  };
-
-  const handleClose = () => {
-    if (!openCategory && !onMenu) {
-      setAnchorEl(null);
+      console.error("Error fetching brands:", error);
       setCurrentSubmenu([]);
+    }
+
+    setSelectedSubmenu([]);
+  };
+
+  const handleMenuItemHover = async (brandId: number) => {
+    try {
+      const products = await searchProductsByBrand_Id(brandId);
+      if (products && Array.isArray(products)) {
+        setSelectedSubmenu(products.slice(0, 12));
+      } else {
+        setSelectedSubmenu([]); // Đảm bảo rằng selectedSubmenu được gán giá trị mảng rỗng nếu không có sản phẩm
+      }
+    } catch (error) {
+      console.error("Error fetching products:", error);
       setSelectedSubmenu([]);
     }
   };
 
-  const handleOnMouseLeaveMenu = () => {
-    setOnMenu(false);
-  };
-
-  const handleOnMouseLeaveCategory = () => {
-    setOpenCategory(false);
+  const handleMenuItemNavigate = (itemId: number) => {
+    navigate(`${PRODUCT}/${itemId}`);
     handleClose();
   };
 
-  const boxRef = useRef<HTMLDivElement | null>(null);
+  const handleNavigateBrandPage = async (brandName: string) => {
+    navigate(`${CATEGORY}/${selectedCategoryId}?brand=${brandName}`);
+    handleClose();
+  };
 
-  const handleClearItems = () => {
-    ClearBoxItems(boxRef); // Call the function to clear items in the Box
+  const handleClose = () => {
+    setAnchorEl(null);
+    setCurrentSubmenu([]);
+    setSelectedSubmenu([]);
   };
 
   return (
@@ -110,19 +90,14 @@ const NavLinks = () => {
         }}
       >
         {links.map((link, index) => (
-          <Box key={link.name}>
-            <Link to={`${CATEGORY}/:${link.id}`} key={index} className='no-underline'>
-              <ButtonCategory
-              onMouseEnter={(event) => handleOnClick(event, link)}
-              onMouseLeave={handleOnMouseLeaveCategory}
-              ref={index === 0 ? firstButtonRef : null}
-              >
-              <link.icon sx={{ paddingRight: "5px", display: "inline-flex" }} />
-              {link.name}
-              </ButtonCategory>
-            
-            </Link>
-          </Box>
+          <ButtonCategory
+            key={index}
+            onClick={() => handleOnClickCategory(link)}
+            ref={index === 0 ? firstButtonRef : null}
+          >
+            <link.icon sx={{ paddingRight: "5px", display: "inline-flex" }} />
+            {link.name}
+          </ButtonCategory>
         ))}
       </Box>
 
@@ -130,81 +105,105 @@ const NavLinks = () => {
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
         onClose={handleClose}
-        onMouseOver={handleOnMouseLeaveMenu}
-        onMouseLeave={handleClose}
-        disableAutoFocus={true}  
-        disableEnforceFocus={true}  
-        PaperProps={{ 
-          sx: { 
-            display: 'flex', 
-            width: '50%', 
-            height: '500px', 
-            marginTop: '8px'
-          } 
+        PaperProps={{
+          sx: {
+            display: "flex",
+            height: "500px",
+            width: "51%",
+            marginTop: "8px",
+          },
         }}
       >
-        <Box 
+        <Box
           sx={{
-            display: 'flex',
-            width: '100%',
-            height: '100%',
+            display: "flex",
+            height: "100%",
+            width: "100%",
           }}
         >
-          <Box sx={{
-            width: '250px',
-            height: '100%',
-            borderRight: 'solid 4px #f3f4f6',
-          }}>
+          <Box
+            sx={{
+              width: "250px",
+              height: "100%",
+              borderRight: "solid 4px #f3f4f6",
+            }}
+          >
             {currentSubmenu.map((submenu) => (
-              <MenuItem 
-                key={submenu.name} 
-                onMouseEnter={() => {
-                    // Clear the previous submenu items before displaying new ones
-                    setSelectedSubmenu([]);  // Clear the previous submenu completely
-                    setTimeout(() => {
-                    handleMenuItemClick(submenu.id);  // Set the new submenu items
-                    }, 0);  // Timeout ensures the state clears before updating with new items
-                }}
-
+              <MenuItem
+                key={submenu.id}
+                onMouseEnter={() => handleMenuItemHover(submenu.id)} // Hover để hiển thị sản phẩm liên quan
+                onClick={() => handleNavigateBrandPage(submenu.name)} // Click để điều hướng đến trang brand
                 sx={{
-                  height:'50px',
+                  height: "50px",
                   "&:hover": {
-                    transform: 'scale(1.02)',
-                    fontWeight: 'bold',
-                    transition: 'transform 0.1s ease-in-out',
+                    transform: "scale(1.02)",
+                    fontWeight: "bold",
+                    transition: "transform 0.1s ease-in-out",
                   },
                 }}
               >
-                <Apple
-                  sx={{ paddingRight: "5px", display: "inline-flex" }}
-                />
                 {submenu.name}
               </MenuItem>
             ))}
           </Box>
-          <Box sx={{
-            width: '500px',
-            height: '100%',
-            display: 'inline-grid',
-            gridTemplateColumns: 'repeat(2, 1fr)', // Creates two equal columns
-            gap: '10px', // Adds space between the items
-            overflowX: 'auto',
-          }} ref={boxRef}>
-            {/* Display selected submenu items */}
-            
+          <Box
+            sx={{
+              width: "480px",
+              display: "flex", // Sử dụng flex layout
+              flexWrap: "wrap", // Cho phép các mục xuống dòng khi không đủ không gian
+              gap: "10px", // Khoảng cách giữa các mục
+              padding: "10px",
+              overflowY: "auto", // Cho phép cuộn dọc nếu vượt quá chiều cao
+            }}
+          >
             {selectedSubmenu.map((subitem) => (
-                <MenuItem key={subitem.name}
-                  sx={{
-                    height:'50px',
-                    display:'flex',
+              <MenuItem
+                key={subitem.id}
+                onClick={() => handleMenuItemNavigate(subitem.id)}
+                sx={{
+                  margin: "0",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: "8px",
+                  height: "180px", // Đảm bảo chiều cao cố định
+                  width: "110px", // Cố định chiều rộng cho mỗi sản phẩm
+                  "&:hover": {
+                    backgroundColor: "white",
+                    transform: "scale(1.02)",
+                    transition: "all 0.2s ease-in-out",
+                  },
+                }}
+              >
+                <img
+                  src={subitem.image || "/path/to/default/image.jpg"}
+                  alt={subitem.name}
+                  style={{
+                    width: "80px",
+                    height: "80px",
+                    objectFit: "cover",
+                    marginBottom: "10px",
+                    borderRadius: "4px",
                   }}
-                  onClick={handleClose}>
-                  <Apple
-                  sx={{ paddingRight: "5px", display: "inline-flex" }}
-                  />
+                />
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontWeight: "bold",
+                    textAlign: "center",
+                    fontSize: "0.8rem",
+                    display: "block",
+                    overflow: "hidden",
+                    wordBreak: "break-word", // Cho phép xuống dòng khi cần
+                    whiteSpace: "normal", // Đảm bảo nội dung có thể xuống dòng
+                    width: "100%", // Đảm bảo chiều rộng đầy đủ trong MenuItem
+                  }}
+                >
                   {subitem.name}
-                </MenuItem>
-              ))}
+                </Typography>
+              </MenuItem>
+            ))}
           </Box>
         </Box>
       </Menu>

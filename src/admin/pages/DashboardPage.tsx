@@ -51,13 +51,13 @@ export default function Dashboard() {
           boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
         }}
       >
-        <Typography
+        {/* <Typography
           variant="subtitle1"
           sx={{ marginBottom: "16px", color: "#333", fontWeight: "500" }}
         >
           Thời gian
         </Typography>
-        <TimeFilterComponent />
+        <TimeFilterComponent /> */}
       </Box>
     </Box>
   );

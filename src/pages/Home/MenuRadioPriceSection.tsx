@@ -12,7 +12,7 @@ interface MenuRadioPriceSectionProps {
 }
 
 const MenuRadioPriceSection: React.FC<MenuRadioPriceSectionProps> = forwardRef(({ title, onChange, data, resetRef }, ref) => {
-  const [priceRange, setPriceRange] = useState<number[]>(data.length > 0 ? data[0].value : [0, 100000000]);
+  const [priceRange, setPriceRange] = useState<number[]>(data.length > 0 ? data[0].value : [0, 200000000]);
   const [customPrice, setCustomPrice] = useState(false);
   const [selectedValue, setSelectedValue] = useState<string>(data.length > 0 ? JSON.stringify(data[0].value) : '');
   const [expanded, setExpanded] = useState<boolean>(true);
@@ -140,7 +140,7 @@ const MenuRadioPriceSection: React.FC<MenuRadioPriceSectionProps> = forwardRef((
                 value={priceRange}
                 onChange={handleSliderChange}
                 min={0}
-                max={100000000}
+                max={200000000}
                 valueLabelFormat={(value) => value.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
               />
             </Box>

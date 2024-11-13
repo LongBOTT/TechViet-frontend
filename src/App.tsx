@@ -10,9 +10,11 @@ import Home from "./pages/Home/Home";
 import CategoryPage from "./pages/Category/CategoryPage";
 import {
   BASE,
+  CART,
   CATEGORY,
   COMPARISON,
   PRODUCT,
+  SEARCH,
 } from "./constants/routeConstants";
 import { ProductProvider } from "./context/ProductContext";
 import { SupplierProvider } from "./context/SupplierContext";
@@ -37,92 +39,98 @@ import EditProductPage from "./admin/pages/Product/EditProductPage";
 import AddImportPage from "./admin/pages/Import/AddStockReceivePage";
 import DetailImportPage from "./admin/pages/Import/DetailImportPage";
 import ImportPage from "./admin/pages/Import/ImportPage";
+import { CartProvider } from "./context/CartContex";
+import CartPage from "./pages/Cart/CartPage";
+import SearchPage from "./pages/Search/SearchPage";
 import OrderDetailPage from "./admin/pages/Order/OrderDetailPage";
-
 function App() {
   return (
-    // <Router>
-    //     <NavBar />
-    //     <Routes>
-    //       <Route path={BASE} element={<Home/>} />
-    //       <Route path={`${CATEGORY}/:id`} element={<CategoryPage/>} />
-    //       <Route path={`${COMPARISON}/:params`} element={<ComparePage/>} />
-    //       <Route path={`${PRODUCT}/:id`} element={<ProductDetail/>} />
-    //     </Routes>
-    //     <Footer/>
-    //       <ScrollToTopButton/>
-    // </Router>
-
     <Router>
-      <Routes>
-        {/* Đặt PermanentDrawerLeft làm route cha */}
-        <Route path="/" element={<PermanentDrawerLeft />}>
-          <Route index element={<Navigate to="/overview" />} />
-          <Route path="overview" element={<OverviewPage />} />
-          <Route path="orders" element={<OrderPage />} />
-          <Route
-            path="products"
-            element={
-              <ProductProvider>
-                <CategoryProvider>
-                  <BrandProvider>
-                    <ProductPage />
-                  </BrandProvider>
-                </CategoryProvider>
-              </ProductProvider>
-            }
-          />
-          <Route
-            path="/AddProduct"
-            element={
-              <CategoryProvider>
-                <BrandProvider>
-                  <ProductProvider>
-                    <AddProductPage />
-                  </ProductProvider>
-                </BrandProvider>
-              </CategoryProvider>
-            }
-          />
-          <Route
-            path="/EditProduct/:id"
-            element={
-              <CategoryProvider>
-                <BrandProvider>
-                  <ProductProvider>
-                    <EditProductPage />
-                  </ProductProvider>
-                </BrandProvider>
-              </CategoryProvider>
-            }
-          />
-          <Route
-            path="import"
-            element={
-              <SupplierProvider>
-                <ImportPage />
-              </SupplierProvider>
-            }
-          />
-          <Route path ="addImport" element={<AddImportPage />} />"
-          <Route path = "detailImport/:id" element={<DetailImportPage />} />
-          <Route path="order" element={<OrderPage />} />
-          <Route path="orderDetail/:id" element={<OrderDetailPage />} />
-          <Route
-            path="suppliers"
-            element={
-              <SupplierProvider>
-                <SupplierPage />
-              </SupplierProvider>
-            }
-          />
-          <Route path="warranty" element={<WarrantyPage />} />
-          <Route path="customers" element={<CustomerPage />} />
-          <Route path="discounts" element={<DiscountPage />} />
-          <Route path="reports" element={<DashboardPage />} />
-        </Route>
-      </Routes>
+      <CartProvider>
+        <NavBar />
+        <Routes>
+          <Route path={BASE} element={<Home />} />
+          <Route path={`${CATEGORY}/:id`} element={<CategoryPage />} />
+          <Route path={`${COMPARISON}/:params`} element={<ComparePage />} />
+          <Route path={`${SEARCH}`} element={<SearchPage />} />
+          <Route path={`${PRODUCT}/:id`} element={<ProductDetail />} />
+          <Route path={`${CART}`} element={<CartPage />} />
+        </Routes>
+        <Footer />
+      </CartProvider>
+      <ScrollToTopButton />
     </Router>
+
+    // <Router>
+    //   <Routes>
+    //     {/* Đặt PermanentDrawerLeft làm route cha */}
+    //     <Route path="/" element={<PermanentDrawerLeft />}>
+    //       <Route index element={<Navigate to="/overview" />} />
+    //       <Route path="overview" element={<OverviewPage />} />
+    //       <Route path="orders" element={<OrderPage />} />
+    //       <Route
+    //         path="products"
+    //         element={
+    //           <ProductProvider>
+    //             <CategoryProvider>
+    //               <BrandProvider>
+    //                 <ProductPage />
+    //               </BrandProvider>
+    //             </CategoryProvider>
+    //           </ProductProvider>
+    //         }
+    //       />
+    //       <Route
+    //         path="/AddProduct"
+    //         element={
+    //           <CategoryProvider>
+    //             <BrandProvider>
+    //               <ProductProvider>
+    //                 <AddProductPage />
+    //               </ProductProvider>
+    //             </BrandProvider>
+    //           </CategoryProvider>
+    //         }
+    //       />
+    //       <Route
+    //         path="/EditProduct/:id"
+    //         element={
+    //           <CategoryProvider>
+    //             <BrandProvider>
+    //               <ProductProvider>
+    //                 <EditProductPage />
+    //               </ProductProvider>
+    //             </BrandProvider>
+    //           </CategoryProvider>
+    //         }
+    //       />
+    //       <Route
+    //         path="import"
+    //         element={
+    //           <SupplierProvider>
+    //             <ImportPage />
+    //           </SupplierProvider>
+    //         }
+    //       />
+    //       <Route path="addImport" element={<AddImportPage />} />"
+    //       <Route path="detailImport/:id" element={<DetailImportPage />} />
+    //       <Route path="order" element={<OrderPage />} />
+    //       <Route path="orderDetail/:id" element={<OrderDetailPage />} />
+    //       <Route
+    //         path="suppliers"
+    //         element={
+    //           <SupplierProvider>
+    //             <SupplierPage />
+    //           </SupplierProvider>
+    //         }
+    //       />
+    //       <Route path="warranty" element={<WarrantyPage />} />
+    //       <Route path="customers" element={<CustomerPage />} />
+    //       <Route path="discounts" element={<DiscountPage />} />
+    //       <Route path="reports" element={<DashboardPage />} />
+    //     </Route>
+    //   </Routes>
+    // </Router>
   );
 }
 

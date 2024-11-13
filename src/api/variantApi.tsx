@@ -144,3 +144,12 @@ export const searchVariantByBrand = async (brandID: number) => {
     handleApiError(error, "tìm kiếm phiên bản theo sản phẩm");
   }
 };
+
+export const searchVariantBy_Id = async (id: number) => {
+  try {
+    const response = await axiosInstance.get<Variant>(`/variants/${id}`);
+    return response.data;
+  } catch (error: any) {
+    handleApiError(error, "tìm kiếm variant id");
+  }
+};

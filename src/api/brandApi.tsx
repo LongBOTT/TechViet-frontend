@@ -91,6 +91,18 @@ export const filterBrandByStatus = async (status: string) => {
 //   }
 // };
 
+// Gọi API tìm kiếm thể loại theo tên
+export const searchBrandBy_Id = async (id: number) => {
+  try {
+    const response = await axiosInstance.get<Brand>(
+      `/brands/${id}`
+    );
+    return response.data;
+  } catch (error: any) {
+    handleApiError(error, "tìm kiếm brand id");
+  }
+};
+
 // Gọi API lấy danh sách thương hiệu theo thể loại sản phẩm
 export const searchBrandByCategory_Id = async (id: number) => {
   try {

@@ -53,47 +53,49 @@ const SpecificationsTable: React.FC<SpecificationsTableProps> = ({
      try {
        if (variant) {
          // Fetch and sort variants
-         const variantList = await searchVariantByProduct(variant.products.id);
-         variantList?.sort((a, b) => a.id - b.id);
+        //  const variantList = await searchVariantByProduct(variant.products.id);
+        //  variantList?.sort((a, b) => a.id - b.id);
 
-         if (variantList) {
+        //  if (variantList) {
            let attributeList: Variant_Attribute[] = [];
-           if (variant.id === variantList[0]?.id) {
-             // If selected variant is the first, fetch attributes directly
-             attributeList =
-               (await searchVariant_AttributeByVariant(variant.id)) ?? [];
-           } else {
-             // Fetch attributes of the first variant
-             attributeList =
-               (await searchVariant_AttributeByVariant(variantList[0].id)) ??
-               [];
-             // Fetch and append attributes of the selected variant
-             const selectedAttributes = await searchVariant_AttributeByVariant(
-               variant.id
-             );
-             attributeList = [
-               ...attributeList.filter(
-                 (attr) =>
-                   !(selectedAttributes ?? []).some(
-                     (selAttr) => selAttr.attribute.id === attr.attribute.id
-                   )
-               ),
-               ...(selectedAttributes ?? []),
-             ];
-             // Kiểm tra nếu phần tử có cùng attribbute_id thì lấy của selectedAttributes
-           }
+          //  if (variant.id === variantList[0]?.id) {
+          //    // If selected variant is the first, fetch attributes directly
+          //    attributeList =
+          //      (await searchVariant_AttributeByVariant(variant.id)) ?? [];
+          //  } else {
+          //    // Fetch attributes of the first variant
+          //    attributeList =
+          //      (await searchVariant_AttributeByVariant(variantList[0].id)) ??
+          //      [];
+          //    // Fetch and append attributes of the selected variant
+          //    const selectedAttributes = await searchVariant_AttributeByVariant(
+          //      variant.id
+          //    );
+          //    attributeList = [
+          //      ...attributeList.filter(
+          //        (attr) =>
+          //          !(selectedAttributes ?? []).some(
+          //            (selAttr) => selAttr.attribute.id === attr.attribute.id
+          //          )
+          //      ),
+          //      ...(selectedAttributes ?? []),
+          //    ];
+          //    // Kiểm tra nếu phần tử có cùng attribbute_id thì lấy của selectedAttributes
+          //  }
 
+          attributeList =
+            (await searchVariant_AttributeByVariant(variant.id)) ?? [];
            // Filter out the "Màu sắc" attribute
-           attributeList = attributeList.filter(
-             (attr) => attr.attribute.name !== "Màu sắc"
-           );
+          //  attributeList = attributeList.filter(
+          //    (attr) => attr.attribute.name !== "Màu sắc"
+          //  );
            attributeList.sort((a, b) => a.attribute.id - b.attribute.id);
            // Set final attribute list
            setAttributes(attributeList ?? []);
            console.log(attributeList);
          }
          // Check if the current variant is the first in the sorted list
-       }
+      //  }
      } catch (error) {
        console.error("Failed to fetch attribute data:", error);
      }

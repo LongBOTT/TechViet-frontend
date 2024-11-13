@@ -4,23 +4,23 @@ import MenuCheckboxSection from "../Home/MenuCheckboxSection";
 import MenuRadioSection from "../Home/MenuRadioSection";
 import { useProductContext } from "../../context/ProductContext";
 import ItemCard from "../../components/Cards/ItemCard";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { ListSharp, Menu, MenuOpen } from "@mui/icons-material";
 import { Brand } from "../../types/brand";
 import { Category } from "../../types/category";
 import BrandSlider from "../Home/BrandSlider";
-import { searchBrandByCategory_Id } from "../../api/brandApi";
+import { searchBrandBy_Id, searchBrandByCategory_Id, searchBrandByName } from "../../api/brandApi";
 import { searchCategoryBy_Id } from "../../api/categoryApi";
 import MenuRadioPriceSection from "../Home/MenuRadioPriceSection";
 import { searchVariantByCategory, searchVariantByPrice, searchVariantByProductsAndPrice } from "../../api/variantApi";
-import { forEach } from "lodash";
+import { forEach, set } from "lodash";
 import { Product } from "../../types/product";
 import { getProducts, searchProductByVariants } from "../../api/productApi";
 import { Variant } from "../../types/variant";
 import { Variant_Attribute } from "../../types/variant_attribute";
 import { searchVariant_AttributeByVariant } from "../../api/variant_attributeApi";
 import ComparePage from "../Comparison/ComparePage";
-import { COMPARISON } from "../../constants/routeConstants";
+import { CATEGORY, COMPARISON } from "../../constants/routeConstants";
 
 interface CategoryPageProps {
 }
@@ -31,7 +31,12 @@ interface FilterParamsType {
   performance: string,
   camera: string,
   screen: string,
-  connectivity: string  
+  connectivity: string,
+  cpu: string,
+  gpu: string,
+  ram: string,
+  ssd: string,
+  brandName: string | null
 }
 interface Product_Variant {
   product: Product,
@@ -45,7 +50,6 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
     const [category, setCategory] = useState<Category>();
     // const [products, setProducts] = useState<Product[]>([]);
     const [variants, setVariants] = useState<Variant[]>([]);
-    const [itemsToShow, setItemsToShow] = useState(12);  // Số sản phẩm hiển thị ban đầu
     const [loadingMore, setLoadingMore] = useState(false);  // State để quản lý trạng thái loading khi nhấn "Xem thêm"
     const [loading, setLoading] = useState(true);  // State để theo dõi trạng thái tải dữ liệu ban đầu
     const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -53,16 +57,11 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
     const safeCategoryId = parseInt(params.id?.replace(':', '') || "0", 10);
     const [isSticky, setIsSticky] = useState(false);  // State để quản lý trạng thái cuộn
     const [brands, setBrands] = useState<Brand[]>([]);
-    const [filterParams, setFilterParams] = useState<FilterParamsType>({
-      price: [0, 100000000],
-      system: "",
-      ethernet: "",
-      performance: "",
-      camera: "",
-      screen: "",
-      connectivity: ""   
-    });
     const [items, setItems] = useState<Product_Variant[]>([]);
+    const [itemsToShow, setItemsToShow] = useState(12);  // Số sản phẩm hiển thị ban đầu
+    const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
+    const brandParam = queryParams.get("brand");
 
     // Refs to trigger reset in each filter component
     const priceResetRef = useRef<{ resetSelection: () => void }>(null);
@@ -72,6 +71,10 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
     const cameraResetRef = useRef<{ resetSelection: () => void }>(null);
     const screenResetRef = useRef<{ resetSelection: () => void }>(null);
     const connectivityResetRef = useRef<{ resetSelection: () => void }>(null);
+    const cpuResetRef = useRef<{ resetSelection: () => void }>(null);
+    const gpuResetRef = useRef<{ resetSelection: () => void }>(null);
+    const ramResetRef = useRef<{ resetSelection: () => void }>(null);
+    const ssdResetRef = useRef<{ resetSelection: () => void }>(null);
     const [sort, setSort] = React.useState('Nổi bật');
     const [comparisonList, setComparisonList] = useState<[Product_Variant, Variant_Attribute|null][]>([]);
     const [alertMessage, setAlertMessage] = useState<string | null>(null);
@@ -128,24 +131,50 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
         setItems(itemList);
       }
     };
+    
+    const [filterParams, setFilterParams] = useState<FilterParamsType>({
+      price: [0, 200000000],
+      system: "",
+      ethernet: "",
+      performance: "",
+      camera: "",
+      screen: "",
+      connectivity: "",
+      cpu: "",
+      gpu: "",
+      ram: "",
+      ssd: "",
+      brandName: null,
+    });
 
     // Gọi hàm fetchProducts khi component được mount
     useEffect(() => {
       setLoading(true);  // Start loading
       const loadProducts = async () => {
         try {
+          setComparisonList([]);
+
           const category = await searchCategoryBy_Id(safeCategoryId);
           setCategory(category);
-          const brands = await searchBrandByCategory_Id(safeCategoryId); 
+          const brands = await searchBrandByCategory_Id(safeCategoryId);
           setBrands(brands ?? []);
-          
-          const variantList = await searchVariantByCategory(safeCategoryId);  
-          setVariants(variantList ?? []);  // Update state with variants
+
+          const variantList = await searchVariantByCategory(safeCategoryId);
+          setVariants(variantList ?? []); // Update state with variants
           const productList = await searchProductByVariants(variantList ?? []);
 
-          const itemList = await convertToProduct_Variant(variantList ?? [], productList ?? []);
+          let itemList = await convertToProduct_Variant(
+            variantList ?? [],
+            productList ?? []
+          );
           setItems(itemList);
-
+          if (brandParam) {
+            // Kiểm tra trạng thái loading
+            setFilterParams((prev) => ({
+              ...prev,
+              brandName: brandParam,
+            }));
+          }
         } catch (error) {
           console.error("Error loading products:", error);
         } finally {
@@ -153,7 +182,33 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
         }
       };
       loadProducts();
-    }, []);
+    }, [safeCategoryId]);
+    
+    useEffect(() => {
+      priceResetRef.current?.resetSelection();
+      systemResetRef.current?.resetSelection();
+      ethernetResetRef.current?.resetSelection();
+      performanceResetRef.current?.resetSelection();
+      cameraResetRef.current?.resetSelection();
+      screenResetRef.current?.resetSelection();
+      connectivityResetRef.current?.resetSelection();
+      setFilterParams({
+        price: [0, 200000000],
+        system: "",
+        ethernet: "",
+        performance: "",
+        camera: "",
+        screen: "",
+        connectivity: "",
+        cpu: "",
+        gpu: "",
+        ram: "",
+        ssd: "",
+        brandName: brandParam,
+      });
+      console.log(brandParam);
+    }, [brandParam]);
+
 
     const convertToProduct_Variant = async (variantList: Variant[], productList: Product[]) => {
       const itemList: Product_Variant[] = [];
@@ -210,6 +265,23 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
             </Box>
           );
       }
+      if (items.length <= 12) {
+        return items.map(
+          (
+            item // Hiển thị theo itemsToShow
+          ) => (
+            <Grid item justifyContent="left" key={item.product.id}>
+              <ItemCard
+                productVariant={item}
+                onCompareToggle={handleCompareToggle}
+                isInComparison={comparisonList.some(
+                  (compItem) => compItem[0].product.id === item.product.id
+                )}
+              />
+            </Grid>
+          )
+        );
+      }
       return items.slice(0, itemsToShow).map((item) => (  // Hiển thị theo itemsToShow
           <Grid item justifyContent="left"  key={item.product.id}>
               <ItemCard
@@ -225,8 +297,11 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
     const handleShowMore = () => {
         setLoadingMore(true);  // Bắt đầu loading
         setTimeout(() => {
-            setItemsToShow(prevItemsToShow => prevItemsToShow + 4);  // Tăng thêm 4 sản phẩm mỗi lần
-            setLoadingMore(false);  // Kết thúc loading
+        setItemsToShow((prevItemsToShow) => {
+          const newItemsToShow = prevItemsToShow + 4;
+          return newItemsToShow > (items.length) ? items.length : newItemsToShow;
+        });            
+        setLoadingMore(false);  // Kết thúc loading
         }, 1000);  // Giả lập thời gian chờ khi tải dữ liệu
     };
 
@@ -256,151 +331,263 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
 
           setSort("Nổi bật");
           setTimeout(async () => {
-              console.log("tim kiem");
+            console.log("tim kiem");
 
-              console.log(filterParams);
-          
-              const variantList = await searchVariantByPrice(filterParams.price[0], filterParams.price[1], variants);
-              const productList = await searchProductByVariants(variantList ?? []);
-              let itemList = await convertToProduct_Variant(variantList ?? [], productList ?? []);
+            console.log(filterParams);
 
-              //#region Lọc hệ điều hành  
-              if (filterParams.system !== "") {
-                // Filter out items that don't match the specified system
-                itemList = itemList.filter(item => {
-                  return item.variants_attributes.some(var_att => 
+            let varList: Variant[] = [];
+            //#region Lọc thương hiệu
+            if (brandParam != null) {
+              // Filter out items that don't match the specified system
+              varList = variants.filter(
+                (variant) => variant.products.brand.name === brandParam
+              );
+            } else {
+              varList = [...variants];
+            }
+            //#endregion
+
+            const variantList = await searchVariantByPrice(
+              filterParams.price[0],
+              filterParams.price[1],
+              varList
+            );
+            const productList = await searchProductByVariants(
+              variantList ?? []
+            );
+            let itemList = await convertToProduct_Variant(
+              variantList ?? [],
+              productList ?? []
+            );
+
+            //#region Lọc thương hiệu
+            if (filterParams.system !== "") {
+              // Filter out items that don't match the specified system
+              itemList = itemList.filter((item) => {
+                return item.variants_attributes.some(
+                  (var_att) =>
                     var_att.attribute.name === "OS" &&
                     var_att.value === filterParams.system
-                  );
-                });
-              }
-              //#endregion 
+                );
+              });
+            }
+            //#endregion
 
-              //#region Lọc Hỗ trợ mạng  
-              if (filterParams.ethernet !== "") {
-                // Filter out items that don't match the specified system
-                itemList = itemList.filter(item => {
-                  return item.variants_attributes.some(var_att => 
+            //#region Lọc Hỗ trợ mạng
+            if (filterParams.ethernet !== "") {
+              // Filter out items that don't match the specified system
+              itemList = itemList.filter((item) => {
+                return item.variants_attributes.some(
+                  (var_att) =>
                     var_att.attribute.name === "Hỗ trợ mạng" &&
                     var_att.value === filterParams.ethernet
+                );
+              });
+            }
+            //#endregion
+
+            //#region Lọc Hiệu năng và pin
+            if (filterParams.performance !== "") {
+              if (filterParams.performance === "Dưới 3000 mAh") {
+                itemList = itemList.filter((item) => {
+                  return item.variants_attributes.some(
+                    (var_att) =>
+                      var_att.attribute.name === "Dung lượng pin" &&
+                      Number(var_att.value.replace(" mAh", "")) < 3000
                   );
                 });
-              
               }
-              //#endregion 
-              
-              //#region Lọc Hiệu năng và pin 
-              if (filterParams.performance !== "") {
 
-                if (filterParams.performance === "Dưới 3000 mAh") {
-                  itemList = itemList.filter(item => {
-                  return item.variants_attributes.some(var_att => 
-                    var_att.attribute.name === "Dung lượng pin" &&
-                     Number(var_att.value.replace(" mAh", "")) < 3000
+              if (filterParams.performance === "Pin từ 3000 - 4000 mAh") {
+                itemList = itemList.filter((item) => {
+                  return item.variants_attributes.some(
+                    (var_att) =>
+                      var_att.attribute.name === "Dung lượng pin" &&
+                      Number(var_att.value.replace(" mAh", "")) >= 3000 &&
+                      Number(var_att.value.replace(" mAh", "")) <= 4000
                   );
-                  });    
-                }
-
-                if (filterParams.performance === "Pin từ 3000 - 4000 mAh") {
-                  itemList = itemList.filter(item => {
-                  return item.variants_attributes.some(var_att => 
-                    var_att.attribute.name === "Dung lượng pin" &&
-                     Number(var_att.value.replace(" mAh", "")) >= 3000 && Number(var_att.value.replace(" mAh", "")) <= 4000
-                  );
-                  });    
-                }
-
-                if (filterParams.performance === "Pin từ 4000 - 5000 mAh") {
-                  itemList = itemList.filter(item => {
-                  return item.variants_attributes.some(var_att => 
-                    var_att.attribute.name === "Dung lượng pin" &&
-                     Number(var_att.value.replace(" mAh", "")) >= 4000 && Number(var_att.value.replace(" mAh", "")) <= 5000
-                  );
-                  });    
-                }
-
-                if (filterParams.performance === "Siêu trâu: trên 5000 mAh") {
-                  itemList = itemList.filter(item => {
-                  return item.variants_attributes.some(var_att => 
-                    var_att.attribute.name === "Dung lượng pin" &&
-                     Number(var_att.value.replace(" mAh", "")) >= 5000
-                  );
-                  });    
-                }
+                });
               }
-              //#endregion 
 
-              //#region Lọc camera  
-              if (filterParams.camera !== "") {
-                // Filter out items that don't match the specified system
-                itemList = itemList.filter(item => {
-                  return item.variants_attributes.some(var_att => 
+              if (filterParams.performance === "Pin từ 4000 - 5000 mAh") {
+                itemList = itemList.filter((item) => {
+                  return item.variants_attributes.some(
+                    (var_att) =>
+                      var_att.attribute.name === "Dung lượng pin" &&
+                      Number(var_att.value.replace(" mAh", "")) >= 4000 &&
+                      Number(var_att.value.replace(" mAh", "")) <= 5000
+                  );
+                });
+              }
+
+              if (filterParams.performance === "Siêu trâu: trên 5000 mAh") {
+                itemList = itemList.filter((item) => {
+                  return item.variants_attributes.some(
+                    (var_att) =>
+                      var_att.attribute.name === "Dung lượng pin" &&
+                      Number(var_att.value.replace(" mAh", "")) >= 5000
+                  );
+                });
+              }
+            }
+            //#endregion
+
+            //#region Lọc camera
+            if (filterParams.camera !== "") {
+              // Filter out items that don't match the specified system
+              itemList = itemList.filter((item) => {
+                return item.variants_attributes.some(
+                  (var_att) =>
                     var_att.attribute.name === "Tính năng" &&
                     var_att.value.includes(filterParams.camera)
+                );
+              });
+            }
+            //#endregion
+
+            //#region Lọc màn hình
+            if (filterParams.screen !== "") {
+              // Filter out items that don't match the specified system
+              if (filterParams.screen === "Màn hình nhỏ") {
+                itemList = itemList.filter((item) => {
+                  return item.variants_attributes.some(
+                    (var_att) =>
+                      var_att.attribute.name === "Kích thước màn hình" &&
+                      Number(var_att.value.replace(" inch", "")) < 1.5
                   );
                 });
               }
-              //#endregion
 
-              //#region Lọc màn hình  
-              if (filterParams.screen !== "") {
-                // Filter out items that don't match the specified system
-                if (filterParams.screen === "Màn hình nhỏ") {
-                  itemList = itemList.filter(item => {
-                  return item.variants_attributes.some(var_att => 
-                    var_att.attribute.name === "Kích thước màn hình" &&
-                     Number(var_att.value.replace(" inch", "")) < 1.5
+              if (filterParams.screen === "Dưới 5.0 inch") {
+                itemList = itemList.filter((item) => {
+                  return item.variants_attributes.some(
+                    (var_att) =>
+                      var_att.attribute.name === "Kích thước màn hình" &&
+                      Number(var_att.value.replace(" inch", "")) < 5
                   );
-                  });    
-                }
-              
-                if (filterParams.screen === "Dưới 5.0 inch") {
-                  itemList = itemList.filter(item => {
-                  return item.variants_attributes.some(var_att => 
-                    var_att.attribute.name === "Kích thước màn hình" &&
-                     Number(var_att.value.replace(" inch", "")) < 5
-                  );
-                  });    
-                }
-
-                if (filterParams.screen === "Dưới 6.0 inch") {
-                  itemList = itemList.filter(item => {
-                  return item.variants_attributes.some(var_att => 
-                    var_att.attribute.name === "Kích thước màn hình" &&
-                     Number(var_att.value.replace(" inch", "")) < 6
-                  );
-                  });    
-                }
+                });
               }
-              //#endregion
 
-              //#region Lọc kết nối
-              if (filterParams.connectivity !== "") {
-                // Filter out items that don't match the specified system
-               if (filterParams.connectivity === "Bluetooth") {
-                  itemList = itemList.filter(item => {
-                  return item.variants_attributes.some(var_att => 
-                    var_att.attribute.name === "Bluetooth"
+              if (filterParams.screen === "Dưới 6.0 inch") {
+                itemList = itemList.filter((item) => {
+                  return item.variants_attributes.some(
+                    (var_att) =>
+                      var_att.attribute.name === "Kích thước màn hình" &&
+                      Number(var_att.value.replace(" inch", "")) < 6
                   );
-                  });    
-                }
-                else
-                {
-                  itemList = itemList.filter(item => {
-                  return item.variants_attributes.some(var_att => 
-                    var_att.attribute.name === "Kết nối khác" &&
-                    var_att.value.includes(filterParams.connectivity)
-                  );
-                  });  
-                }
+                });
               }
-              //#endregion
 
-              setItems(itemList);  // Update items with filtered list
-              console.log(itemList)
+              if (filterParams.screen === "Dưới 14.0 inch") {
+                itemList = itemList.filter((item) => {
+                  return item.variants_attributes.some(
+                    (var_att) =>
+                      var_att.attribute.name === "Kích thước màn hình" &&
+                      Number(var_att.value.replace(" inch", "")) < 14
+                  );
+                });
+              }
 
-              setItemsToShow(12);
-              setLoading(false);  // Kết thúc loading
+              if (filterParams.screen === "Từ 14.0 - 15.0 inch") {
+                itemList = itemList.filter((item) => {
+                  return item.variants_attributes.some(
+                    (var_att) =>
+                      var_att.attribute.name === "Kích thước màn hình" &&
+                      Number(var_att.value.replace(" inch", "")) >= 14 &&
+                      Number(var_att.value.replace(" inch", "")) <= 15
+                  );
+                });
+              }
+
+              if (filterParams.screen === "Từ 15.0 - 17.0 inch") {
+                itemList = itemList.filter((item) => {
+                  return item.variants_attributes.some(
+                    (var_att) =>
+                      var_att.attribute.name === "Kích thước màn hình" &&
+                      Number(var_att.value.replace(" inch", "")) >= 15 &&
+                      Number(var_att.value.replace(" inch", "")) <= 17
+                  );
+                });
+              }
+            }
+            //#endregion
+
+            //#region Lọc kết nối
+            if (filterParams.connectivity !== "") {
+              // Filter out items that don't match the specified system
+              if (filterParams.connectivity === "Bluetooth") {
+                itemList = itemList.filter((item) => {
+                  return item.variants_attributes.some(
+                    (var_att) => var_att.attribute.name === "Bluetooth"
+                  );
+                });
+              } else {
+                itemList = itemList.filter((item) => {
+                  return item.variants_attributes.some(
+                    (var_att) =>
+                      var_att.attribute.name === "Kết nối khác" &&
+                      var_att.value.includes(filterParams.connectivity)
+                  );
+                });
+              }
+            }
+            //#endregion
+
+            //#region Lọc cpu
+            if (filterParams.cpu !== "") {
+              // Filter out items that don't match the specified system
+              itemList = itemList.filter((item) => {
+                return item.variants_attributes.some(
+                  (var_att) =>
+                    var_att.attribute.name === "Công nghệ CPU" &&
+                    var_att.value.includes(filterParams.cpu)
+                );
+              });
+            }
+            //#endregion
+
+            //#region Lọc gpu
+            if (filterParams.gpu !== "") {
+              // Filter out items that don't match the specified system
+              itemList = itemList.filter((item) => {
+                return item.variants_attributes.some(
+                  (var_att) =>
+                    var_att.attribute.name === "Model (Card rời ) " &&
+                    var_att.value.includes(filterParams.gpu)
+                );
+              });
+            }
+            //#endregion
+
+            //#region Lọc ram
+            if (filterParams.ram !== "") {
+              // Filter out items that don't match the specified system
+              itemList = itemList.filter((item) => {
+                return item.variants_attributes.some(
+                  (var_att) =>
+                    var_att.attribute.name === "RAM" &&
+                    var_att.value.includes(filterParams.ram)
+                );
+              });
+            }
+            //#endregion
+
+            //#region Lọc ssd
+            if (filterParams.ssd !== "") {
+              // Filter out items that don't match the specified system
+              itemList = itemList.filter((item) => {
+                return item.variants_attributes.some(
+                  (var_att) =>
+                    var_att.attribute.name === "Dung lượng (Rom)" &&
+                    var_att.value.includes(filterParams.ssd)
+                );
+              });
+            }
+            //#endregion
+
+            setItems(itemList); // Update items with filtered list
+            console.log(itemList);
+            setLoading(false); // Kết thúc loading
           }, 500);  // Giả lập thời gian chờ khi tải dữ liệu
         };
       
@@ -415,7 +602,7 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
         const value = filterParams[key as keyof FilterParamsType];
         return (
           (typeof value === 'string' && value.trim() !== "") ||
-          (Array.isArray(value) && !(value[0] === 0 && value[1] === 100000000))
+          (Array.isArray(value) && !(value[0] === 0 && value[1] === 200000000))
         );
       });
     
@@ -425,7 +612,7 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
             const value = filterParams[key as keyof FilterParamsType];
           
             if (value && (typeof value === 'string' ? value.trim() : value.length > 0)) {
-              if ((typeof value === 'string' && value !== "") || (Array.isArray(value) && !(value[0] === 0 && value[1] === 100000000))) {
+              if ((typeof value === 'string' && value !== "") || (Array.isArray(value) && !(value[0] === 0 && value[1] === 200000000))) {
                 
                 if (Array.isArray(value) && value[0] === 0 && value[1] === 5000000) {
                   return (
@@ -439,7 +626,7 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
                   );
                 }
               
-                if (Array.isArray(value) && value[0] === 10000000 && value[1] === 100000000) {
+                if (Array.isArray(value) && value[0] === 10000000 && value[1] === 200000000) {
                   return (
                     <Chip
                       key={key}
@@ -502,7 +689,13 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
       if (key === 'camera') cameraResetRef.current?.resetSelection();
       if (key === 'screen') screenResetRef.current?.resetSelection();
       if (key === 'connectivity') connectivityResetRef.current?.resetSelection();
-
+      if (key === 'cpu') cpuResetRef.current?.resetSelection();
+      if (key === 'gpu') gpuResetRef.current?.resetSelection();
+      if (key === 'ram') ramResetRef.current?.resetSelection();
+      if (key === 'ssd') ssdResetRef.current?.resetSelection();
+      if (key === "brandName") {
+        navigate(`${CATEGORY}/${safeCategoryId}`);
+      }
     };
 
     const handleClearAllFilters = () => {
@@ -513,6 +706,13 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
       cameraResetRef.current?.resetSelection();
       screenResetRef.current?.resetSelection();
       connectivityResetRef.current?.resetSelection();
+      cpuResetRef.current?.resetSelection();
+      gpuResetRef.current?.resetSelection();
+      ramResetRef.current?.resetSelection();
+      ssdResetRef.current?.resetSelection();
+      if (brandParam!= null) {
+        navigate(`${CATEGORY}/${safeCategoryId}`);
+      }
     };
 
     const handlePriceRangeChange = async (newRange: number[]) => {
@@ -520,7 +720,7 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
         // Cập nhật giá trị price trong filterParams
         setFilterParams(prev => ({
           ...prev,
-          price: (newRange[1] === Infinity) ? [newRange[0], 100000000] : newRange
+          price: (newRange[1] === Infinity) ? [newRange[0], 200000000] : newRange
         }));
         console.log("Giá trị mới:", newRange);  // In ra để kiểm tra
       }
@@ -585,6 +785,50 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
         console.log("Giá trị mới:", value);  // In ra để kiểm tra
       }
     };
+
+    const handleCPUChange = (value: string) => {
+      if (!loading) {
+        // Kiểm tra trạng thái loading
+        setFilterParams((prev) => ({
+          ...prev,
+          cpu: value === "Tất cả" ? "" : value,
+        }));
+        console.log("Giá trị mới:", value); // In ra để kiểm tra
+      }
+    };
+    
+    const handleGPUChange = (value: string) => {
+      if (!loading) {
+        // Kiểm tra trạng thái loading
+        setFilterParams((prev) => ({
+          ...prev,
+          gpu: value === "Tất cả" ? "" : value,
+        }));
+        console.log("Giá trị mới:", value); // In ra để kiểm tra
+      }
+    };
+
+    const handleRAMChange = (value: string) => {
+      if (!loading) {
+        // Kiểm tra trạng thái loading
+        setFilterParams((prev) => ({
+          ...prev,
+          ram: value === "Tất cả" ? "" : value,
+        }));
+        console.log("Giá trị mới:", value); // In ra để kiểm tra
+      }
+    };
+
+    const handleSSDChange = (value: string) => {
+      if (!loading) {
+        // Kiểm tra trạng thái loading
+        setFilterParams((prev) => ({
+          ...prev,
+          ssd: value === "Tất cả" ? "" : value,
+        }));
+        console.log("Giá trị mới:", value); // In ra để kiểm tra
+      }
+    };
     
     // Clear the alert after 3 seconds
     useEffect(() => {
@@ -595,262 +839,539 @@ const CategoryPage: FC<CategoryPageProps> = (): ReactElement => {
     }, [alertMessage]);
 
     return (
-        <Box sx={{ display: 'block', marginTop: '20px'}}>
-           {/* Centered Modal Alert */}
-            <Modal
-                open={Boolean(alertMessage)}
-                onClose={() => setAlertMessage(null)}
-                aria-labelledby="alert-message"
-                closeAfterTransition
-                sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    backdropFilter: 'blur(3px)', // Optional: blur background
-                }}
-            >
-                
-              <Alert severity="warning" sx={{ mb: 2 }}>
-                  <Typography id="alert-message">{alertMessage}</Typography>
-              </Alert>
-            </Modal>
+      <Box sx={{ display: "block", marginTop: "20px" }}>
+        {/* Centered Modal Alert */}
+        <Modal
+          open={Boolean(alertMessage)}
+          onClose={() => setAlertMessage(null)}
+          aria-labelledby="alert-message"
+          closeAfterTransition
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            backdropFilter: "blur(3px)", // Optional: blur background
+          }}
+        >
+          <Alert severity="warning" sx={{ mb: 2 }}>
+            <Typography id="alert-message">{alertMessage}</Typography>
+          </Alert>
+        </Modal>
 
-            <Grid container sx={{marginBottom: '20px'}} >
-                {/* Bộ lọc bên trái */}
-                 <Grid item xs={3} >       
-                  <Box sx={{ 
-                    marginLeft:'20px',
-                    padding:'10px',
-                    background: "white", 
-                    borderRadius:'10px', 
-                    position:'sticky',   // Thay đổi thành 'sticky' để dính vào khi cuộn
-                    top: '20px',         // Dính cách đầu trang 20px
-                    height: isSticky ? 'fit-content' : '100%',  // Khi cuộn, chuyển chiều cao thành 'fit-content'
-                    transition: 'height 0.3s ease',  // Chuyển đổi mượt mà khi thay đổi chiều cao
+        <Grid container sx={{ marginBottom: "20px" }}>
+          {/* Bộ lọc bên trái */}
+          <Grid item xs={3}>
+            <Box
+              sx={{
+                marginLeft: "20px",
+                padding: "10px",
+                background: "white",
+                borderRadius: "10px",
+                position: "sticky", // Thay đổi thành 'sticky' để dính vào khi cuộn
+                top: "20px", // Dính cách đầu trang 20px
+                height: isSticky ? "fit-content" : "100%", // Khi cuộn, chuyển chiều cao thành 'fit-content'
+                transition: "height 0.3s ease", // Chuyển đổi mượt mà khi thay đổi chiều cao
+              }}
+            >
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyItems: "center",
+                  textAlign: "center",
+                  gap: "5px",
+                }}
+              >
+                <ListSharp sx={{ fontSize: "30px" }} />
+                <Typography variant="h6" gutterBottom fontWeight={"bold"}>
+                  Bộ lọc tìm kiếm
+                </Typography>
+              </Box>
+
+              {/* Hiển thị bộ lọc theo từng categoryName */}
+
+              {/* Bộ lọc giá cho mọi danh mục */}
+              <MenuRadioPriceSection
+                title="Mức giá"
+                onChange={handlePriceRangeChange}
+                data={[
+                  { id: "Tất cả", label: "Tất cả", value: [0, 200000000] },
+                  { id: "under5", label: "Dưới 5 triệu", value: [0, 5000000] },
+                  {
+                    id: "5to10",
+                    label: "5 - 10 triệu",
+                    value: [5000000, 10000000],
+                  },
+                  {
+                    id: "above10",
+                    label: "Trên 10 triệu",
+                    value: [10000000, Infinity],
+                  },
+                ]}
+                resetRef={priceResetRef}
+              />
+
+              {/* Bộ lọc giá cho mọi danh mục */}
+              {safeCategoryId === 1 && (
+                <MenuRadioSection
+                  title="Hệ điều hành"
+                  onChange={handleSystemChange}
+                  data={[
+                    { id: "Tất cả", label: "Tất cả", value: "Tất cả" },
+                    { id: "iOS", label: "iOS", value: "iOS" },
+                    { id: "Android", label: "Android", value: "Android" },
+                  ]}
+                  resetRef={systemResetRef}
+                />
+              )}
+
+              {/* Bộ lọc giá cho mọi danh mục */}
+              {safeCategoryId === 1 && (
+                <MenuRadioSection
+                  title="Hỗ trợ mạng"
+                  onChange={handleEthernetChange}
+                  data={[
+                    { id: "Tất cả", label: "Tất cả", value: "Tất cả" },
+                    { id: "4g", label: "4G", value: "4G" },
+                    { id: "5", label: "5G", value: "5G" },
+                  ]}
+                  resetRef={ethernetResetRef}
+                />
+              )}
+
+              {/* Bộ lọc "Hiệu năng và Pin" */}
+              {safeCategoryId === 1 && (
+                <MenuRadioSection
+                  title="Hiệu năng và Pin"
+                  onChange={handlePerformanceChange}
+                  data={[
+                    { id: "Tất cả", label: "Tất cả", value: "Tất cả" },
+                    {
+                      id: "Dưới 3000",
+                      label: "Dưới 3000 mAh",
+                      value: "Dưới 3000 mAh",
+                    },
+                    {
+                      id: "3000-4000",
+                      label: "Pin từ 3000 - 4000 mAh",
+                      value: "Pin từ 3000 - 4000 mAh",
+                    },
+                    {
+                      id: "4000-5000",
+                      label: "Pin từ 4000 - 5000 mAh",
+                      value: "Pin từ 4000 - 5000 mAh",
+                    },
+                    {
+                      id: "trên 5000",
+                      label: "Siêu trâu: trên 5000 mAh",
+                      value: "Siêu trâu: trên 5000 mAh",
+                    },
+                  ]}
+                  resetRef={performanceResetRef}
+                />
+              )}
+
+              {/* Bộ lọc "Camera" */}
+              {safeCategoryId === 1 && (
+                <MenuRadioSection
+                  title="Camera"
+                  onChange={handleCameraChange}
+                  data={[
+                    { id: "Tất cả", label: "Tất cả", value: "Tất cả" },
+                    {
+                      id: "Slow Motion",
+                      label: "Quay phim Slow Motion",
+                      value: "Slow Motion",
+                    },
+                    {
+                      id: "AI Camera",
+                      label: "AI Camera",
+                      value: "A.I Camera",
+                    },
+                    {
+                      id: "Hiệu ứng",
+                      label: "Hiệu ứng làm đẹp",
+                      value: "Beautify",
+                    },
+                    {
+                      id: "Zoom quang học",
+                      label: "Zoom quang học",
+                      value: "Zoom quang học",
+                    },
+                    {
+                      id: "Chống rung OIS",
+                      label: "Chống rung OIS",
+                      value: "OIS",
+                    },
+                  ]}
+                  resetRef={cameraResetRef}
+                />
+              )}
+
+              {/* Bộ lọc "Màn hình" */}
+              {safeCategoryId === 1 && (
+                <MenuRadioSection
+                  title="Màn hình"
+                  onChange={handleScreenChange}
+                  data={[
+                    { id: "Tất cả", label: "Tất cả", value: "Tất cả" },
+                    {
+                      id: "Màn nhỏ",
+                      label: "Màn hình nhỏ",
+                      value: "Màn hình nhỏ",
+                    },
+                    {
+                      id: "Dưới 5 inch",
+                      label: "Dưới 5.0 inch",
+                      value: "Dưới 5.0 inch",
+                    },
+                    {
+                      id: "Trên 6 inch",
+                      label: "Trên 6.0 inch",
+                      value: "Trên 6.0 inch",
+                    },
+                  ]}
+                  resetRef={screenResetRef}
+                />
+              )}
+
+              {safeCategoryId === 2 && (
+                <MenuRadioSection
+                  title="Màn hình"
+                  onChange={handleScreenChange}
+                  data={[
+                    { id: "Tất cả", label: "Tất cả", value: "Tất cả" },
+                    {
+                      id: "Dưới 14.0 inch",
+                      label: "Dưới 14.0 inch",
+                      value: "Dưới 14.0 inch",
+                    },
+                    {
+                      id: "Từ 14.0 - 15.0 inch",
+                      label: "Từ 14.0 - 15.0 inch",
+                      value: "Từ 14.0 - 15.0 inch",
+                    },
+                    {
+                      id: "Từ 15.0 - 16.0 inch",
+                      label: "Từ 15.0 - 16.0 inch",
+                      value: "Từ 15.0 - 17.0 inch",
+                    },
+                  ]}
+                  resetRef={screenResetRef}
+                />
+              )}
+
+              {/* Bộ lọc "cpu" */}
+              {safeCategoryId === 2 && (
+                <MenuRadioSection
+                  title="Công nghệ CPU"
+                  onChange={handleCPUChange}
+                  data={[
+                    { id: "Tất cả", label: "Tất cả", value: "Tất cả" },
+                    {
+                      id: "Intel Core i7",
+                      label: "Intel Core i7",
+                      value: "i7",
+                    },
+                    {
+                      id: "Intel Core i5",
+                      label: "Intel Core i5",
+                      value: "i5",
+                    },
+                    {
+                      id: "Intel Core i3",
+                      label: "Intel Core i3",
+                      value: "i3",
+                    },
+                    {
+                      id: "AMD Ryzen 7",
+                      label: "AMD Ryzen 7",
+                      value: "Ryzen 7",
+                    },
+                    {
+                      id: "AMD Ryzen 5",
+                      label: "AMD Ryzen 5",
+                      value: "Ryzen 5",
+                    },
+                  ]}
+                  resetRef={cpuResetRef}
+                />
+              )}
+
+              {/* Bộ lọc "Kết nối" */}
+              {safeCategoryId === 1 && (
+                <MenuRadioSection
+                  title="Kết nối"
+                  onChange={handleConnectivityChange}
+                  data={[
+                    { id: "Tất cả", label: "Tất cả", value: "Tất cả" },
+                    { id: "NFC", label: "NFC", value: "NFC" },
+                    { id: "Bluetooth", label: "Bluetooth", value: "Bluetooth" },
+                    {
+                      id: "Hồng ngoại",
+                      label: "Hồng ngoại",
+                      value: "Hồng ngoại",
+                    },
+                  ]}
+                  resetRef={connectivityResetRef}
+                />
+              )}
+
+              {/* Bộ lọc "gpu" */}
+              {safeCategoryId === 2 && (
+                <MenuRadioSection
+                  title="Card đồ họa"
+                  onChange={handleGPUChange}
+                  data={[
+                    { id: "Tất cả", label: "Tất cả", value: "Tất cả" },
+                    {
+                      id: "NVIDIA GeForce Series",
+                      label: "NVIDIA GeForce Series",
+                      value: "GeForce",
+                    },
+                    {
+                      id: "NVIDIA GeForce MX Series",
+                      label: "NVIDIA GeForce MX Series",
+                      value: "GeForce MX",
+                    },
+                    {
+                      id: "NVIDIA GeForce RTX AI Series",
+                      label: "NVIDIA GeForce RTX AI Series",
+                      value: "GeForce RTX",
+                    },
+                  ]}
+                  resetRef={gpuResetRef}
+                />
+              )}
+
+              {/* Bộ lọc "ram" */}
+              {safeCategoryId === 2 && (
+                <MenuRadioSection
+                  title="RAM"
+                  onChange={handleRAMChange}
+                  data={[
+                    { id: "Tất cả", label: "Tất cả", value: "Tất cả" },
+                    {
+                      id: "32GB",
+                      label: "32GB",
+                      value: "32 GB",
+                    },
+                    {
+                      id: "16GB",
+                      label: "16GB",
+                      value: "16 GB",
+                    },
+                    {
+                      id: "8GB",
+                      label: "8GB",
+                      value: "8 GB",
+                    },
+                    {
+                      id: "4GB",
+                      label: "4GB",
+                      value: "4 GB",
+                    },
+                  ]}
+                  resetRef={ramResetRef}
+                />
+              )}
+
+              {/* Bộ lọc "ssd" */}
+              {safeCategoryId === 2 && (
+                <MenuRadioSection
+                  title="SSD"
+                  onChange={handleSSDChange}
+                  data={[
+                    { id: "Tất cả", label: "Tất cả", value: "Tất cả" },
+                    {
+                      id: "SSD 1 TB",
+                      label: "SSD 1 TB",
+                      value: "1 TB",
+                    },
+                    {
+                      id: "SSD 512 GB",
+                      label: "SSD 512 GB",
+                      value: "512 GB",
+                    },
+                    {
+                      id: "SSD 256 GB",
+                      label: "SSD 256 GB",
+                      value: "256 GB",
+                    },
+                    {
+                      id: "SSD 128 GB",
+                      label: "SSD 128 GB",
+                      value: "128 GB",
+                    },
+                  ]}
+                  resetRef={ssdResetRef}
+                />
+              )}
+            </Box>
+          </Grid>
+
+          {/* Danh sách sản phẩm bên phải */}
+          <Grid item xs={9}>
+            <Box
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              height="fit-content"
+              width="100%"
+            >
+              <Typography fontSize={"32px"} fontWeight={"bold"}>
+                {category?.name}
+              </Typography>
+            </Box>
+            <Box sx={{ display: "flex", margin: "20px" }}>
+              <Container sx={{ height: "fit-content" }}>
+                <BrandSlider brands={brands} categoryID={safeCategoryId} />
+              </Container>
+            </Box>
+            {loadItemFilters()}
+            <Box
+              display="flex"
+              justifyContent="left"
+              alignItems="center"
+              height="fit-content"
+              marginLeft={"10px"}
+            >
+              {!loading ? (
+                <>
+                  <Box justifyContent="left" width={"80%"}>
+                    <Typography fontSize={"15px"}>
+                      Tìm thấy <b>{items.length}</b> sản phẩm
+                    </Typography>
+                  </Box>
+
+                  <Typography
+                    fontSize={"15px"}
+                    justifyContent="right"
+                    width={"5%"}
+                  >
+                    Sắp xếp
+                  </Typography>
+
+                  <Box sx={{ width: "15%", justifyContent: "right" }}>
+                    <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
+                      <Select
+                        value={sort}
+                        onChange={handleChange}
+                        sx={{ height: "30px" }} // Adjust the height as needed
+                      >
+                        <MenuItem value=""></MenuItem>
+                        <MenuItem value="Nổi bật">Nổi bật</MenuItem>
+                        <MenuItem value="Giá thấp nhất">Giá thấp nhất</MenuItem>
+                        <MenuItem value="Giá cao nhất">Giá cao nhất</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Box>
+                </>
+              ) : null}
+            </Box>
+            <Grid container justifyContent="left" alignItems="center">
+              {/* Gọi hàm loadItemCards với delay */}
+              {loading ? (
+                <LoadingIndicator /> // Hiển thị loading khi đang tải thêm
+              ) : (
+                loadItemCards()
+              )}
+            </Grid>
+
+            {/* Nút Xem thêm */}
+            {items.length > itemsToShow && (
+              <Box mt={4} display="flex" justifyContent="center">
+                {!loading && loadingMore ? (
+                  <LoadingIndicator /> // Hiển thị loading khi đang tải thêm
+                ) : !loading ? (
+                  <Button
+                    variant="text"
+                    onClick={handleShowMore}
+                    sx={{
+                      borderRadius: "99px",
+                      color: "inherit",
+                      fontSize: "14px",
                     }}
                   >
-                    <Box sx={{display:'flex', justifyItems:'center', textAlign: 'center', gap:'5px'}}>
-                        <ListSharp sx={{fontSize:'30px'}}/> 
-                    <Typography variant="h6" gutterBottom fontWeight={"bold"}>
-                        Bộ lọc tìm kiếm
-                    </Typography>
-                    </Box>
-
-                    {/* Hiển thị bộ lọc theo từng categoryName */}
-                    {/* {safeCategoryName === "Laptop" && ()} */}
-
-                    {/* Bộ lọc giá cho mọi danh mục */}
-                    <MenuRadioPriceSection
-                      title="Mức giá"
-                      onChange={handlePriceRangeChange}
-                      data={[
-                        { id: 'Tất cả', label: 'Tất cả', value: [0, 100000000] },
-                        { id: 'under5', label: 'Dưới 5 triệu', value: [0, 5000000] },
-                        { id: '5to10', label: '5 - 10 triệu', value: [5000000, 10000000] },
-                        { id: 'above10', label: 'Trên 10 triệu', value: [10000000, Infinity] }
-                      ]}
-                      resetRef={priceResetRef}
-                    />      
-
-                    {/* Bộ lọc giá cho mọi danh mục */}
-                    <MenuRadioSection
-                      title="Hệ điều hành"
-                      onChange={handleSystemChange}
-                      data={[
-                        { id: 'Tất cả', label: 'Tất cả', value: "Tất cả" },
-                        { id: 'iOS', label: 'iOS', value: "iOS" },
-                        { id: 'Android', label: 'Android', value: "Android" }
-                      ]}
-                      resetRef={systemResetRef}
-                    />      
-
-                    {/* Bộ lọc giá cho mọi danh mục */}
-                    <MenuRadioSection
-                      title="Hỗ trợ mạng"
-                      onChange={handleEthernetChange}
-                      data={[
-                        { id: 'Tất cả', label: 'Tất cả', value: "Tất cả" },
-                        { id: '4g', label: '4G', value: "4G" },
-                        { id: '5', label: '5G', value: "5G" }
-                      ]}
-                      resetRef={ethernetResetRef}
-                    />
-                          
-                    {/* Bộ lọc "Hiệu năng và Pin" */}
-                    <MenuRadioSection
-                      title="Hiệu năng và Pin"
-                      onChange={handlePerformanceChange}
-                      data={[
-                        { id: 'Tất cả', label: 'Tất cả', value: 'Tất cả' },
-                        { id: 'Dưới 3000', label: 'Dưới 3000 mAh', value: 'Dưới 3000 mAh' },
-                        { id: '3000-4000', label: 'Pin từ 3000 - 4000 mAh', value: 'Pin từ 3000 - 4000 mAh' },
-                        { id: '4000-5000', label: 'Pin từ 4000 - 5000 mAh', value: 'Pin từ 4000 - 5000 mAh' },
-                        { id: 'trên 5000', label: 'Siêu trâu: trên 5000 mAh', value: 'Siêu trâu: trên 5000 mAh' }
-                      ]}
-                      resetRef={performanceResetRef}
-                    />
-                
-                    {/* Bộ lọc "Camera" */}
-                    <MenuRadioSection
-                      title="Camera"
-                      onChange={handleCameraChange}
-                      data={[
-                        { id: 'Tất cả', label: 'Tất cả', value: 'Tất cả' },
-                        { id: 'Slow Motion', label: 'Quay phim Slow Motion', value: 'Slow Motion' },
-                        { id: 'AI Camera', label: 'AI Camera', value: 'A.I Camera' },
-                        { id: 'Hiệu ứng', label: 'Hiệu ứng làm đẹp', value: 'Beautify' },
-                        { id: 'Zoom quang học', label: 'Zoom quang học', value: 'Zoom quang học' },
-                        { id: 'Chống rung OIS', label: 'Chống rung OIS', value: 'OIS' }
-                      ]}
-                      resetRef={cameraResetRef}
-
-                    />
-                
-                    {/* Bộ lọc "Màn hình" */}
-                    <MenuRadioSection
-                      title="Màn hình"
-                      onChange={handleScreenChange}
-                      data={[
-                        { id: 'Tất cả', label: 'Tất cả', value: 'Tất cả' },
-                        { id: 'Màn nhỏ', label: 'Màn hình nhỏ', value: 'Màn hình nhỏ' },
-                        { id: 'Dưới 5 inch', label: 'Dưới 5.0 inch', value: 'Dưới 5.0 inch' },
-                        { id: 'Trên 6 inch', label: 'Trên 6.0 inch', value: 'Trên 6.0 inch' }
-                      ]}
-                      resetRef={screenResetRef}
-
-                    />
-
-                    {/* Bộ lọc "Kết nối" */}
-                    <MenuRadioSection
-                      title="Kết nối"
-                      onChange={handleConnectivityChange}
-                      data={[
-                        { id: 'Tất cả', label: 'Tất cả', value: 'Tất cả' },
-                        { id: 'NFC', label: 'NFC', value: 'NFC' },
-                        { id: 'Bluetooth', label: 'Bluetooth', value: 'Bluetooth' },
-                        { id: 'Hồng ngoại', label: 'Hồng ngoại', value: 'Hồng ngoại' }
-                      ]}
-                      resetRef={connectivityResetRef}
-
-                    />
-
-                  </Box>     
-                </Grid>
-
-                {/* Danh sách sản phẩm bên phải */}
-                <Grid item xs={9}>
-                    <Box display="flex" justifyContent="center" alignItems="center" height="fit-content" width="100%">
-                        <Typography fontSize={"32px"} fontWeight={"bold"}>
-                            {category?.name}
-                        </Typography>
-
-                    </Box>
-                    <Box sx={{ display: 'flex', margin: '20px'}}>
-                        <Container sx={{ height: 'fit-content'}}>
-                            <BrandSlider brands={brands}/>
-                        </Container>
-                    </Box>
-
-                      {loadItemFilters()}
-
-                    <Box display="flex" justifyContent="left" alignItems="center" height="fit-content" marginLeft={"10px"}>
-                    
-                      { !loading ? 
-                        (
-                          <>
-                          <Box justifyContent="left" width={"80%"}>
-                            <Typography fontSize={"15px"} >
-                            Tìm thấy <b>{items.length}</b> sản phẩm
-                            </Typography>
-                          </Box>
-                          
-                          <Typography fontSize={"15px"} justifyContent="right" width={"5%"}>
-                            Sắp xếp
-                          </Typography>
-
-                          <Box  sx={{width: '15%', justifyContent:"right" } }>
-                            
-                              <FormControl sx={{ m: 1, minWidth: 120 }} size="small" >
-                                <Select
-                                  value={sort}
-                                  onChange = {handleChange}
-                                  sx={{ height: "30px" }}  // Adjust the height as needed
-                                >
-                                  <MenuItem value="">
-                                  </MenuItem>
-                                  <MenuItem value="Nổi bật">Nổi bật</MenuItem>
-                                  <MenuItem value="Giá thấp nhất">Giá thấp nhất</MenuItem>
-                                  <MenuItem value="Giá cao nhất">Giá cao nhất</MenuItem>
-                                </Select> 
-                              </FormControl>
-                          </Box>
-                          
-                          </>
-                        ) : null
-                      }
-                    </Box>
-                    <Grid container justifyContent="left" alignItems="center">
-                        {/* Gọi hàm loadItemCards với delay */}
-                        {loading ? (
-                          <LoadingIndicator />  // Hiển thị loading khi đang tải thêm
-                          ) : (loadItemCards())}  
-                    </Grid>
-
-                    {/* Nút Xem thêm */}
-                    {items.length > itemsToShow && (
-                        <Box mt={4} display="flex" justifyContent="center">
-                            {!loading && loadingMore ? (
-                                <LoadingIndicator />  // Hiển thị loading khi đang tải thêm
-                            ) : !loading ?(
-                                <Button variant="text" onClick={handleShowMore} sx={{borderRadius:'99px', color:'inherit', fontSize:'14px'}}>
-                                    Xem thêm {items.length - itemsToShow} kết quả
-                                </Button>
-                            ) : null}
-                        </Box>
-                    )}
-
-                </Grid>
-            </Grid>
-            {comparisonList.length > 0 && (
-                <Grid sx={{ display: 'flex', padding:'10px', gap:'10px', backgroundColor:'#21252b', justifyContent:'center', position:'sticky', bottom: '0px', marginTop: '20px', borderRadius: '20px 20px 0 0'}} >
-                    {comparisonList.map((item) => (
-                        <Chip
-                            sx={{backgroundColor:'white', height:'50px', width:'290px', fontSize:'16px', borderRadius:'8px', justifyContent:'left', '.MuiChip-avatar': {
-                                  width: 40, // Customize the avatar size if needed
-                                  height: 40,
-                                  borderRadius: 0
-                                },}}
-                            key={item[0].product.id}
-                            label={item[0].product.name + " " + item[1]?.value}
-                            onDelete={() => handleCompareToggle(item[0], item[1], false)}
-                             avatar={
-                              <Avatar
-                                  src={item[0].product.image}
-                              />
-                          }
-                        />
-                    ))}
-                    <Chip
-                      sx={{backgroundColor:'white', height:'50px', width:'fit-content', fontSize:'16px', borderRadius:'8px',fontWeight:'bold','&:hover': {
-                        bgcolor: '#e4e8ed',  // Background color on hover
-                    },}}
-                      label={"Xoá tất cả"}
-                      onClick={()=>{
-                        setComparisonList([]);
-                      }}  
-                    />
-                    {comparisonList.length > 1 && (
-                      <Chip
-                      sx={{backgroundColor:'#e01516', color:'white', height:'50px',width:'fit-content', fontSize:'16px', borderRadius:'8px', fontWeight:'bold', '&:hover': {
-                        bgcolor: '#e01516',  // Background color on hover
-                    },}}
-                      label={"So sánh ngay"}
-                      onClick={compareProducts}      
-                    />
-                    )}
-                </Grid>
+                    Xem thêm {items.length - itemsToShow} kết quả
+                  </Button>
+                ) : null}
+              </Box>
             )}
-        </Box>
+          </Grid>
+        </Grid>
+        {comparisonList.length > 0 && (
+          <Grid
+            sx={{
+              display: "flex",
+              padding: "10px",
+              gap: "10px",
+              backgroundColor: "#21252b",
+              justifyContent: "center",
+              position: "sticky",
+              bottom: "0px",
+              marginTop: "20px",
+              borderRadius: "20px 20px 0 0",
+            }}
+          >
+            {comparisonList.map((item) => (
+              <Chip
+                sx={{
+                  backgroundColor: "white",
+                  height: "50px",
+                  width: "290px",
+                  fontSize: "16px",
+                  borderRadius: "8px",
+                  justifyContent: "left",
+                  ".MuiChip-avatar": {
+                    width: 40, // Customize the avatar size if needed
+                    height: 40,
+                    borderRadius: 0,
+                  },
+                }}
+                key={item[0].product.id}
+                label={item[0].product.name + " " + item[1]?.value}
+                onDelete={() => handleCompareToggle(item[0], item[1], false)}
+                avatar={<Avatar src={item[0].product.image} />}
+              />
+            ))}
+            <Chip
+              sx={{
+                backgroundColor: "white",
+                height: "50px",
+                width: "fit-content",
+                fontSize: "16px",
+                borderRadius: "8px",
+                fontWeight: "bold",
+                "&:hover": {
+                  bgcolor: "#e4e8ed", // Background color on hover
+                },
+              }}
+              label={"Xoá tất cả"}
+              onClick={() => {
+                setComparisonList([]);
+              }}
+            />
+            {comparisonList.length > 1 && (
+              <Chip
+                sx={{
+                  backgroundColor: "#e01516",
+                  color: "white",
+                  height: "50px",
+                  width: "fit-content",
+                  fontSize: "16px",
+                  borderRadius: "8px",
+                  fontWeight: "bold",
+                  "&:hover": {
+                    bgcolor: "#e01516", // Background color on hover
+                  },
+                }}
+                label={"So sánh ngay"}
+                onClick={compareProducts}
+              />
+            )}
+          </Grid>
+        )}
+      </Box>
     );
 };
 

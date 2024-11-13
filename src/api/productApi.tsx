@@ -152,6 +152,18 @@ export const searchProductByName = async (query: string) => {
   }
 }
 
+// Gọi API tìm kiếm sản phẩm theo tên
+export const searchProductByContainingName = async (name: string) => {
+  try {
+    const response = await axiosInstance.get<Product[]>(
+      `/products/search/name/containing?name=${name}`
+    );
+    return response.data;
+  } catch (error: any) {
+    handleApiError(error, "tìm kiếm sản phẩm theo tên");
+  }
+}
+
 // Gọi API tìm kiếm thể loại theo tên
 export const searchProductBy_Id = async (id: number) => {
   try {

@@ -1,5 +1,20 @@
 import axiosInstance from ".";
+import { Order } from "../types/order";
 import { handleApiError } from "./errorHandler";
+
+export const addOrder = async (order: Order) => {
+  try {
+    const response = await axiosInstance.post("/orders", order);
+    return response.data;
+  } catch (error: any) {
+    console.error(
+      "Error creating order:",
+      error.response?.data || error.message
+    );
+    handleApiError(error, "thêm đơn hàng mới");
+
+  }
+};
 
 export const getAllOrders = async () => {
   try {
