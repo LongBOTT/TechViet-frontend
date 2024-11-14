@@ -19,3 +19,16 @@ export enum PaymentMethod {
   Cash = "Cash", // Tiền mặt
   BankTransfer = "BankTransfer" // Chuyển khoản
 }
+
+export interface OrderRequest {
+  id: number; 
+  customer: Customer;
+  orderDate: string;
+  total_amount: number;
+  orderStatus: string;
+  payment_status: string;
+  payment_method: PaymentMethod;
+  note?: string;
+  address: string;
+  phone: string;
+}

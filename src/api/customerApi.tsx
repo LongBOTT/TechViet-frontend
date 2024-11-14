@@ -42,6 +42,15 @@ export const getCustomers = async () => {
   }
 };
 
+export const getCustomerResponse = async () => {
+  try {
+    const response = await axiosInstance.get("/customers/getAll");
+    return response;
+  } catch (error: any) {
+    handleApiError(error, "lấy danh sách khách hàng");
+  }
+}
+
 // Gọi API tìm kiếm khách hàng theo tên
 export const searchCustomerByName = async (query: string) => {
   try {

@@ -569,9 +569,7 @@ const CartPage: React.FC = () => {
                   <Box sx={{ mt: 1, display: "flex", alignItems: "center" }}>
                     <Button
                       color="inherit"
-                      onClick={() =>
-                        updateQuantity(item.id, item.buyQuantity - 1)
-                      }
+                      onClick={() => updateQuantity(item.id, item.buyQuantity - 1)}
                     >
                       -
                     </Button>
@@ -580,9 +578,7 @@ const CartPage: React.FC = () => {
                     </Typography>
                     <Button
                       color="inherit"
-                      onClick={() =>
-                        updateQuantity(item.id, item.buyQuantity + 1)
-                      }
+                      onClick={() => updateQuantity(item.id, item.buyQuantity + 1)}
                     >
                       +
                     </Button>

@@ -45,6 +45,7 @@ const AddVariant: React.FC<AddVariantProps> = ({
     price: 0,
     costPrice: 0,
     productId: 0,
+    status: "active",
   });
 
   const [color, setColor] = useState<string>("");
@@ -218,6 +219,7 @@ const AddVariant: React.FC<AddVariantProps> = ({
       price: 0,
       costPrice: 0,
       productId: 0,
+      status: "active",
     });
     setColor("");
     setStorage("");
