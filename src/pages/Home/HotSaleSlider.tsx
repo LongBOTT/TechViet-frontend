@@ -9,17 +9,17 @@ import HotSaleCard from '../../components/Cards/HotSaleCard';
 
 const products = [
   {
-    name: "OPPO Find X5 Pro 12GB 256GB",
-    price: 15990000,
-    originalPrice: 19990000,
+    name: "iPad Air 11 inch M2 2024 Wifi 128GB",
+    price: 27990000,
+    originalPrice: 2990000,
     discount: 20,
-    image: "src/assets/products/iphone_16_pro_max_desert_titan_3552a28ae0.png",
+    image: "src/assets/products/iPad_Air_11_inch_M2_2024_Wifi_128GB.jpg",
     details: "Giá mới chỉ có tại CellphoneS",
   },
   {
-    name: "Masstel izi T2 4G",
-    price: 430000,
-    originalPrice: 500000,
+    name: "iPhone 16 Pro Max 256GB",
+    price: 40000000,
+    originalPrice: 38000000,
     discount: 14,
     image: "src/assets/products/iphone_16_pro_max_desert_titan_3552a28ae0.png",
     details: "",
@@ -29,16 +29,16 @@ const products = [
     price: 10190000,
     originalPrice: 12690000,
     discount: 20,
-    image: "src/assets/products/iphone_16_pro_max_desert_titan_3552a28ae0.png",
+    image: "src/assets/products/SamsungGalaxyM55(12GB256GB).jpg",
     details: "Không phí chuyển đổi khi trả góp 0%",
   },
   {
-    name: "Samsung Galaxy A55 5G 128GB",
+    name: "Samsung Galaxy Z Fold6 5G 256GB",
     price: 9490000,
     originalPrice: 9990000,
     discount: 5,
     rating: 5,
-    image: "src/assets/products/iphone_16_pro_max_desert_titan_3552a28ae0.png",
+    image: "src/assets/products/Samsung_Galaxy_Z_Fold6_5G_256GB.png",
     details: "Không phí chuyển đổi khi trả góp 0%",
   },
   {
@@ -47,7 +47,7 @@ const products = [
     originalPrice: 4490000,
     discount: 16,
     rating: 5,
-    image: "src/assets/products/iphone_16_pro_max_desert_titan_3552a28ae0.png",
+    image: "src/assets/products/TECNOPOVA58GB128GB.jpg",
     details: "",
   },
 ];
