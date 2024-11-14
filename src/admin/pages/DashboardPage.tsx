@@ -3,6 +3,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import TimeFilterComponent from "../components/Util/TimeFilterComponent";
 import Paper from "@mui/material/Paper";
+import RevenueStatisticsComponent from "../components/Dashboard/RevenueStatistics";
 
 export default function Dashboard() {
   return (
@@ -41,24 +42,33 @@ export default function Dashboard() {
       {/* Content Section */}
       <Box
         sx={{
-          padding: "16px",
+          padding: "8px",
           display: "flex",
           flexDirection: "column",
-          alignItems: "center",
-          backgroundColor: "#ffffff",
           margin: "16px",
-          borderRadius: "8px",
-          boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
         }}
       >
-        {/* <Typography
+        <Typography
           variant="subtitle1"
           sx={{ marginBottom: "16px", color: "#333", fontWeight: "500" }}
         >
           Thời gian
         </Typography>
-        <TimeFilterComponent /> */}
+        <TimeFilterComponent />
       </Box>
+      {/* <Box
+        sx={{
+          marginLeft: "20px",
+          marginBottom: "20px",
+          bgcolor: "white",
+          borderRadius: "10px",
+          boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.1)",
+          backgroundColor: "#fff",
+          width:"97%",
+          height: 'calc(100vh - 200px)',
+        }}
+      ></Box> */}
+      <RevenueStatisticsComponent />
     </Box>
   );
 }

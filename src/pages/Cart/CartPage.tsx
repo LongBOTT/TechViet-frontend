@@ -23,15 +23,114 @@ import {
 } from "@mui/material";
 import PaidIcon from "@mui/icons-material/Paid";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import { useNavigate } from "react-router-dom";
-import { BASE } from "../../constants/routeConstants";
+import { useLocation, useNavigate } from "react-router-dom";
+import { BASE, CART } from "../../constants/routeConstants";
 import { useCart } from "../../context/CartContex";
 import { Delete, DeleteOutline } from "@mui/icons-material";
+import { CartItem } from "../../types/cartItem";
+import { Order, PaymentMethod } from "../../types/order";
+import { Customer } from "../../types/customer";
+import { OrderDetail } from "../../types/orderDetail";
+import { addOrder, getOrderById, updateOrder } from "../../api/orderApi";
+import { getImeis } from "../../api/imeiApi";
+import { Imei } from "../../types/imei";
+import { addOrderDetail, searchProductBy_OrderId } from "../../api/orderDetailApi";
+import axiosInstance from "../../api";
 
 const CartPage: React.FC = () => {
-  const { cart, removeFromCart, updateQuantity, updateWarranty, clearCart } =
-    useCart();
-  const [selectedItems, setSelectedItems] = useState<number[]>([]);
+
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
+  // Clear the alert after 3 seconds
+  useEffect(() => {
+    if (alertMessage) {
+      const timer = setTimeout(() => setAlertMessage(null), 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [alertMessage]);
+
+  const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
+  const location = useLocation();
+
+  useEffect(() => {
+    // Lấy các tham số từ URL
+    const params = new URLSearchParams(location.search);
+    const status = params.get("vnp_TransactionStatus");
+    const orderId = params.get("vnp_OrderInfo");
+    const amount = params.get("vnp_Amount");
+    const paymentTime = params.get("vnp_PayDate");
+    const transactionId = params.get("vnp_TransactionNo");
+
+    if (status) {
+      if (status === "00") {
+        setSeverity("success");
+        setAlertMessage("Thanh toán thành công.");
+        // Hiển thị thông báo thành công hoặc xử lý thêm nếu cần
+
+        // Xóa các item trong selectedItems khỏi cart khi thanh toán thành công
+        if (orderId) {
+          updPaymentStatusOrder(orderId);
+          clearSelectedItemsFromCart(orderId);
+        }
+        navigate(CART);
+      } else {
+        setSeverity("error");
+        setAlertMessage("Thanh toán thất bại.");
+        // Hiển thị thông báo thất bại hoặc xử lý thêm nếu cần
+      }
+    }
+  }, [location.search]);
+
+  const updPaymentStatusOrder = async (orderID : string) => {
+    const order = await getOrderById(Number(orderID));
+    if (order) {
+      order.payment_status = "Đã thanh toán";
+      await updateOrder(Number(orderID), order);
+    }
+  }
+
+  const clearSelectedItemsFromCart = async (orderID : string) => {
+    // Lọc ra các phần tử không có trong selectedItems để giữ lại trong cart
+    const orderDetails = await searchProductBy_OrderId(Number(orderID));
+    if (orderDetails) {
+          const updatedCart = cart.filter(
+            (item) =>
+              !orderDetails.some(
+                (orderDetail) => orderDetail.variantId === item.id
+              )
+          );
+      console.log(orderDetails);    
+          // Cập nhật lại state của cart và selectedItems
+          updateCart(updatedCart); // Giả sử bạn có một hàm updateCart trong useCart để cập nhật giỏ hàng
+          setSelectedItems([]);
+
+    }
+  };
+
+  const handlePayment = async (orderTotal: number, orderInfo: string) => {
+    try {
+      // Gửi yêu cầu đến backend để tạo URL thanh toán
+      const response = await axiosInstance.post(
+        `/v1/payment/submitOrder?amount=${orderTotal}&orderInfo=${orderInfo}`
+      );
+
+      if (response.data.paymentUrl) {
+        // Chuyển hướng người dùng đến trang thanh toán VNPay
+        window.location.href = response.data.paymentUrl;
+      }
+    } catch (error) {
+      console.error("Error initiating payment:", error);
+    }
+  };
+
+  const {
+    cart,
+    removeFromCart,
+    updateQuantity,
+    updateWarranty,
+    clearCart,
+    updateCart,
+  } = useCart();
+  const [selectedItems, setSelectedItems] = useState<CartItem[]>([]);
   const navigate = useNavigate();
   const [orderConfirmed, setOrderConfirmed] = useState(false);
   const [paymentMethod, setPaymentMethod] =
@@ -57,11 +156,11 @@ const CartPage: React.FC = () => {
     navigate(BASE);
   };
 
-  const handleSelectItem = (itemId: number) => {
+  const handleSelectItem = (item: CartItem) => {
     setSelectedItems((prev) =>
-      prev.includes(itemId)
-        ? prev.filter((id) => id !== itemId)
-        : [...prev, itemId]
+      prev.includes(item)
+        ? prev.filter((exsitedItem) => exsitedItem.id !== item.id)
+        : [...prev, item]
     );
   };
 
@@ -73,14 +172,14 @@ const CartPage: React.FC = () => {
     if (selectedItems.length === cart.length) {
       setSelectedItems([]);
     } else {
-      setSelectedItems(cart.map((item) => item.id));
+      setSelectedItems(cart.map((item) => item));
     }
   };
 
-  const isSelected = (itemId: number) => selectedItems.includes(itemId);
+  const isSelected = (item: CartItem) => selectedItems.includes(item);
 
   const totalPrice = cart
-    .filter((item) => selectedItems.includes(item.id))
+    .filter((item) => selectedItems.includes(item))
     .reduce((total, item) => total + item.price * item.quantity, 0);
   
     // Validate form fields
@@ -96,23 +195,83 @@ const CartPage: React.FC = () => {
     return !Object.values(newErrors).some((error) => error === true);
   };
 
-  const handleConfirmOrder = () => {
+  const handleConfirmOrder = async () => {
     if (validateForm()) {
-      setSeverity("success")
-      setAlertMessage("Đặt hàng thành công.");
+      // Tạo đối tượng khách hàng
+      let customer: Customer = {
+        name: customerName,
+        phone: phoneNumber,
+        email: email,
+        address: address,
+        distinct: "",
+        city: "",
+      };
+
+      // Tạo đối tượng Order với thông tin từ form và giỏ hàng
+      let order: Order = {
+        customer: customer, // Đảm bảo customer không null hoặc undefined
+        orderDate: new Date().toISOString().slice(0, -1),
+        total_amount: totalPrice, // Tổng tiền
+        orderStatus: "Chờ duyệt",
+        payment_status: "Chưa thanh toán",
+        payment_method: PaymentMethod.BankTransfer, // Phương thức thanh toán
+        note: note,
+        address: address,
+        phone: phoneNumber,
+      };
+
+      try {
+        // Gọi hàm API để tạo đơn hàng
+        const responseOrder = await addOrder(order);
+        console.log(responseOrder)
+        let imeis: Imei[] = await getImeis();
+        
+        // Tìm các IMEI có `imeiCode` bằng 0
+        const imeisWithIdZero = imeis.filter(
+          (imei: Imei) => imei.imeiCode === "0"
+        );
+        let orderDetails: OrderDetail[] = cart.map((item) => ({
+          order: responseOrder, // Chuyển kiểu `Partial<Order>` sang `Order` để phù hợp với kiểu `OrderDetail`
+          imei: imeisWithIdZero[0], // Giá trị mặc định nếu `imei` có thể là null hoặc undefined
+          quantity: item.buyQuantity,
+          price: item.price,
+          total: item.price,
+          variantId: item.id,
+        }));
+        for (const orderDetail of orderDetails) {
+          if (orderDetail.quantity === 1) {
+            // Directly add the order detail if the quantity is 1
+            const responseOrderDetail = await addOrderDetail(orderDetail);
+          } else if (orderDetail.quantity > 1) {
+            // Split the order detail into multiple entries of quantity 1
+            for (let i = 1; i <= orderDetail.quantity; i++) {
+              // Create a new instance for each entry
+              let newOrderDetail = {
+                ...orderDetail,
+                quantity: 1, // Set quantity to 1 for each new entry
+              };
+              const responseOrderDetail = await addOrderDetail(newOrderDetail);
+            }
+          }
+        }
+        if (
+          responseOrder &&
+          responseOrder.total_amount &&
+          responseOrder.id
+        ) {
+          handlePayment(responseOrder.total_amount, responseOrder.id); // Make sure handlePayment accepts a number (order ID)
+        }
+      } catch (error) {
+        console.error("Đặt hàng thất bại:", error);
+        setSeverity("error");
+        setAlertMessage("Đã xảy ra lỗi khi đặt hàng.");
+      }
     } else {
-      setSeverity("error")
+      setSeverity("error");
       setAlertMessage("Vui lòng điền đầy đủ thông tin cần thiết.");
     }
   };
-  const [alertMessage, setAlertMessage] = useState<string | null>(null);
-  // Clear the alert after 3 seconds
-  useEffect(() => {
-    if (alertMessage) {
-      const timer = setTimeout(() => setAlertMessage(null), 1500);
-      return () => clearTimeout(timer);
-    }
-  }, [alertMessage]);
+
   if (cart.length === 0) {
     return (
       <Box
@@ -171,7 +330,7 @@ const CartPage: React.FC = () => {
             Sản phẩm trong đơn ({selectedItems.length})
           </Typography>
           {cart
-            .filter((item) => selectedItems.includes(item.id))
+            .filter((item) => selectedItems.includes(item))
             .map((item) => (
               <Box
                 key={item.id}
@@ -190,7 +349,7 @@ const CartPage: React.FC = () => {
                   <Box sx={{ ml: 2, flex: 1 }}>
                     <Typography variant="h6">Tên sản phẩm</Typography>
                     <Typography variant="body2" color="textSecondary">
-                      Màu: {"xanh"} - Số lượng: {item.quantity}
+                      Màu: {"xanh"} - Số lượng: {item.buyQuantity}
                     </Typography>
                   </Box>
                   <Typography variant="h6" color="error">
@@ -345,6 +504,23 @@ const CartPage: React.FC = () => {
   }
   return (
     <Grid container spacing={3} sx={{ padding: 4 }}>
+      {/* Centered Modal Alert */}
+      <Modal
+        open={Boolean(alertMessage)}
+        onClose={() => setAlertMessage(null)}
+        aria-labelledby="alert-message"
+        closeAfterTransition
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          backdropFilter: "blur(3px)", // Optional: blur background
+        }}
+      >
+        <Alert severity={severity} sx={{ mb: 2 }}>
+          <Typography id="alert-message">{alertMessage}</Typography>
+        </Alert>
+      </Modal>
       {/* Danh sách sản phẩm */}
       <Grid item xs={12} md={8}>
         <Box>
@@ -381,8 +557,8 @@ const CartPage: React.FC = () => {
               <Box sx={{ display: "flex", alignItems: "center" }}>
                 <Checkbox
                   sx={{ color: "GrayText", "&.Mui-checked": { color: "red" } }}
-                  checked={isSelected(item.id)}
-                  onChange={() => handleSelectItem(item.id)}
+                  checked={isSelected(item)}
+                  onChange={() => handleSelectItem(item)}
                 />
                 <img src={item.image} alt={item.name} width={80} />
                 <Box sx={{ ml: 2, flex: 1 }}>
@@ -393,16 +569,16 @@ const CartPage: React.FC = () => {
                   <Box sx={{ mt: 1, display: "flex", alignItems: "center" }}>
                     <Button
                       color="inherit"
-                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                      onClick={() => updateQuantity(item.id, item.buyQuantity - 1)}
                     >
                       -
                     </Button>
                     <Typography variant="body1" sx={{ mx: 2 }}>
-                      {item.quantity}
+                      {item.buyQuantity}
                     </Typography>
                     <Button
                       color="inherit"
-                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                      onClick={() => updateQuantity(item.id, item.buyQuantity + 1)}
                     >
                       +
                     </Button>

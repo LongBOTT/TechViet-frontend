@@ -133,7 +133,7 @@ export default function AddImportPage() {
         quantity: product.quantity,
         price: product.price,
       }));
-      console.log("newStockReceiveDetails", newStockReceiveDetails);
+  
 
       // Gọi API để lưu chi tiết phiếu nhập và nhận lại `id` thực tế
       const savedDetails = await Promise.all(
@@ -153,7 +153,7 @@ export default function AddImportPage() {
         }
         return [];
       });
-      console.log("imeiRequests", imeiRequests);
+   
       // Gọi API để lưu từng IMEI vào database
       if (imeiRequests.length > 0) {
         await Promise.all(imeiRequests.map((imei) => createImei(imei)));

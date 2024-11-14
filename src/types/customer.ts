@@ -1,6 +1,6 @@
 // src/types/customer.ts
 export interface Customer {
-    id: number;
+    // id: number;
     name: string; 
     phone: string; 
     email: string; 
