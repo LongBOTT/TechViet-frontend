@@ -24,3 +24,4 @@ npm update @mui/material @mui/icons-material
 npm install react-chartjs-2 chart.js
 
  npm install --save-dev @types/react-chartjs-2
+npm install react-chartjs-2 chart.js

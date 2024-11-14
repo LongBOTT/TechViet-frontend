@@ -15,3 +15,17 @@ export const addOrderDetail = async (orderDetail: OrderDetail) => {
     throw error; // Ném lỗi để xử lý ở nơi gọi hàm nếu cần
   }
 };
+
+export const updateOrderDetail = async (id: number, imeiId: number) => {
+  try {
+    const response = await axiosInstance.put(
+      `/order-details/${id}`,
+      { imeiId } // Gửi dưới dạng JSON object
+    );
+    return response.data;
+  } catch (error: any) {
+    console.error("Error updating order detail:", error);
+    throw error;
+  }
+};
+

@@ -6,18 +6,39 @@ import EntityTable from "../Util/EntityTable";
 import FilterDropdown from "../Util/FilterDropdown";
 import CustomButton from "../Util/CustomButton";
 import RefreshIcon from '@mui/icons-material/Refresh';
-import { getImeis } from "../../../api/imeiApi";
+import { getByImeiCodeOrVariantName, getImeis } from "../../../api/imeiApi";
 import { useEffect, useState } from "react";
+import { get } from "lodash";
 
 const IMEIS: React.FC = () => {
     const [resetFilter, setResetFilter] = useState(false);
     const [transformedImeis, setTransformedImeis] = React.useState<any[]>([]);
-  const searchProductsByName = (query: string) => {
-    console.log("Searching for:", query);
+    const [loading, setLoading] = React.useState(true);
+  const searchImeiCodeOrVariantName = async (query: string) => {
+    setLoading(true);
+    try {
+      const data = await getByImeiCodeOrVariantName(query);
+      const transformedData = data
+        .filter((item: any) => item.imeiCode !== "0") 
+        .map((item: any) => ({
+          id: item.id,
+          imeiCode: item.imeiCode,
+          name: item.stockReceiveDetail?.variant?.name || 'N/A',
+          category: item.stockReceiveDetail?.variant?.products?.category?.name || 'N/A',
+          brand: item.stockReceiveDetail?.variant?.products?.brand?.name || 'N/A',
+          status: item.status,
+        }));
+        setTransformedImeis(transformedData);
+    } catch (error) {
+      console.error("Error searching products:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fetchImeis = async () => {
     try {
+      
       const data = await getImeis();
   
       // Chuyển đổi dữ liệu từ API thành định dạng phù hợp cho bảng và lọc ra các mục có imeiCode khác "0"
@@ -42,6 +63,8 @@ const IMEIS: React.FC = () => {
   useEffect(() => {
     fetchImeis(); // Gọi hàm khi component được tải
   }, []);
+
+  
   const StatusOptions = [
     { value: "all", label: "Tất cả" },
     { value: "active", label: "Chưa bán" },
@@ -90,7 +113,7 @@ const IMEIS: React.FC = () => {
         <Box sx={{ flexGrow: 1 }}>
           <SearchBox
             placeholder="Tìm kiếm theo mã imei, tên phiên bản"
-            onSearch={searchProductsByName}
+            onSearch={searchImeiCodeOrVariantName}
             resetSearch={resetFilter}
           />
         </Box>

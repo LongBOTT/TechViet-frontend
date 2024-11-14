@@ -10,3 +10,13 @@ export interface OrderDetail {
   total: number; // Tổng tiền cho chi tiết đơn hàng (price * quantity)
   variantId: number; // ID của phiên bản sản phẩm
 }
+
+export interface OrderDetailRequest {
+  id: number;
+  orderId: number;
+  imeiId?: number;
+  quantity: number; 
+  price: number; 
+  total: number; 
+  variantId: number;
+}

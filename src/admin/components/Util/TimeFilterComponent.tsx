@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Box,
   TextField,
@@ -9,14 +9,16 @@ import {
   ListItemButton,
   ListItemText,
   Typography,
-} from '@mui/material';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
+  IconButton,
+} from "@mui/material";
+import AccessTimeIcon from "@mui/icons-material/AccessTime"; // Add time icon
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const predefinedRanges: { label: string; getDates: () => [Date, Date] }[] = [
-  { label: 'Hôm nay', getDates: () => [new Date(), new Date()] },
+  { label: "Hôm nay", getDates: () => [new Date(), new Date()] },
   {
-    label: 'Hôm qua',
+    label: "Hôm qua",
     getDates: () => {
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
@@ -24,7 +26,7 @@ const predefinedRanges: { label: string; getDates: () => [Date, Date] }[] = [
     },
   },
   {
-    label: '7 ngày trước',
+    label: "7 ngày trước",
     getDates: () => {
       const today = new Date();
       const sevenDaysAgo = new Date();
@@ -33,7 +35,7 @@ const predefinedRanges: { label: string; getDates: () => [Date, Date] }[] = [
     },
   },
   {
-    label: '30 ngày trước',
+    label: "30 ngày trước",
     getDates: () => {
       const today = new Date();
       const thirtyDaysAgo = new Date();
@@ -42,7 +44,7 @@ const predefinedRanges: { label: string; getDates: () => [Date, Date] }[] = [
     },
   },
   {
-    label: 'Tháng này',
+    label: "Tháng này",
     getDates: () => {
       const today = new Date();
       const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -50,10 +52,14 @@ const predefinedRanges: { label: string; getDates: () => [Date, Date] }[] = [
     },
   },
   {
-    label: 'Tháng trước',
+    label: "Tháng trước",
     getDates: () => {
       const today = new Date();
-      const startOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+      const startOfLastMonth = new Date(
+        today.getFullYear(),
+        today.getMonth() - 1,
+        1
+      );
       const endOfLastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
       return [startOfLastMonth, endOfLastMonth];
     },
@@ -63,6 +69,7 @@ const predefinedRanges: { label: string; getDates: () => [Date, Date] }[] = [
 const TimeFilterComponent: React.FC = () => {
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+  const [selectedLabel, setSelectedLabel] = useState<string>("Hôm nay"); // New state for the label
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleOpenPopover = (event: React.MouseEvent<HTMLElement>) => {
@@ -73,10 +80,11 @@ const TimeFilterComponent: React.FC = () => {
     setAnchorEl(null);
   };
 
-  const handlePredefinedRangeClick = (getDates: () => [Date, Date]) => {
+  const handlePredefinedRangeClick = (label: string, getDates: () => [Date, Date]) => {
     const [start, end] = getDates();
     setStartDate(start);
     setEndDate(end);
+    setSelectedLabel(label); // Set the label for the predefined range
     handleClosePopover();
   };
 
@@ -84,28 +92,85 @@ const TimeFilterComponent: React.FC = () => {
 
   return (
     <Box>
-      <TextField
-        label="Thời gian"
-        value={startDate ? `Từ ${startDate.toLocaleDateString()} đến ${endDate?.toLocaleDateString()}` : 'Hôm nay'}
-        onClick={handleOpenPopover}
-        fullWidth
-        InputProps={{ readOnly: true }}
-      />
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          backgroundColor: "#fff",
+          borderRadius: 1,
+          // padding: "0.5rem",
+          width: "350px",
+        }}
+      >
+        <TextField
+          value={
+            selectedLabel !== "Tùy chọn"
+              ? selectedLabel
+              : startDate && endDate
+              ? `Từ ${startDate.toLocaleDateString()} đến ${endDate.toLocaleDateString()}`
+              : "Hôm nay"
+          }
+          onClick={handleOpenPopover}
+          fullWidth
+          InputProps={{
+            readOnly: true,
+            disableUnderline: true, // Removes the underline
+          }}
+          sx={{
+            "& .MuiInputBase-root": {
+              border: "none", // Removes the default border
+              "&:hover": {
+                border: "none", // Ensures no border on hover
+              },
+              "&.Mui-focused": {
+                border: "none", // Ensures no border on focus
+              },
+            },
+            "& .MuiOutlinedInput-notchedOutline": {
+              border: "none", // Removes the border outline for the outlined variant
+            },
+            "& .MuiOutlinedInput-root": {
+              "& fieldset": {
+                border: "none", // Ensures no border on the fieldset
+              },
+              "&:hover fieldset": {
+                border: "none", // Ensures no border on hover
+              },
+              "&.Mui-focused fieldset": {
+                border: "none", // Ensures no border on focus
+              },
+            },
+            backgroundColor: "transparent", // Makes sure the background is transparent
+          }}
+        />
+
+        <IconButton>
+          <AccessTimeIcon />
+        </IconButton>
+      </Box>
       <Popover
         open={open}
         anchorEl={anchorEl}
         onClose={handleClosePopover}
         anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left',
+          vertical: "bottom",
+          horizontal: "left",
         }}
       >
-        <Box sx={{ display: 'flex', padding: 2 }}>
+        <Box sx={{ display: "flex", padding: 2 }}>
           {/* Sidebar for predefined ranges */}
-          <List sx={{ width: '200px', borderRight: '1px solid #ddd', backgroundColor: '#f7f7f7' }}>
+          <List
+            sx={{
+              width: "200px",
+              borderRight: "1px solid #ddd",
+              backgroundColor: "#f7f7f7",
+            }}
+          >
             {predefinedRanges.map((range) => (
               <ListItem key={range.label} disablePadding>
-                <ListItemButton onClick={() => handlePredefinedRangeClick(range.getDates)}>
+                <ListItemButton
+                  onClick={() => handlePredefinedRangeClick(range.label, range.getDates)}
+                >
                   <ListItemText primary={range.label} />
                 </ListItemButton>
               </ListItem>
@@ -117,14 +182,15 @@ const TimeFilterComponent: React.FC = () => {
             <Typography variant="h6" gutterBottom>
               Chọn khoảng thời gian tùy chọn
             </Typography>
-            <Box sx={{ display: 'flex', gap: 2 }}>
+            <Box sx={{ display: "flex", gap: 2 }}>
               <DatePicker
                 selected={startDate || null}
-                onChange={(date: Date | null) => setStartDate(date || undefined)}
+                onChange={(date: Date | null) =>
+                  setStartDate(date || undefined)
+                }
                 selectsStart
                 startDate={startDate}
                 endDate={endDate}
-                placeholderText="Từ ngày"
                 dateFormat="dd/MM/yyyy"
                 inline
               />
@@ -135,15 +201,23 @@ const TimeFilterComponent: React.FC = () => {
                 startDate={startDate}
                 endDate={endDate}
                 minDate={startDate}
-                placeholderText="Đến ngày"
                 dateFormat="dd/MM/yyyy"
                 inline
               />
             </Box>
 
             {/* Confirm button */}
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: 2 }}>
-              <Button variant="contained" color="primary" onClick={handleClosePopover}>
+            <Box
+              sx={{ display: "flex", justifyContent: "flex-end", marginTop: 2 }}
+            >
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => {
+                  setSelectedLabel("Tùy chọn"); // Update label to indicate custom selection
+                  handleClosePopover();
+                }}
+              >
                 Xác nhận
               </Button>
             </Box>

@@ -66,3 +66,12 @@ export const getOrderByPaymentMethod = async (paymentMethod: string) => {
     handleApiError(error, "lấy danh sách sản phẩm và phiên bản");
   }
 };
+
+export const updateOrder = async (id: number, order: Order) => {
+  try {
+    const response = await axiosInstance.put(`/orders/${id}`, order);
+    return response.data;
+  } catch (error: any) {
+    handleApiError(error, "cập nhật đơn hàng");
+  }
+}
