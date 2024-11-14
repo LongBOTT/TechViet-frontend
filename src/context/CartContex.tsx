@@ -20,6 +20,7 @@ interface CartContextType {
     warrantyPrice: number
   ) => void;
   clearCart: () => void;
+  updateCart: (newCart: CartItem[]) => void;
   selectAllItems: (selectAll: boolean) => void;
 }
 
@@ -68,7 +69,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
     setCart((prevCart) =>
       prevCart.map((item) =>
         item.id === cartItemId
-          ? { ...item, quantity: Math.max(1, quantity) }
+          ? { ...item, buyQuantity: Math.max(1, quantity) }
           : item
       )
     );
@@ -90,7 +91,9 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
   const clearCart = () => {
     setCart([]);
   };
-
+  const updateCart = (newCart: CartItem[]) => {
+    setCart(newCart);
+  };
   // Hàm chọn hoặc bỏ chọn tất cả sản phẩm trong giỏ hàng
   const selectAllItems = (selectAll: boolean) => {
     // Giả sử giỏ hàng có thuộc tính `selected` để đánh dấu sản phẩm đã được chọn
@@ -111,6 +114,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
         updateQuantity,
         updateWarranty,
         clearCart,
+        updateCart,
         selectAllItems,
       }}
     >

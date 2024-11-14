@@ -16,6 +16,28 @@ export const addOrder = async (order: Order) => {
   }
 };
 
+// Hàm cập nhật thông tin đơn hàng
+export const updateOrder = async (id: number, order: Order): Promise<Order | null> => {
+  try {
+    const response = await axiosInstance.put(`/orders/${id}`, order);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating order:", error);
+    return null;
+  }
+};
+
+// Hàm lấy thông tin một đơn hàng theo ID
+export const getOrderById = async (id: number): Promise<Order | null> => {
+  try {
+    const response = await axiosInstance.get(`/orders/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching order by ID:", error);
+    return null;
+  }
+};
+
 export const getAllOrders = async () => {
   try {
     const response = await axiosInstance.get("/orders");
