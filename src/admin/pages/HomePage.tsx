@@ -48,6 +48,8 @@ export default function PermanentDrawerLeft() {
     "Khách hàng": "/customers",
     // "Giảm giá": "/discounts",
     "Báo cáo": "/reports",
+    "BC Sản phẩm": "/productReport",
+    "BC Thể loại": "/categoryReport",
   };
 
   const handleMenuClick = (text: string) => {

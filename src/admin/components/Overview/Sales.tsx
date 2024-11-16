@@ -85,7 +85,7 @@ const SalesOverview: React.FC = () => {
         </Typography>
 
         {/* Dropdown Select thời gian */}
-        <Box>
+        {/* <Box>
           <Select
             value={timeRange}
             onChange={handleTimeRangeChange}
@@ -99,7 +99,7 @@ const SalesOverview: React.FC = () => {
             <MenuItem value="Tháng này">Tháng này</MenuItem>
             <MenuItem value="Tháng trước">Tháng trước</MenuItem>
           </Select>
-        </Box>
+        </Box> */}
       </Box>
 
       {/* Biểu đồ */}

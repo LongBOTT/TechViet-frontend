@@ -8,6 +8,7 @@ import StatBox from "../components/Overview/StatBox";
 import SalesOverview from "../components/Overview/Sales";
 import TopProducts from "../components/Overview/TopProducts";
 import WarehouseInfo from "../components/Overview/WarehouseInfo";
+import TopCategories from "../components/Overview/TopCategories";
 
 export default function Overview() {
   return (
@@ -95,7 +96,7 @@ export default function Overview() {
           <TopProducts />
         </Box>
         <Box sx={{ flex: 1 }}>
-          <WarehouseInfo />
+          <TopCategories />
         </Box>
       </Box>
     </Box>

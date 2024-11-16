@@ -12,22 +12,22 @@ import {
   SelectChangeEvent,
 } from "@mui/material";
 
-const TopProducts: React.FC = () => {
+const TopCategories: React.FC = () => {
   const [timeRange, setTimeRange] = React.useState("7 ngày qua");
 
   const handleTimeRangeChange = (event: SelectChangeEvent<string>) => {
     setTimeRange(event.target.value as string);
   };
 
-  const products = [
-    { id: 1, name: "Iphone 15", quantity: 18 },
-    { id: 2, name: "Samsung Galaxy s23", quantity: 11 },
-    { id: 3, name: "LapTop ASUS",  quantity: 5 },
-    { id: 4, name: "Chuột mickey", quantity: 5 },
-    { id: 5, name: "Redmi note 13T Pro",  quantity: 4 },
+  const categories = [
+    { id: 1, name: "Điện thoại", quantity: 18 },
+    { id: 2, name: "Lap top", quantity: 11 },
+    { id: 3, name: "Máy tính bảng",  quantity: 5 },
+    { id: 4, name: "Đồng hồ thông minh", quantity: 5 },
+    { id: 5, name: "Phụ kiện",  quantity: 4 },
   ];
 
-  const productColors = ["#01A0F6", "#02C7A1", "#FFB236", "#FF6961", "#5D5FEF"];
+  const categoryColors = ["#01A0F6", "#02C7A1", "#FFB236", "#FF6961", "#5D5FEF"];
 
   return (
     <Box
@@ -43,7 +43,7 @@ const TopProducts: React.FC = () => {
       {/* Header */}
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <Typography variant="h6" sx={{ fontWeight: "bold", marginLeft: "10px" }}>
-          TOP SẢN PHẨM
+          TOP THỂ LOẠI
         </Typography>
         {/* <Select
           value={timeRange}
@@ -61,12 +61,12 @@ const TopProducts: React.FC = () => {
 
       {/* Product List */}
       <List>
-        {products.map((product, index) => (
-          <ProductItem
+        {categories.map((product, index) => (
+          <CategoryItem
             key={product.id}
-            product={product}
+            category={product}
             index={index}
-            color={productColors[index]}
+            color={categoryColors[index]}
           />
         ))}
       </List>
@@ -74,8 +74,8 @@ const TopProducts: React.FC = () => {
   );
 };
 
-interface ProductItemProps {
-  product: {
+interface CategoryItemProps {
+  category: {
     id: number;
     name: string;
     quantity: number;
@@ -84,17 +84,17 @@ interface ProductItemProps {
   color: string;
 }
 
-const ProductItem: React.FC<ProductItemProps> = ({ product, index, color }) => (
+const CategoryItem: React.FC<CategoryItemProps> = ({ category, index, color }) => (
   <ListItem sx={{ borderBottom: "1px solid #f0f0f0" }}>
     <Avatar sx={{ bgcolor: color, marginRight: "10px" }}>{index + 1}</Avatar>
     <ListItemText
-      primary={product.name}
+      primary={category.name}
       primaryTypographyProps={{ fontWeight: "bold" }}
     />
     <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-      {product.quantity}
+      {category.quantity}
     </Typography>
   </ListItem>
 );
 
-export default TopProducts;
+export default TopCategories;

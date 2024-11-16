@@ -18,10 +18,10 @@ const WarrantyCard: React.FC = () => {
   };
   const WarrantyStatusOptions = [
     { value: "all", label: "Tất cả" },
-    { value: "pending", label: "Chờ xử lý" },
-    { value: "in_process", label: "Đang xử lý" },
-    { value: "completed", label: "Hoàn thành" },
-    { value: "cancelled", label: "Đã hủy" },
+    { value: "pending", label: "Chưa sử dụng" },
+    { value: "in_process", label: "Đã sử dụng" },
+    { value: "completed", label: "Hết hạn" },
+ 
   ];
 
   const mockGuaranteeData = [
@@ -74,12 +74,12 @@ const WarrantyCard: React.FC = () => {
 
   const GuaranteeColumns = [
     { label: "Mã phiếu", key: "voucherCode" },
-    { label: "Trạng thái", key: "status" },
     { label: "Sản phẩm", key: "product" },
     { label: "IMEI", key: "imei" },
     { label: "Mã đơn hàng", key: "orderCode" },
     { label: "Khách hàng", key: "customer" },
     { label: "Thời hạn bảo hành", key: "warrantyPeriod" },
+    { label: "Trạng thái", key: "status" },
   ];
 
   const handleRowClick = () => {};
