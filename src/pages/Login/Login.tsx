@@ -67,6 +67,7 @@ export default function Login({ open, onClose, onLoginSuccess }: LoginProps) {
   // Xác thực mã SMS
   const handleVerifySmsCode = () => {
     if (smsCode === generatedCode) {
+      localStorage.setItem("phone", phoneNumber);
       onLoginSuccess(); // Gọi hàm callback khi đăng nhập thành công
       onClose(); // Đóng dialog
     } else {

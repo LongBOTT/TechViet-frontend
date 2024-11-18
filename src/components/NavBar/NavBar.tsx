@@ -15,7 +15,7 @@ import {
   Avatar,
   alpha,
 } from "@mui/material";
-import React from "react";
+import React, { useEffect } from "react";
 import SearchIcon from "@mui/icons-material/Search";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -32,7 +32,7 @@ import { useState } from "react";
 import Login from "../../pages/Login/Login"; // Import component Login
 import NavLinks from "./NavLinks";
 import { Link, useNavigate } from 'react-router-dom';
-import { BASE, CART, SEARCH } from "../../constants/routeConstants";
+import { ACCOUNT_INFO, ACCOUNT_ORDERS, BASE, CART, SEARCH } from "../../constants/routeConstants";
 import { useCart } from "../../context/CartContex";
 
 const settings = ["Thông tin", "Lịch sử mua hàng", "Đăng xuất"];
@@ -93,6 +93,7 @@ function NavBar() {
   // Hàm gọi khi đăng xuất
   const handleLogout = () => {
     setLoggedIn(false);
+    localStorage.removeItem("phone");
     setAnchorElUser(null);
   };
 
@@ -116,12 +117,19 @@ function NavBar() {
     setOpenLoginDialog(false);
   };
 
- const handleSearchEnter = (value: any) => {
+  const handleSearchEnter = (value: any) => {
     navigate(`${SEARCH}?s=${encodeURIComponent(value)}`);
- };
+  };
 
   // Đóng menu user
-  const handleCloseUserMenu = () => {
+  const handleSetting = (setting: String) => {
+    if (setting === "Đăng xuất") {
+      handleLogout();
+    } else if (setting === "Thông tin") {
+      navigate(ACCOUNT_INFO);
+    } else if (setting === "Lịch sử mua hàng") {
+      navigate(ACCOUNT_ORDERS);
+    }
     setAnchorElUser(null);
   };
 
@@ -138,6 +146,16 @@ function NavBar() {
   const { cart } = useCart(); // Lấy cart từ CartContext
   // Tính tổng số lượng sản phẩm trong giỏ hàng
   const totalQuantity = cart.length;
+
+  const [phone, setPhone] = useState(""); // Trạng thái đăng nhập
+
+  useEffect(() => {
+    const token = localStorage.getItem("phone");
+    if (token) {
+      setLoggedIn(true);
+      setPhone(token);
+    }
+  }, []);
 
   return (
     <AppBar position="static" sx={{ background: "#da031b", height: "100px" }}>
@@ -230,7 +248,7 @@ function NavBar() {
           </Box>
           {/* Icon profile */}
           <Box sx={{ marginRight: "5px", marginLeft: "15px" }}>
-            <Tooltip title="Open settings">
+            <Tooltip title="Chức năng">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                 <Avatar
                   sx={{ background: "#7d161c", height: "30px", width: "30px" }}
@@ -255,18 +273,23 @@ function NavBar() {
                   horizontal: "right",
                 }}
                 open={Boolean(anchorElUser)}
-                onClose={handleCloseUserMenu}
+                onClose={() => {
+                  setAnchorElUser(null);
+                }}
               >
                 {/* Hiện menu khi click */}
                 {settings.map((setting) => (
-                  <MenuItem key={setting} onClick={handleCloseUserMenu}>
+                  <MenuItem
+                    key={setting}
+                    onClick={() => {
+                      setAnchorElUser(null);
+                    }}
+                  >
                     <Typography
                       sx={{ textAlign: "center", fontSize: "15px" }}
-                      onClick={
-                        setting === "Đăng xuất"
-                          ? handleLogout
-                          : handleCloseUserMenu
-                      }
+                      onClick={() => {
+                        handleSetting(setting);
+                      }}
                     >
                       {setting}
                     </Typography>

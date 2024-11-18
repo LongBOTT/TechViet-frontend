@@ -17,7 +17,7 @@ export const addOrderDetail = async (orderDetail: OrderDetail) => {
 };
 
 // Gọi API tìm kiếm thể loại theo tên
-export const searchProductBy_OrderId = async (id: number) => {
+export const searchOrderDetailBy_OrderId = async (id: number) => {
   try {
     const response = await axiosInstance.get<OrderDetail[]>(
       `/order-details/order/${id}`

@@ -1,9 +1,4 @@
 export const BASE = "/";
-export const LOGIN = "/login";
-export const REGISTRATION = "/registration";
-export const FORGOT = "/forgot";
-export const RESET = "/reset";
-export const ACTIVATE = "/activate";
 export const CATEGORY = "/Category";
 export const BRAND = "/Brand";
 export const SEARCH = "/Search";
@@ -12,15 +7,8 @@ export const PRODUCT = "/Product";
 export const CONTACTS = "/contacts";
 export const CART = "/Cart";
 export const ORDER = "/order";
-export const ORDER_FINALIZE = "/order/finalize";
-export const OAUTH2_REDIRECT = "/oauth2/redirect";
 
-export const ACCOUNT = "/account";
-export const ACCOUNT_USER_INFO = "/account/user/info";
-export const ACCOUNT_USER_EDIT = "/account/user/edit";
-export const ACCOUNT_USER_ORDERS = "/account/user/orders";
-
-export const ACCOUNT_ADMIN_ADD = "/account/admin/add";
-export const ACCOUNT_ADMIN_PERFUMES = "/account/admin/perfumes";
-export const ACCOUNT_ADMIN_ORDERS = "/account/admin/orders";
-export const ACCOUNT_ADMIN_USERS = "/account/admin/users";
+export const ACCOUNT = "/Account";
+export const ACCOUNT_INFO = "/Account/Info";
+export const ACCOUNT_EDIT_INFO = "/Account/Edit-info";
+export const ACCOUNT_ORDERS = "/Account/Orders";

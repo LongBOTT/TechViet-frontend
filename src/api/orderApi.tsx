@@ -84,5 +84,6 @@ export const updateOrder = async (id: number, order: Order) => {
     return response.data;
   } catch (error: any) {
     handleApiError(error, "cập nhật đơn hàng");
+    throw error; // Quăng lỗi để xử lý ở phía gọi hàm
   }
-}
+};

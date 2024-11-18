@@ -34,13 +34,14 @@ import { OrderDetail } from "../../types/orderDetail";
 import { addOrder, getOrderById, updateOrder } from "../../api/orderApi";
 import { getImeis } from "../../api/imeiApi";
 import { Imei } from "../../types/imei";
-import { addOrderDetail, searchProductBy_OrderId } from "../../api/orderDetailApi";
+import { addOrderDetail, searchOrderDetailBy_OrderId } from "../../api/orderDetailApi";
 import axiosInstance from "../../api";
 
 const CartPage: React.FC = () => {
-
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
+  const navigate = useNavigate();
   // Clear the alert after 3 seconds
+  // Clear the alert and navigate after 5 seconds
   useEffect(() => {
     if (alertMessage) {
       const timer = setTimeout(() => setAlertMessage(null), 2500);
@@ -71,7 +72,6 @@ const CartPage: React.FC = () => {
           updPaymentStatusOrder(orderId);
           clearSelectedItemsFromCart(orderId);
         }
-        navigate(CART);
       } else {
         setSeverity("error");
         setAlertMessage("Thanh toán thất bại.");
@@ -80,29 +80,26 @@ const CartPage: React.FC = () => {
     }
   }, [location.search]);
 
-  const updPaymentStatusOrder = async (orderID : string) => {
+  const updPaymentStatusOrder = async (orderID: string) => {
     const order = await getOrderById(Number(orderID));
     if (order) {
       order.payment_status = "Đã thanh toán";
       await updateOrder(Number(orderID), order);
     }
-  }
+  };
 
-  const clearSelectedItemsFromCart = async (orderID : string) => {
+  const clearSelectedItemsFromCart = async (orderID: string) => {
     // Lọc ra các phần tử không có trong selectedItems để giữ lại trong cart
-    const orderDetails = await searchProductBy_OrderId(Number(orderID));
+    const orderDetails = await searchOrderDetailBy_OrderId(Number(orderID));
     if (orderDetails) {
-          const updatedCart = cart.filter(
-            (item) =>
-              !orderDetails.some(
-                (orderDetail) => orderDetail.variantId === item.id
-              )
-          );
-      console.log(orderDetails);    
-          // Cập nhật lại state của cart và selectedItems
-          updateCart(updatedCart); // Giả sử bạn có một hàm updateCart trong useCart để cập nhật giỏ hàng
-          setSelectedItems([]);
-
+      const updatedCart = cart.filter(
+        (item) =>
+          !orderDetails.some((orderDetail) => orderDetail.variantId === item.id)
+      );
+      console.log(orderDetails);
+      // Cập nhật lại state của cart và selectedItems
+      updateCart(updatedCart); // Giả sử bạn có một hàm updateCart trong useCart để cập nhật giỏ hàng
+      setSelectedItems([]);
     }
   };
 
@@ -131,7 +128,6 @@ const CartPage: React.FC = () => {
     updateCart,
   } = useCart();
   const [selectedItems, setSelectedItems] = useState<CartItem[]>([]);
-  const navigate = useNavigate();
   const [orderConfirmed, setOrderConfirmed] = useState(false);
   const [paymentMethod, setPaymentMethod] =
     useState<string>("cash_on_delivery"); // Biến trạng thái để quản lý lựa chọn phương thức thanh toán
@@ -181,8 +177,8 @@ const CartPage: React.FC = () => {
   const totalPrice = cart
     .filter((item) => selectedItems.includes(item))
     .reduce((total, item) => total + item.price * item.quantity, 0);
-  
-    // Validate form fields
+
+  // Validate form fields
   const validateForm = () => {
     const newErrors = {
       customerName: !customerName.trim(),
@@ -223,14 +219,14 @@ const CartPage: React.FC = () => {
       try {
         // Gọi hàm API để tạo đơn hàng
         const responseOrder = await addOrder(order);
-        console.log(responseOrder)
+        console.log(responseOrder);
         let imeis: Imei[] = await getImeis();
-        
+
         // Tìm các IMEI có `imeiCode` bằng 0
         const imeisWithIdZero = imeis.filter(
           (imei: Imei) => imei.imeiCode === "0"
         );
-        let orderDetails: OrderDetail[] = cart.map((item) => ({
+        let orderDetails: OrderDetail[] = selectedItems.map((item) => ({
           order: responseOrder, // Chuyển kiểu `Partial<Order>` sang `Order` để phù hợp với kiểu `OrderDetail`
           imei: imeisWithIdZero[0], // Giá trị mặc định nếu `imei` có thể là null hoặc undefined
           quantity: item.buyQuantity,
@@ -254,11 +250,7 @@ const CartPage: React.FC = () => {
             }
           }
         }
-        if (
-          responseOrder &&
-          responseOrder.total_amount &&
-          responseOrder.id
-        ) {
+        if (responseOrder && responseOrder.total_amount && responseOrder.id) {
           handlePayment(responseOrder.total_amount, responseOrder.id); // Make sure handlePayment accepts a number (order ID)
         }
       } catch (error) {
@@ -569,7 +561,9 @@ const CartPage: React.FC = () => {
                   <Box sx={{ mt: 1, display: "flex", alignItems: "center" }}>
                     <Button
                       color="inherit"
-                      onClick={() => updateQuantity(item.id, item.buyQuantity - 1)}
+                      onClick={() =>
+                        updateQuantity(item.id, item.buyQuantity - 1)
+                      }
                     >
                       -
                     </Button>
@@ -578,7 +572,9 @@ const CartPage: React.FC = () => {
                     </Typography>
                     <Button
                       color="inherit"
-                      onClick={() => updateQuantity(item.id, item.buyQuantity + 1)}
+                      onClick={() =>
+                        updateQuantity(item.id, item.buyQuantity + 1)
+                      }
                     >
                       +
                     </Button>
