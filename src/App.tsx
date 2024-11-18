@@ -53,6 +53,7 @@ import InfoPage from "./pages/Account/InfoPage";
 import EditInfoPage from "./pages/Account/EditInfoPage";
 function App() {
   return (
+
     <Router>
       <CartProvider>
         <NavBar />
