@@ -108,14 +108,13 @@ const ProductDetail: FC = (): ReactElement => {
             (x) => x.attribute.name === "Dung lượng (Rom)"
           )[0].value
         );
-
       } catch (error) {
         console.error("Failed to fetch product data:", error);
       }
     };
 
     fetchProductData();
-  }, []);
+  }, [safeProductId]);
 
   useEffect(() => {
     setPrice(selectedVariant?.price);

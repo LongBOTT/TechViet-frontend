@@ -95,6 +95,7 @@ function NavBar() {
     setLoggedIn(false);
     localStorage.removeItem("phone");
     setAnchorElUser(null);
+    navigate(BASE)
   };
 
   // Hàm gọi khi đăng nhập thành công

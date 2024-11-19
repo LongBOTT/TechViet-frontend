@@ -39,17 +39,17 @@ export default function PermanentDrawerLeft() {
   };
 
   const menuRoutes: { [key: string]: string } = {
-    "Tổng quan": "/overview",
-    "Đơn hàng": "/orders",
-    "Sản phẩm": "/products",
-    "Nhập hàng": "/import",
-    "Nhà cung cấp": "/suppliers",
-    "Bảo hành": "/warranty",
-    "Khách hàng": "/customers",
-    // "Giảm giá": "/discounts",
-    "Báo cáo": "/reports",
-    "BC Sản phẩm": "/productReport",
-    "BC Thể loại": "/categoryReport",
+    "Tổng quan": "/Admin/overview",
+    "Đơn hàng": "/Admin/orders",
+    "Sản phẩm": "/Admin/products",
+    "Nhập hàng": "/Admin/import",
+    "Nhà cung cấp": "/Admin/suppliers",
+    "Bảo hành": "/Admin/warranty",
+    "Khách hàng": "/Admin/customers",
+    // "Giảm giá": "/Admin/discounts",
+    "Báo cáo": "/Admin/reports",
+    "BC Sản phẩm": "/Admin/productReport",
+    "BC Thể loại": "/Admin/categoryReport",
   };
 
   const handleMenuClick = (text: string) => {

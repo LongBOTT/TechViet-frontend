@@ -1,58 +1,112 @@
-import { Box, Typography, Button, Grid, TextField, Avatar, Divider, List, ListItem, ListItemAvatar, ListItemText, IconButton, Chip } from '@mui/material';
-import React, { FC, ReactElement, useState } from 'react';
+import { Box, Typography, Button, Grid, TextField, Avatar, Divider, List, ListItem, ListItemAvatar, ListItemText, IconButton, Chip, Modal, Alert, AlertColor } from '@mui/material';
+import React, { FC, ReactElement, useEffect, useState } from 'react';
 import { Star, StarBorder, Send } from '@mui/icons-material';
-
-interface CustomerReview {
-  id: number;
-  name: string;
-  rating: number;
-  comment: string;
-  date: string;
-}
+import { Review } from '../../types/review';
+import { useParams } from 'react-router-dom';
+import { createReview, getReviewsByProductId } from '../../api/reviewApi';
+import { Product } from '../../types/product';
+import { searchProductBy_Id } from '../../api/productApi';
+import { Customer } from '../../types/customer';
 
 const ProductReviews: FC = (): ReactElement => {
-  const [reviews, setReviews] = useState<CustomerReview[]>([
-    {
-      id: 1,
-      name: 'Quý Khách',
-      rating: 5,
-      comment: 'Sản phẩm rất tốt',
-      date: '24 ngày trước'
-    }
-  ]);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [selectedRating, setSelectedRating] = useState<number | null>(null);
   const [newComment, setNewComment] = useState('');
   const [newRating, setNewRating] = useState(5);
-
+  const params = useParams<{ id: string }>();
+  const safeProductId = parseInt(params.id?.replace(":", "") || "0", 10);
   const filteredReviews = selectedRating ? reviews.filter(review => review.rating === selectedRating) : reviews;
+  const [severity, setSeverity] = useState<AlertColor | undefined>(undefined);
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
+  const [product, setProduct] = useState<Product>();
 
-  const handleCommentSubmit = () => {
+  const loadReviewsByProduct = async () => {
+    const reiewList = await getReviewsByProductId(safeProductId)
+    const prod = await searchProductBy_Id(safeProductId)
+
+    setReviews(reiewList);
+    setProduct(prod);
+  }
+
+  useEffect(() => {
+    loadReviewsByProduct();
+  }, [safeProductId]);
+
+  const handleCommentSubmit = async () => {
+    const token = localStorage.getItem("phone");
+    if (!token) {
+      setSeverity("warning")
+      setAlertMessage("Vui lòng đăng nhập và điền thông tin để sử dụng chức năng")
+      return
+    };
     if (newComment.trim()) {
-      const newReview: CustomerReview = {
-        id: reviews.length + 1,
-        name: 'Khách hàng',
-        rating: newRating,
-        comment: newComment,
-        date: 'Vừa xong'
-      };
-      setReviews([newReview, ...reviews]);
-      setNewComment('');
-      setNewRating(5);
+      if (product) {
+        // Tạo đối tượng khách hàng
+        let customer: Customer = {
+          name: "",
+          phone: token,
+          email: "",
+          address: "",
+          distinct: "",
+          city: "",
+        };
+        console.log(product)
+        const newReview: Review = {
+          product: product,
+          customer: customer,
+          rating: newRating,
+          comment: newComment,
+          created_at: new Date().toISOString().slice(0, -1),
+        };
+        const newRe = await createReview(newReview)  
+        setReviews([newRe, ...reviews]);
+      }
+      
     }
   };
-
+  const formatDateTime = (dateString: string) => {
+    const date = new Date(dateString);
+    return `${date.getDate().toString().padStart(2, "0")}/${(
+      date.getMonth() + 1
+    )
+      .toString()
+      .padStart(2, "0")}/${date.getFullYear()} ${date
+      .getHours()
+      .toString()
+      .padStart(2, "0")}:${date.getMinutes().toString().padStart(2, "0")}:${date
+      .getSeconds()
+      .toString()
+      .padStart(2, "0")}`;
+  };
   return (
     <Box p={3} margin={"50px"}>
+      {/* Centered Modal Alert */}
+      <Modal
+        open={Boolean(alertMessage)}
+        onClose={() => setAlertMessage(null)}
+        aria-labelledby="alert-message"
+        closeAfterTransition
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          backdropFilter: "blur(3px)", // Optional: blur background
+        }}
+      >
+        <Alert severity={severity} sx={{ mb: 2 }}>
+          <Typography id="alert-message">{alertMessage}</Typography>
+        </Alert>
+      </Modal>
       <Typography variant="h5" fontWeight="bold">
         Khách hàng nói về sản phẩm
       </Typography>
       <Grid container spacing={2} alignItems="center" sx={{ mt: 2 }}>
         <Grid item xs={12} md={3}>
-          <Typography variant="h2" fontWeight="bold">
+          {/* <Typography variant="h2" fontWeight="bold">
             {(
               reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
             ).toFixed(1)}
-          </Typography>
+          </Typography> */}
           <Typography>{reviews.length} lượt đánh giá</Typography>
           <Button variant="contained" color="error" sx={{ mt: 2 }}>
             Đánh giá sản phẩm
@@ -148,12 +202,14 @@ const ProductReviews: FC = (): ReactElement => {
         {filteredReviews.map((review) => (
           <ListItem key={review.id} alignItems="flex-start">
             <ListItemAvatar>
-              <Avatar>{review.name.charAt(0)}</Avatar>
+              <Avatar>{review.customer.name.charAt(0)}</Avatar>
             </ListItemAvatar>
             <ListItemText
               primary={
                 <Box display="flex" alignItems="center">
-                  <Typography fontWeight="bold">{review.name}</Typography>
+                  <Typography fontWeight="bold">
+                    {review.customer.name}
+                  </Typography>
                   <Box ml={1} display="flex">
                     {[...Array(5)].map((_, i) => (
                       <Star
@@ -168,7 +224,7 @@ const ProductReviews: FC = (): ReactElement => {
                     color="textSecondary"
                     sx={{ ml: 2 }}
                   >
-                    {review.date}
+                    {formatDateTime(review.created_at)}
                   </Typography>
                 </Box>
               }

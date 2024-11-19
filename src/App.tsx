@@ -3,6 +3,7 @@ import {
   Route,
   Routes,
   Navigate,
+  useLocation,
 } from "react-router-dom";
 import NavBar from "./components/NavBar/NavBar";
 import Footer from "./components/Footer/Footer";
@@ -51,101 +52,115 @@ import CategoryReport from "./admin/pages/CategoryReport";
 import OrdersPage from "./pages/Account/OrdersPage";
 import InfoPage from "./pages/Account/InfoPage";
 import EditInfoPage from "./pages/Account/EditInfoPage";
-function App() {
+
+
+function AppWrapper() {
   return (
-
     <Router>
-      <CartProvider>
-        <NavBar />
-        <Routes>
-          <Route path={BASE} element={<Home />} />
-          <Route path={`${CATEGORY}/:id`} element={<CategoryPage />} />
-          <Route path={`${COMPARISON}/:params`} element={<ComparePage />} />
-          <Route path={`${SEARCH}`} element={<SearchPage />} />
-          <Route path={`${PRODUCT}/:id`} element={<ProductDetail />} />
-          <Route path={`${CART}`} element={<CartPage />} />
-          <Route path={`${ACCOUNT_ORDERS}`} element={<OrdersPage />} />
-          <Route path={`${ACCOUNT_INFO}`} element={<InfoPage />} />
-          <Route path={`${ACCOUNT_EDIT_INFO}`} element={<EditInfoPage/>} />
-        </Routes>
-        <Footer />
-      </CartProvider>
-      <ScrollToTopButton />
+      <App />
     </Router>
-
-    // <Router>
-    //   <Routes>
-    //     {/* Đặt PermanentDrawerLeft làm route cha */}
-    //     <Route path="/" element={<PermanentDrawerLeft />}>
-    //       <Route index element={<Navigate to="/overview" />} />
-    //       <Route path="overview" element={<OverviewPage />} />
-    //       <Route path="orders" element={<OrderPage />} />
-    //       <Route
-    //         path="products"
-    //         element={
-    //           <ProductProvider>
-    //             <CategoryProvider>
-    //               <BrandProvider>
-    //                 <ProductPage />
-    //               </BrandProvider>
-    //             </CategoryProvider>
-    //           </ProductProvider>
-    //         }
-    //       />
-    //       <Route
-    //         path="/AddProduct"
-    //         element={
-    //           <CategoryProvider>
-    //             <BrandProvider>
-    //               <ProductProvider>
-    //                 <AddProductPage />
-    //               </ProductProvider>
-    //             </BrandProvider>
-    //           </CategoryProvider>
-    //         }
-    //       />
-    //       <Route
-    //         path="/EditProduct/:id"
-    //         element={
-    //           <CategoryProvider>
-    //             <BrandProvider>
-    //               <ProductProvider>
-    //                 <EditProductPage />
-    //               </ProductProvider>
-    //             </BrandProvider>
-    //           </CategoryProvider>
-    //         }
-    //       />
-    //       <Route
-    //         path="import"
-    //         element={
-    //           <SupplierProvider>
-    //             <ImportPage />
-    //           </SupplierProvider>
-    //         }
-    //       />
-    //       <Route path="addImport" element={<AddImportPage />} />"
-    //       <Route path="detailImport/:id" element={<DetailImportPage />} />
-    //       <Route path="order" element={<OrderPage />} />
-    //       <Route path="orderDetail/:id" element={<OrderDetailPage />} />
-    //       <Route
-    //         path="suppliers"
-    //         element={
-    //           <SupplierProvider>
-    //             <SupplierPage />
-    //           </SupplierProvider>
-    //         }
-    //       />
-    //       <Route path="warranty" element={<WarrantyPage />} />
-    //       <Route path="customers" element={<CustomerPage />} />
-    //       <Route path="discounts" element={<DiscountPage />} />
-    //       <Route path="reports" element={<DashboardPage />} />
-    //       <Route path="productReport" element={<ProductReport/>} />
-    //       <Route path="categoryReport" element={<CategoryReport />} />
-    //     </Route>
-    //   </Routes>
-    // </Router>
   );
 }
 
-export default App;
+function App() {
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith("/Admin");
+
+  return (
+    <>
+      {!isAdminRoute && (
+        <CartProvider>
+          <NavBar />
+          <Routes>
+            <Route path={BASE} element={<Home />} />
+            <Route path={`${CATEGORY}/:id`} element={<CategoryPage />} />
+            <Route path={`${COMPARISON}/:params`} element={<ComparePage />} />
+            <Route path={`${SEARCH}`} element={<SearchPage />} />
+            <Route path={`${PRODUCT}/:id`} element={<ProductDetail />} />
+            <Route path={`${CART}`} element={<CartPage />} />
+            <Route path={`${ACCOUNT_ORDERS}`} element={<OrdersPage />} />
+            <Route path={`${ACCOUNT_INFO}`} element={<InfoPage />} />
+            <Route path={`${ACCOUNT_EDIT_INFO}`} element={<EditInfoPage />} />
+          </Routes>
+          <Footer />
+          <ScrollToTopButton />
+        </CartProvider>
+      )}
+
+      <Routes>
+        {/* Admin routes */}
+        <Route path="/Admin" element={<PermanentDrawerLeft />}>
+          <Route index element={<Navigate to="/Admin/overview" />} />
+          <Route path="overview" element={<OverviewPage />} />
+          <Route path="orders" element={<OrderPage />} />
+          <Route
+            path="products"
+            element={
+              <ProductProvider>
+                <CategoryProvider>
+                  <BrandProvider>
+                    <ProductPage />
+                  </BrandProvider>
+                </CategoryProvider>
+              </ProductProvider>
+            }
+          />
+          <Route
+            path="AddProduct"
+            element={
+              <CategoryProvider>
+                <BrandProvider>
+                  <ProductProvider>
+                    <AddProductPage />
+                  </ProductProvider>
+                </BrandProvider>
+              </CategoryProvider>
+            }
+          />
+          <Route
+            path="EditProduct/:id"
+            element={
+              <CategoryProvider>
+                <BrandProvider>
+                  <ProductProvider>
+                    <EditProductPage />
+                  </ProductProvider>
+                </BrandProvider>
+              </CategoryProvider>
+            }
+          />
+          <Route
+            path="import"
+            element={
+              <SupplierProvider>
+                <ImportPage />
+              </SupplierProvider>
+            }
+          />
+          <Route path="addImport" element={<AddImportPage />} />
+          <Route path="detailImport/:id" element={<DetailImportPage />} />
+          <Route path="order" element={<OrderPage />} />
+          <Route path="orderDetail/:id" element={<OrderDetailPage />} />
+          <Route
+            path="suppliers"
+            element={
+              <SupplierProvider>
+                <SupplierPage />
+              </SupplierProvider>
+            }
+          />
+          <Route path="warranty" element={<WarrantyPage />} />
+          <Route path="customers" element={<CustomerPage />} />
+          <Route path="discounts" element={<DiscountPage />} />
+          <Route path="reports" element={<DashboardPage />} />
+          <Route path="productReport" element={<ProductReport />} />
+          <Route path="categoryReport" element={<CategoryReport />} />
+        </Route>
+      </Routes>
+    </>
+  );
+}
+
+export default AppWrapper;
+
+        
