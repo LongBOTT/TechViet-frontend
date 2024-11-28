@@ -36,9 +36,9 @@ export default function AddProductPage() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
-  const handleGoBack = () => navigate("/products");
+  const handleGoBack = () => navigate("/Admin/products");
 
-  const handleExit = () => navigate("/products");
+  const handleExit = () => navigate("/Admin/products");
   const { createProduct, product, fetchProductsWithVariants } =
     useProductContext();
 

@@ -23,7 +23,7 @@ export default function ProductComponent() {
 
   const handleOpenAddDialog = () => {
     if (currentTab === "Sản phẩm") {
-      navigate("/AddProduct"); // Chuyển hướng đến trang /add-product khi tab là "Sản phẩm"
+      navigate("/Admin/AddProduct"); // Chuyển hướng đến trang /add-product khi tab là "Sản phẩm"
     } else if (currentTab === "Thể loại") {
       setOpenAddCategoryDialog(true);
     } else if (currentTab === "Thương hiệu") {

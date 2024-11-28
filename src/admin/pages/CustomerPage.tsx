@@ -72,7 +72,7 @@ export default function Customer() {
     fetchCustomers();
   }, []);
   const handleRowClick = (product: any) => {
-    // navigate(`/EditProduct/${product.id}`); // Chuyển hướng đến trang chỉnh sửa sản phẩm
+    // navigate(`/Admin/EditProduct/${product.id}`); // Chuyển hướng đến trang chỉnh sửa sản phẩm
   };
   const CustomerColumns = [
     { label: "Mã khách hàng", key: "id" },

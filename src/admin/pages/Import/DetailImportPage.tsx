@@ -25,7 +25,7 @@ export default function DetailImportPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const onGoBack = () => {
-    navigate("/import");
+    navigate("/Admin/import");
   };
   const [stockReceiveDetail, setStockReceiveDetail] = useState<any>(null);
   React.useEffect(() => {

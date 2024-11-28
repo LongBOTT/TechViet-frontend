@@ -91,10 +91,10 @@ function App() {
         {/* Admin routes */}
         <Route path="/Admin" element={<PermanentDrawerLeft />}>
           <Route index element={<Navigate to="/Admin/overview" />} />
-          <Route path="overview" element={<OverviewPage />} />
-          <Route path="orders" element={<OrderPage />} />
+          <Route path="/Admin/overview" element={<OverviewPage />} />
+          <Route path="/Admin/orders" element={<OrderPage />} />
           <Route
-            path="products"
+            path="/Admin/products"
             element={
               <ProductProvider>
                 <CategoryProvider>
@@ -106,7 +106,7 @@ function App() {
             }
           />
           <Route
-            path="AddProduct"
+            path="/Admin/AddProduct"
             element={
               <CategoryProvider>
                 <BrandProvider>
@@ -118,7 +118,7 @@ function App() {
             }
           />
           <Route
-            path="EditProduct/:id"
+            path="/Admin/EditProduct/:id"
             element={
               <CategoryProvider>
                 <BrandProvider>
@@ -130,31 +130,31 @@ function App() {
             }
           />
           <Route
-            path="import"
+            path="/Admin/import"
             element={
               <SupplierProvider>
                 <ImportPage />
               </SupplierProvider>
             }
           />
-          <Route path="addImport" element={<AddImportPage />} />
-          <Route path="detailImport/:id" element={<DetailImportPage />} />
-          <Route path="order" element={<OrderPage />} />
-          <Route path="orderDetail/:id" element={<OrderDetailPage />} />
+          <Route path="/Admin/addImport" element={<AddImportPage />} />
+          <Route path="/Admin/detailImport/:id" element={<DetailImportPage />} />
+          <Route path="/Admin/order" element={<OrderPage />} />
+          <Route path="/Admin/orderDetail/:id" element={<OrderDetailPage />} />
           <Route
-            path="suppliers"
+            path="/Admin/suppliers"
             element={
               <SupplierProvider>
                 <SupplierPage />
               </SupplierProvider>
             }
           />
-          <Route path="warranty" element={<WarrantyPage />} />
-          <Route path="customers" element={<CustomerPage />} />
-          <Route path="discounts" element={<DiscountPage />} />
-          <Route path="reports" element={<DashboardPage />} />
-          <Route path="productReport" element={<ProductReport />} />
-          <Route path="categoryReport" element={<CategoryReport />} />
+          <Route path="/Admin/warranty" element={<WarrantyPage />} />
+          <Route path="/Admin/customers" element={<CustomerPage />} />
+          <Route path="/Admin/discounts" element={<DiscountPage />} />
+          <Route path="/Admin/reports" element={<DashboardPage />} />
+          <Route path="/Admin/productReport" element={<ProductReport />} />
+          <Route path="/Admin/categoryReport" element={<CategoryReport />} />
         </Route>
       </Routes>
     </>

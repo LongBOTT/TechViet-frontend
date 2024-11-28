@@ -267,7 +267,7 @@ export default function EditProductPage() {
     try {
       await updateProductStatus(Number(id));
       alert("Xóa sản phẩm thành công!");
-      navigate("/products");
+      navigate("/Admin/products");
     } catch (error) {
       console.error("Error deleting product:", error);
       showSnackbar("Xóa sản phẩm thất bại");
@@ -298,12 +298,12 @@ export default function EditProductPage() {
       <HeaderActions
         mode="edit"
         isEditing={isEditing}
-        onGoBack={() => navigate("/products")}
+        onGoBack={() => navigate("/Admin/products")}
         onSave={handleSave}
         onEdit={handleEdit}
         onCancel={handleCancel}
         onDelete={handleDelete}
-        onExit={() => navigate("/products")}
+        onExit={() => navigate("/Admin/products")}
       />
 
       <Box

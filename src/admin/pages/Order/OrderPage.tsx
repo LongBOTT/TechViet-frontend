@@ -175,7 +175,7 @@ export default function Order() {
     { value: "Cash", label: "Tiền mặt" },
   ];
   const handleRowClick = (order: any) => {
-    navigate(`/orderDetail/${order.id}`);
+    navigate(`/Admin/orderDetail/${order.id}`);
   };
   return (
     <Box

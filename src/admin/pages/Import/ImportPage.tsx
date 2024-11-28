@@ -29,7 +29,7 @@ export default function Import() {
   }));
   // Xử lý khi người dùng bấm vào hàng sản phẩm
   const handleRowClick = (import_note: any) => {
-    navigate(`/detailImport/${import_note.id}`); // Chuyển hướng đến trang chỉnh sửa sản phẩm
+    navigate(`/Admin/detailImport/${import_note.id}`); // Chuyển hướng đến trang chỉnh sửa sản phẩm
   };
   const handleReset = () => {
     setResetFilter(true);
@@ -59,7 +59,7 @@ export default function Import() {
     fetchStockReceives(); // Gọi hàm khi component được tải
   }, []);
   const onOpenAddDialog = () => {
-    navigate("/addImport");
+    navigate("/Admin/addImport");
   };
   const searchProductsById = async (id: string) => {
     setLoading(true);

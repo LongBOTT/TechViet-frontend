@@ -174,7 +174,7 @@ const OrderDetailPage: React.FC = () => {
     );
   };
   const onGoBack = () => {
-    navigate("/order");
+    navigate("/Admin/order");
   };
   // Hàm chuyển đổi chuỗi tiếng Việt thành enum PaymentMethod
   const convertPaymentMethod = (method: string): PaymentMethod => {

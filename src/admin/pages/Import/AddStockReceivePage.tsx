@@ -74,7 +74,7 @@ export default function AddImportPage() {
     useState<ProductWithVariants[]>();
   const [transformedProducts, setTransformedProducts] = useState<any[]>([]);
   const onGoBack = () => {
-    navigate("/import");
+    navigate("/Admin/import");
   };
   const totalAmount = selectedProducts.reduce(
     (acc, product) => acc + product.total,
@@ -160,7 +160,7 @@ export default function AddImportPage() {
      
       }
       alert("Lưu thành công");
-      navigate("/import");
+      navigate("/Admin/import");
     } catch (error) {
       console.error("Lỗi khi lưu dữ liệu:", error);
     }
