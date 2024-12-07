@@ -16,7 +16,7 @@ export const Phone = () => {
       </Box>
 
       {/* Container chứa Slider */}
-      <Container sx={{ textAlign: 'center' }}>
+      <Container>
         <PhoneSlider sliderRef={sliderRef} /> {/* Truyền ref vào slider */}
       </Container>
 

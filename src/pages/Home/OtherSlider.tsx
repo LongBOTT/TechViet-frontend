@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Grid, Box, Typography, Card, CardMedia, CardContent, Button, IconButton, Checkbox, FormControlLabel, Link } from '@mui/material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import StarIcon from '@mui/icons-material/Star';
@@ -10,92 +10,24 @@ import { Padding } from '@mui/icons-material';
 import ForwardButton from '../../assets/utils/ForwardButton';
 import PreviousButton from '../../assets/utils/PreviousButton';
 
-const products = [
-  {
-    name: "OPPO Find X5 Pro 12GB 256GB",
-    price: 15990000,
-    originalPrice: 19990000,
-    discount: 20,
-    image: "src/assets/products/00910470_robot_hut_bui_lau_nha_ecovacs_deebot_x5_pro_omni_den_01205a0d7b.png",
-    details: "Giá mới chỉ có tại CellphoneS",
-  },
-  {
-    name: "Masstel izi T2 4G",
-    price: 430000,
-    originalPrice: 500000,
-    discount: 14,
-    image: "src/assets/products/00910470_robot_hut_bui_lau_nha_ecovacs_deebot_x5_pro_omni_den_01205a0d7b.png",
-    details: "",
-  },
-  {
-    name: "Samsung Galaxy M55 (12GB 256GB)",
-    price: 10190000,
-    originalPrice: 12690000,
-    discount: 20,
-    image: "src/assets/products/00910470_robot_hut_bui_lau_nha_ecovacs_deebot_x5_pro_omni_den_01205a0d7b.png",
-    details: "Không phí chuyển đổi khi trả góp 0%",
-  },
-  {
-    name: "Samsung Galaxy A55 5G 128GB",
-    price: 9490000,
-    originalPrice: 9990000,
-    discount: 5,
-    rating: 5,
-    image: "src/assets/products/00910470_robot_hut_bui_lau_nha_ecovacs_deebot_x5_pro_omni_den_01205a0d7b.png",
-    details: "Không phí chuyển đổi khi trả góp 0%",
-  },
-  {
-    name: "TECNO POVA 5 8GB 128GB",
-    price: 3790000,
-    originalPrice: 4490000,
-    discount: 16,
-    rating: 5,
-    image: "src/assets/products/00910470_robot_hut_bui_lau_nha_ecovacs_deebot_x5_pro_omni_den_01205a0d7b.png",
-    details: "",
-  },
-  {
-    name: "OPPO Find X5 Pro 12GB 256GB",
-    price: 15990000,
-    originalPrice: 19990000,
-    discount: 20,
-    image: "src/assets/products/00910470_robot_hut_bui_lau_nha_ecovacs_deebot_x5_pro_omni_den_01205a0d7b.png",
-    details: "Giá mới chỉ có tại CellphoneS",
-  },
-  {
-    name: "Masstel izi T2 4G",
-    price: 430000,
-    originalPrice: 500000,
-    discount: 14,
-    image: "src/assets/products/00910470_robot_hut_bui_lau_nha_ecovacs_deebot_x5_pro_omni_den_01205a0d7b.png",
-    details: "",
-  },
-  {
-    name: "Samsung Galaxy M55 (12GB 256GB)",
-    price: 10190000,
-    originalPrice: 12690000,
-    discount: 20,
-    image: "src/assets/products/00910470_robot_hut_bui_lau_nha_ecovacs_deebot_x5_pro_omni_den_01205a0d7b.png",
-    details: "Không phí chuyển đổi khi trả góp 0%",
-  },
-  {
-    name: "Samsung Galaxy A55 5G 128GB",
-    price: 9490000,
-    originalPrice: 9990000,
-    discount: 5,
-    rating: 5,
-    image: "src/assets/products/00910470_robot_hut_bui_lau_nha_ecovacs_deebot_x5_pro_omni_den_01205a0d7b.png",
-    details: "Không phí chuyển đổi khi trả góp 0%",
-  },
-  {
-    name: "TECNO POVA 5 8GB 128GB",
-    price: 3790000,
-    originalPrice: 4490000,
-    discount: 16,
-    rating: 5,
-    image: "src/assets/products/00910470_robot_hut_bui_lau_nha_ecovacs_deebot_x5_pro_omni_den_01205a0d7b.png",
-    details: "",
-  },
-];
+import { Product } from "../../types/product";
+import {
+  searchProductBy_Id,
+  searchProductByVariants,
+} from "../../api/productApi";
+import { Variant } from "../../types/variant";
+import { Variant_Attribute } from "../../types/variant_attribute";
+import { searchVariant_AttributeByVariant } from "../../api/variant_attributeApi";
+import {
+  searchVariantByCategory,
+  searchVariantByProduct,
+} from "../../api/variantApi";
+
+interface Product_Variant {
+  product: Product;
+  variants: Variant[];
+  variants_attributes: Variant_Attribute[];
+}
 
 
 interface OtherSliderProps {
@@ -103,58 +35,105 @@ interface OtherSliderProps {
 }
 
 const OtherSlider: React.FC<OtherSliderProps> = ({ sliderRef }) => {
-  // Lấy số lượng sản phẩm
-  const productCount = products.length;
+const [items, setItems] = useState<Product_Variant[]>([]);
+
+// Lấy danh sách từ localStorage khi component được mount
+useEffect(() => {
+  const loadProducts = async () => {
+    const variantList = await searchVariantByCategory(1);
+    const productList = await searchProductByVariants(variantList ?? []);
+
+    let itemList = await convertToProduct_Variant(
+      variantList ?? [],
+      productList ?? []
+    );
+    setItems(itemList);
+  };
+
+  loadProducts();
+}, []);
+
+const convertToProduct_Variant = async (
+  variantList: Variant[],
+  productList: Product[]
+) => {
+  const itemList: Product_Variant[] = [];
+  for (const product of productList) {
+    const item: Product_Variant = {
+      product,
+      variants: [],
+      variants_attributes: [],
+    };
+    // Filter variants by product ID
+    item.variants.push(
+      ...variantList.filter((variant) => variant.products.id === product.id)
+    );
+    for (const variant of item.variants) {
+      const attributes = await searchVariant_AttributeByVariant(variant.id);
+      item.variants_attributes.push(...(attributes ?? [])); // Add attributes to variants_attributes
+    }
+    itemList.push(item);
+  }
+  return itemList;
+};
+
+// Lấy số lượng sản phẩm
+const productCount = items.length;
+
+  
   
   // Slider settings
   const settings = {
     dots: true,
     infinite: true,
     speed: 500,
-    slidesToShow: productCount < 4 ? productCount : 4,  // Hiển thị tối đa số lượng sản phẩm
+    slidesToShow: productCount < 4 ? productCount : 4, // Hiển thị tối đa số lượng sản phẩm
     slidesToScroll: 1,
     rows: 1,
-    arrows: false,  // Ẩn nút điều hướng mặc định của slider
+    autoplay: true,
+    autoplaySpeed: 4000,
+    arrows: false, // Ẩn nút điều hướng mặc định của slider
     responsive: [
       {
         breakpoint: 1024,
         settings: {
           slidesToShow: 3,
           slidesToScroll: 1,
-        }
+        },
       },
       {
         breakpoint: 600,
         settings: {
           slidesToShow: 2,
           slidesToScroll: 1,
-        }
+        },
       },
       {
         breakpoint: 480,
         settings: {
           slidesToShow: 1,
           slidesToScroll: 1,
-        }
-      }
-    ]
+        },
+      },
+    ],
   };
 
   return (
-    <Box sx={{padding: '30px', borderRadius:'10px', background:'white'}}>
-      <Link sx={{ textDecoration: 'none', color: 'inherit', cursor: 'pointer'}}>
-        <Typography variant="h4" fontWeight="bold" sx={{ color: '#000000', textAlign: 'center' }}>ĐỒ GIA DỤNG</Typography>
+    <Box sx={{ padding: "30px", borderRadius: "10px", background: "white" }}>
+      <Link
+        sx={{ textDecoration: "none", color: "inherit", cursor: "pointer" }}
+      >
+        <Typography
+          variant="h4"
+          fontWeight="bold"
+          sx={{ color: "#000000", textAlign: "center" }}
+        >
+          ĐỒ GIA DỤNG
+        </Typography>
       </Link>
-    <Slider ref={sliderRef} {...settings}>
-        {products.map((product, index) => (
-          <ProductCard
-            key={index} 
-            name={product.name} 
-            price={product.price} 
-            originalPrice={product.originalPrice}
-            image={product.image}
-            details={product.details}            
-            />
+      <Slider ref={sliderRef} {...settings}>
+        {items.slice(0, Math.min(items.length, 10)).map((item) => (
+          <ProductCard key={item.product.id} productVariant={item} />
         ))}
       </Slider>
     </Box>

@@ -1,7 +1,7 @@
 import { Box, Breadcrumbs, Link, Typography, Grid, Chip, Button, Avatar, Divider, Grid2, Paper, Table, TableBody, TableCell, TableRow, Tab, Tabs, Modal, Alert, IconButton } from '@mui/material';
 import React, { FC, ReactElement, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { CATEGORY } from '../../constants/routeConstants';
+import { useNavigate, useParams } from 'react-router-dom';
+import { CART, CATEGORY } from '../../constants/routeConstants';
 import PreviousButton from '../../assets/utils/PreviousButton';
 import ForwardButton from '../../assets/utils/ForwardButton';
 import ProductReviews from './ProductReview';
@@ -17,6 +17,7 @@ import SpecificationsTable from './SpecificationsTable';
 import { useCart } from '../../context/CartContex';
 import { CartItem } from '../../types/cartItem';
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import { set } from 'lodash';
 
 interface Product_Variant {
   product: Product;
@@ -25,6 +26,7 @@ interface Product_Variant {
 }
 
 const ProductDetail: FC = (): ReactElement => {
+  const navigate = useNavigate();
   const params = useParams<{ id: string }>();
   const safeProductId = parseInt(params.id?.replace(":", "") || "0", 10);
   const [isReviewExpanded, setIsReviewExpanded] = useState(false);
@@ -32,12 +34,14 @@ const ProductDetail: FC = (): ReactElement => {
   const [item, setItem] = useState<Product_Variant | null>(null);
   const [selectedVariant, setSelectedVariant] = useState<Variant>();
   const [selectedStorage, setSelectedStorage] = useState("");
+  const [selectedColor, setSelectedColor] = useState("");
   const [selectedColorIndex, setSelectedColorIndex] = useState(0); // Tracks the current color index for image
   const [tabIndex, setTabIndex] = useState(0);
   const [price, setPrice] = useState<number>();
   const [name, setName] = useState<string>();
-  const [colors, setColors] = useState<string[]>([]);
+  const [colors, setColors] = useState<Variant_Attribute[]>([]);
   const [storedList, setStoredList] = useState<Variant_Attribute[]>([]);
+  const [image, setImage] = useState<Variant_Attribute[]>([]);
   const [colorList, setColorList] = useState<Variant_Attribute[]>([]);
   const [category, setCategory] = useState<Category | null>(null);
   const { addToCart } = useCart();
@@ -62,13 +66,34 @@ const ProductDetail: FC = (): ReactElement => {
         quantity: selectedVariant.quantity,
         status: selectedVariant.status,
         image: selectedVariant.image,
-        buyQuantity: 1
+        buyQuantity: 1,
+        color: selectedColor,
       };
       addToCart(selectCartItem);
       setAlertMessage("Thêm sản phẩm thành công.")
     }
     
   };
+
+  const handleBuyNow = () => {
+    if (selectedVariant) {
+      const selectCartItem: CartItem = {
+        id: selectedVariant.id,
+        products: selectedVariant.products,
+        name: selectedVariant.name,
+        costPrice: selectedVariant.costPrice,
+        price: selectedVariant.price,
+        quantity: selectedVariant.quantity,
+        status: selectedVariant.status,
+        image: selectedVariant.image,
+        buyQuantity: 1,
+        color: selectedColor,
+      };
+      addToCart(selectCartItem);
+      navigate(CART)
+    }
+  };
+
   useEffect(() => {
     const fetchProductData = async () => {
       try {
@@ -93,51 +118,99 @@ const ProductDetail: FC = (): ReactElement => {
         setItem(itemData);
         setCategory(itemData.product.category);
         setSelectedVariant(itemData.variants[0] ?? null);
+        const romVariants: Variant_Attribute[] = Array.from(
+          new Map(
+            itemData.variants_attributes
+              ?.filter(
+                (x: Variant_Attribute) =>
+                  x?.attribute?.name === "Dung lượng (Rom)" && x.value // Ensure value exists
+              )
+              ?.map((x: Variant_Attribute) => [x.value, x])
+          ).values()
+        );
+
         setStoredList(
+          romVariants ?? []
+        );
+        console.log(romVariants);
+
+        if (romVariants.length > 0) {
+          setSelectedStorage(romVariants[0].value);
+        }
+        setColorList(
           itemData.variants_attributes.filter(
-            (x) => x.attribute.name === "Dung lượng (Rom)"
+            (x) => x.attribute.name === "Màu sắc"
           ) ?? []
         );
-        console.log(
+        setColors(
           itemData.variants_attributes.filter(
-            (x) => x.attribute.name === "Dung lượng (Rom)"
-          )
+            (x) => x.attribute.name === "Màu sắc"
+          ) ?? []
         );
-        setSelectedStorage(
-          itemData.variants_attributes.filter(
-            (x) => x.attribute.name === "Dung lượng (Rom)"
-          )[0].value
-        );
+        setSelectedColorIndex(0);
       } catch (error) {
         console.error("Failed to fetch product data:", error);
       }
     };
-
     fetchProductData();
   }, [safeProductId]);
 
   useEffect(() => {
-    setPrice(selectedVariant?.price);
+    // setPrice(selectedVariant?.price);
     
-  
-    setColorList(
+    if (storedList.length > 0) {
+      // Lọc ra các biến thể phù hợp với dung lượng (Rom) đã chọn
+      const romVariants = item?.variants_attributes.filter(
+        (x) => x.attribute.name === "Dung lượng (Rom)" && x.value === selectedStorage) ?? [];
+      console.log(romVariants)
+      // Lọc danh sách màu dựa trên các Rom Variant đã chọn
+      const filteredColors =
+        item?.variants_attributes.filter(
+          (x) =>
+            x.attribute.name === "Màu sắc" &&
+            romVariants.some((selected) => selected.variant.id === x.variant.id)
+        ) ?? [];
+      setImage(romVariants);
+      setColors(filteredColors);
+      setSelectedColorIndex(0)
+      setSelectedColor(filteredColors[0].value);
+    }
+
+    
+    setName(selectedVariant?.name);
+    // console.log(category)
+    // if (category?.id === 1) {
+    //   setName(item?.product.name + " " + selectedStorage);
+    // }
+    // else {
+    // }
+
+  }, [selectedStorage]);
+
+  useEffect(() => {
+    const romVariants =
       item?.variants_attributes.filter(
         (x) =>
-          x.attribute.name === "Màu sắc" && selectedVariant?.id === x.variant.id
-      ) ?? []
-    );
+          x.attribute.name === "Dung lượng (Rom)" && x.value === selectedStorage
+      ) ?? [];
+    console.log(romVariants);
+    // Lọc danh sách màu dựa trên các Rom Variant đã chọn
+    const variant =
+      colors.filter(
+        (x) =>
+          x.attribute.name === "Màu sắc" &&
+          x.value === selectedColor
+      );
+      console.log(variant)
+      if (variant.length > 0)  {
+        setSelectedVariant(variant[0].variant);
+        setPrice(variant[0].variant.price);
+        setName(variant[0].variant.name);
     
-    console.log(category)
-    if (category?.id === 1) {
-      setName(item?.product.name + " " + selectedStorage);
-    }
-    else {
-      setName(item?.product.name);
-    }
-    
+      }
 
 
-  }, [selectedVariant]);
+  }, [selectedColor]);
 
   const convertToProduct_Variant = async (  variantList: Variant[],  product: Product) => {
     const item: Product_Variant = {
@@ -156,15 +229,27 @@ const ProductDetail: FC = (): ReactElement => {
 
   // Carousel navigation functions
   const handlePreviousImage = () => {
-    setSelectedColorIndex((prevIndex) =>
-      prevIndex === 0 ? colorList.length - 1 : prevIndex - 1
-    );
+    if (storedList.length > 0) {
+      setSelectedColorIndex((prevIndex) =>
+        prevIndex === 0 ? image.length - 1 : prevIndex - 1
+      );
+    } else {
+      setSelectedColorIndex((prevIndex) =>
+        prevIndex === 0 ? colorList.length - 1 : prevIndex - 1
+      );
+    }
   };
 
   const handleNextImage = () => {
-    setSelectedColorIndex((prevIndex) =>
-      prevIndex === colorList.length - 1 ? 0 : prevIndex + 1
-    );
+     if (storedList.length > 0) {
+      setSelectedColorIndex((prevIndex) =>
+        prevIndex === image.length - 1 ? 0 : prevIndex + 1
+      );
+    } else {
+      setSelectedColorIndex((prevIndex) =>
+        prevIndex === colorList.length - 1 ? 0 : prevIndex + 1
+      );
+    }
   };
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -223,18 +308,18 @@ const ProductDetail: FC = (): ReactElement => {
             <Box>
               <Box textAlign="center" mt={2}>
                 <img
-                  src={selectedVariant?.image}
-                  alt={item?.product.name}
+                  src={image[selectedColorIndex]?.variant.image}
+                  alt={image[selectedColorIndex]?.variant.name}
                   style={{ width: "60%", height: "60%" }}
                 />
               </Box>
 
               {/* Color Thumbnails */}
               <Box display="flex" justifyContent="center" gap={1} mt={2}>
-                {item?.variants.map((vaiant, index) => (
+                {image?.map((vaiant_att, index) => (
                   <Avatar
-                    key={vaiant.id}
-                    src={vaiant.image}
+                    key={vaiant_att.variant.id}
+                    src={vaiant_att.variant.image}
                     variant="square"
                     sx={{
                       borderRadius: "8px",
@@ -270,98 +355,108 @@ const ProductDetail: FC = (): ReactElement => {
             {name}
           </Typography>
           <Typography variant="subtitle1" color="text.secondary">
-            Mã sản phẩm: {item?.product.id} • Đánh giá: 5⭐ (500 đánh giá)
+            Mã sản phẩm: {item?.product.id} • Đánh giá: 5⭐
           </Typography>
 
-          {/* Storage Options */}
-          <Typography variant="h6" mt={3} mb={1}>
-            Dung lượng
-          </Typography>
-          <Box display="flex" gap={1}>
-            {storedList.map((option) => (
-              <Chip
-                sx={{
-                  borderRadius: "8px",
-                  borderColor:
-                    selectedStorage === option.value ? "red" : "default",
-                  "&::before":
-                    selectedStorage === option.value
-                      ? {
-                          content: '""',
-                          position: "absolute",
-                          top: -1,
-                          right: -1,
-                          width: "15px",
-                          height: "15px",
-                          backgroundColor: "red",
-                          clipPath: "polygon(100% 0, 0 0, 100% 100%)",
-                        }
-                      : {},
-                  "&::after":
-                    selectedStorage === option.value
-                      ? {
-                          content: '"✓"',
-                          position: "absolute",
-                          top: 0,
-                          right: 1,
-                          fontSize: "7px",
-                          color: "white",
-                        }
-                      : {},
-                }}
-                key={option.value}
-                label={option.value}
-                variant={"outlined"}
-                onClick={() => {
-                  setSelectedStorage(option.value);
-                  setSelectedVariant(option.variant);
-                }}
-              />
-            ))}
-          </Box>
+          {storedList.length > 0 && (
+            <>
+              {/* Storage Options */}
+              <Typography variant="h6" mt={3} mb={1}>
+                Dung lượng
+              </Typography>
+              <Box display="flex" gap={1}>
+                {storedList.map((option) => (
+                  <Chip
+                    sx={{
+                      borderRadius: "8px",
+                      borderColor:
+                        selectedStorage === option.value ? "red" : "default",
+                      "&::before":
+                        selectedStorage === option.value
+                          ? {
+                              content: '""',
+                              position: "absolute",
+                              top: -1,
+                              right: -1,
+                              width: "15px",
+                              height: "15px",
+                              backgroundColor: "red",
+                              clipPath: "polygon(100% 0, 0 0, 100% 100%)",
+                            }
+                          : {},
+                      "&::after":
+                        selectedStorage === option.value
+                          ? {
+                              content: '"✓"',
+                              position: "absolute",
+                              top: 0,
+                              right: 1,
+                              fontSize: "7px",
+                              color: "white",
+                            }
+                          : {},
+                    }}
+                    key={option.value}
+                    label={option.value}
+                    variant={"outlined"}
+                    onClick={() => {
+                      setSelectedStorage(option.value);
+                      // setSelectedVariant(option.variant);
+                    }}
+                  />
+                ))}
+              </Box>
+            </>
+          )}
 
           {/* Color Options */}
           <Typography variant="h6" mt={3} mb={1}>
             Màu sắc
           </Typography>
           <Box display="flex" gap={1}>
-            {colorList.map((color, index) => (
-              <Chip
-                sx={{
-                  borderRadius: "8px",
-                  borderColor: selectedColorIndex === index ? "red" : "default",
-                  "&::before":
-                    selectedColorIndex === index
-                      ? {
-                          content: '""',
-                          position: "absolute",
-                          top: -1,
-                          right: -1,
-                          width: "15px",
-                          height: "15px",
-                          backgroundColor: "red",
-                          clipPath: "polygon(100% 0, 0 0, 100% 100%)",
-                        }
-                      : {},
-                  "&::after":
-                    selectedColorIndex === index
-                      ? {
-                          content: '"✓"',
-                          position: "absolute",
-                          top: 0,
-                          right: 1,
-                          fontSize: "7px",
-                          color: "white",
-                        }
-                      : {},
-                }}
-                key={color.value}
-                label={color.value}
-                // color={selectedColorIndex === index ? '#000000' : 'default'}
-                variant={"outlined"}
-                onClick={() => setSelectedColorIndex(index)}
-              />
-            ))}
+            {colorList
+              .filter((color) =>
+                colors.some((selected) => selected.value === color.value)
+              ) // Lọc ra các màu thoả điều kiện
+              .map((color, index) => (
+                <Chip
+                  sx={{
+                    borderRadius: "8px",
+                    borderColor:
+                      selectedColorIndex === index ? "red" : "default",
+                    "&::before":
+                      selectedColorIndex === index
+                        ? {
+                            content: '""',
+                            position: "absolute",
+                            top: -1,
+                            right: -1,
+                            width: "15px",
+                            height: "15px",
+                            backgroundColor: "red",
+                            clipPath: "polygon(100% 0, 0 0, 100% 100%)",
+                          }
+                        : {},
+                    "&::after":
+                      selectedColorIndex === index
+                        ? {
+                            content: '"✓"',
+                            position: "absolute",
+                            top: 0,
+                            right: 1,
+                            fontSize: "7px",
+                            color: "white",
+                          }
+                        : {},
+                  }}
+                  key={color.value}
+                  label={color.value}
+                  variant={"outlined"}
+                  onClick={() => {
+                    setSelectedColorIndex(index), setSelectedColor(color.value);
+                  }}
+                />
+              ))}
           </Box>
 
           {/* Price and Installment */}
@@ -394,7 +489,7 @@ const ProductDetail: FC = (): ReactElement => {
               <ShoppingCartIcon />
             </IconButton>
             <Button
-              // onClick={handleAddToCart}
+              onClick={handleBuyNow}
               variant="contained"
               size="large"
               sx={{
@@ -412,10 +507,10 @@ const ProductDetail: FC = (): ReactElement => {
           </Box>
 
           {/* Promotions */}
-          <Divider sx={{ my: 2 }} />
+          {/* <Divider sx={{ my: 2 }} />
           <Typography variant="h6" gutterBottom>
             Khuyến mãi thanh toán
-          </Typography>
+          </Typography> */}
           {/* {product.promotions.map((promo, index) => (
             <Typography
               key={index}

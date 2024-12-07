@@ -123,14 +123,14 @@ const CartPage: React.FC = () => {
     cart,
     removeFromCart,
     updateQuantity,
-    updateWarranty,
     clearCart,
     updateCart,
   } = useCart();
   const [selectedItems, setSelectedItems] = useState<CartItem[]>([]);
   const [orderConfirmed, setOrderConfirmed] = useState(false);
-  const [paymentMethod, setPaymentMethod] =
-    useState<string>("cash_on_delivery"); // Biến trạng thái để quản lý lựa chọn phương thức thanh toán
+  const [paymentMethod, setPaymentMethod] = useState<string>(
+    PaymentMethod.Cash
+  ); // Biến trạng thái để quản lý lựa chọn phương thức thanh toán
 
   // State for form fields
   const [customerName, setCustomerName] = useState("");
@@ -173,10 +173,10 @@ const CartPage: React.FC = () => {
   };
 
   const isSelected = (item: CartItem) => selectedItems.includes(item);
-
+  const [open, setOpen] = useState(false);
   const totalPrice = cart
     .filter((item) => selectedItems.includes(item))
-    .reduce((total, item) => total + item.price * item.quantity, 0);
+    .reduce((total, item) => total + item.price * item.buyQuantity, 0);
 
   // Validate form fields
   const validateForm = () => {
@@ -206,11 +206,14 @@ const CartPage: React.FC = () => {
       // Tạo đối tượng Order với thông tin từ form và giỏ hàng
       let order: Order = {
         customer: customer, // Đảm bảo customer không null hoặc undefined
-        orderDate: new Date().toISOString().slice(0, -1),
+        orderDate: new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, -1),
         total_amount: totalPrice, // Tổng tiền
         orderStatus: "Chờ duyệt",
         payment_status: "Chưa thanh toán",
-        payment_method: PaymentMethod.BankTransfer, // Phương thức thanh toán
+        payment_method:
+          paymentMethod === PaymentMethod.BankTransfer
+            ? PaymentMethod.BankTransfer
+            : PaymentMethod.Cash, // Phương thức thanh toán
         note: note,
         address: address,
         phone: phoneNumber,
@@ -251,7 +254,19 @@ const CartPage: React.FC = () => {
           }
         }
         if (responseOrder && responseOrder.total_amount && responseOrder.id) {
-          handlePayment(responseOrder.total_amount, responseOrder.id); // Make sure handlePayment accepts a number (order ID)
+          if (paymentMethod === PaymentMethod.BankTransfer) {
+            handlePayment(responseOrder.total_amount, responseOrder.id); // Make sure handlePayment accepts a number (order ID)
+          } else {
+            setSeverity("success");
+            setAlertMessage("Thanh toán thành công.");
+            setOpen(true);
+
+            setTimeout(() => {
+              // Clear selected items from cart after 3 seconds
+              clearSelectedItemsFromCart(responseOrder.id);
+              setOpen(false); // Close the snackbar
+            }, 1500);
+          }
         }
       } catch (error) {
         console.error("Đặt hàng thất bại:", error);
@@ -339,9 +354,9 @@ const CartPage: React.FC = () => {
                 <Box sx={{ display: "flex", alignItems: "center" }}>
                   <img src={item.image} alt={item.name} width={80} />
                   <Box sx={{ ml: 2, flex: 1 }}>
-                    <Typography variant="h6">Tên sản phẩm</Typography>
+                    <Typography variant="h6">{item.name}</Typography>
                     <Typography variant="body2" color="textSecondary">
-                      Màu: {"xanh"} - Số lượng: {item.buyQuantity}
+                      Màu: {item.color} - Số lượng: {item.buyQuantity}
                     </Typography>
                   </Box>
                   <Typography variant="h6" color="error">
@@ -457,7 +472,7 @@ const CartPage: React.FC = () => {
               onChange={(e) => setPaymentMethod(e.target.value)}
             >
               <FormControlLabel
-                value="cash_on_delivery"
+                value={PaymentMethod.Cash}
                 control={<Radio />}
                 label={
                   <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -473,7 +488,7 @@ const CartPage: React.FC = () => {
                 }
               />
               <FormControlLabel
-                value="atm_card"
+                value={PaymentMethod.BankTransfer}
                 control={<Radio />}
                 label={
                   <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -554,15 +569,17 @@ const CartPage: React.FC = () => {
                 />
                 <img src={item.image} alt={item.name} width={80} />
                 <Box sx={{ ml: 2, flex: 1 }}>
-                  <Typography variant="h6">Tên sản phẩm</Typography>
+                  <Typography variant="h6">{item.name}</Typography>
                   <Typography variant="body2" color="textSecondary">
-                    Màu: {"xanh"}
+                    Màu: {item.color}
                   </Typography>
                   <Box sx={{ mt: 1, display: "flex", alignItems: "center" }}>
                     <Button
                       color="inherit"
-                      onClick={() =>
+                      onClick={() => {
+                        setSelectedItems([]);
                         updateQuantity(item.id, item.buyQuantity - 1)
+                      }
                       }
                     >
                       -
@@ -572,8 +589,10 @@ const CartPage: React.FC = () => {
                     </Typography>
                     <Button
                       color="inherit"
-                      onClick={() =>
-                        updateQuantity(item.id, item.buyQuantity + 1)
+                      onClick={() => {
+                          setSelectedItems([]);
+                          updateQuantity(item.id, item.buyQuantity + 1)
+                        }
                       }
                     >
                       +
@@ -591,7 +610,7 @@ const CartPage: React.FC = () => {
                 </Typography>
               </Box>
               {/* Gói bảo hành */}
-              <Box sx={{ mt: 2 }}>
+              {/* <Box sx={{ mt: 2 }}>
                 <Typography variant="body1" fontWeight="bold" color="error">
                   Chọn gói bảo hành
                 </Typography>
@@ -613,7 +632,7 @@ const CartPage: React.FC = () => {
                   }
                   label="Đặc quyền 12 tháng 1 đổi 1 +900.000 đ"
                 />
-              </Box>
+              </Box> */}
             </Box>
           ))}
         </Box>

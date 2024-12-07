@@ -23,6 +23,16 @@ interface ItemCardProps {
 }
 
 const ItemCard: FC<ItemCardProps> = ({ productVariant, onCompareToggle, isInComparison }) : ReactElement => {
+  // Lưu product ID vào localStorage khi nhấn vào link
+  const handleViewedProduct = () => {
+    const viewedProducts =
+      JSON.parse(localStorage.getItem("viewedProducts") ?? "[]") || [];
+    if (!viewedProducts.includes(productVariant.product.id)) {
+      viewedProducts.push(productVariant.product.id);
+      localStorage.setItem("viewedProducts", JSON.stringify(viewedProducts));
+    }
+  };
+  
   if (productVariant.product.category.name === "ĐIỆN THOẠI") {
     const variantList = productVariant.variants_attributes.filter(
       (x) => x.attribute.name === "Dung lượng (Rom)"
@@ -143,6 +153,7 @@ const ItemCard: FC<ItemCardProps> = ({ productVariant, onCompareToggle, isInComp
           to={`${PRODUCT}/:${productVariant.product.id}`}
           key={productVariant.product.id}
           className="no-underline"
+          onClick={handleViewedProduct} // Gọi hàm lưu vào localStorage
         >
           {/* Box chứa hình ảnh */}
           <Box
@@ -173,32 +184,23 @@ const ItemCard: FC<ItemCardProps> = ({ productVariant, onCompareToggle, isInComp
                   fontSize: "12px",
                 }}
               >
-                {formatCurrency(oldPrice ?? 0)}
+                {oldPrice !== price ? formatCurrency(oldPrice ?? 0) : ""}
               </Typography>
               <Typography
                 sx={{
                   color: "#000000",
                   fontWeight: "bold",
                   fontFamily: "inter",
-                  fontSize: "16px",
+                  fontSize: "17px",
                 }}
               >
                 {formatCurrency(price ?? 0)}
-              </Typography>
-              <Typography
-                sx={{
-                  color: "rgb(5, 150, 105)",
-                  fontFamily: "inter",
-                  fontSize: "12px",
-                }}
-              >
-                Giảm {formatCurrency(0)}
               </Typography>
             </Box>
             <Typography
               gutterBottom
               component="div"
-              sx={{ height: "20px", fontFamily: "inter", fontSize: "14px" }}
+              sx={{ height: "20px", fontFamily: "inter", fontSize: "15px" }}
             >
               {name}
             </Typography>
@@ -319,10 +321,10 @@ const ItemCard: FC<ItemCardProps> = ({ productVariant, onCompareToggle, isInComp
         </Box>
       </Card>
     );
-  }
-  else {
-    const [selectedVariant, setSelectedVariant] =
-      useState<Variant_Attribute>(productVariant.variants_attributes[0]);
+  } else {
+    const [selectedVariant, setSelectedVariant] = useState<Variant_Attribute>(
+      productVariant.variants_attributes[0]
+    );
     const [oldPrice, setOldPrice] = useState<number>();
     const [price, setPrice] = useState<number>();
     const [name, setName] = useState<string>();
@@ -425,6 +427,7 @@ const ItemCard: FC<ItemCardProps> = ({ productVariant, onCompareToggle, isInComp
           to={`${PRODUCT}/:${productVariant.product.id}`}
           key={productVariant.product.id}
           className="no-underline"
+          onClick={handleViewedProduct} // Gọi hàm lưu vào localStorage
         >
           {/* Box chứa hình ảnh */}
           <Box
@@ -551,9 +554,7 @@ const ItemCard: FC<ItemCardProps> = ({ productVariant, onCompareToggle, isInComp
         </Box>
       </Card>
     );
-
   }
-    
 }
 
 export default ItemCard

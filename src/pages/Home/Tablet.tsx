@@ -16,7 +16,7 @@ export const Tablet = () => {
       </Box>
 
       {/* Container chứa Slider */}
-      <Container sx={{ textAlign: 'center' }}>
+      <Container>
         <TabletSlider sliderRef={sliderRef} /> {/* Truyền ref vào slider */}
       </Container>
 

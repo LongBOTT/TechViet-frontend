@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Grid, Box, Typography, Card, CardMedia, CardContent, Button, IconButton, Checkbox, FormControlLabel, Link } from '@mui/material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import StarIcon from '@mui/icons-material/Star';
@@ -9,27 +9,106 @@ import ProductCard from '../../components/Cards/ProductCard';
 import { Padding } from '@mui/icons-material';
 import ForwardButton from '../../assets/utils/ForwardButton';
 import PreviousButton from '../../assets/utils/PreviousButton';
+import { Product } from '../../types/product';
+import { searchProductBy_Id } from '../../api/productApi';
+import { Variant } from '../../types/variant';
+import { Variant_Attribute } from '../../types/variant_attribute';
+import { searchVariant_AttributeByVariant } from '../../api/variant_attributeApi';
+import { searchVariantByProduct } from '../../api/variantApi';
 
-const products = [
-  {
-    name: "OPPO Find X5 Pro 12GB 256GB",
-    price: 15990000,
-    originalPrice: 19990000,
-    discount: 20,
-    image: "src/assets/products/00910470_robot_hut_bui_lau_nha_ecovacs_deebot_x5_pro_omni_den_01205a0d7b.png",
-    details: "Giá mới chỉ có tại CellphoneS",
-  },
-];
-
+interface Product_Variant {
+  product: Product;
+  variants: Variant[];
+  variants_attributes: Variant_Attribute[];
+}
 
 interface ViewedSliderProps {
   sliderRef: React.RefObject<Slider>; // Định nghĩa kiểu prop là RefObject của Slider
 }
 
 const ViewedSlider: React.FC<ViewedSliderProps> = ({ sliderRef }) => {
+   const [viewedProducts, setViewedProducts] = useState<Number[]>([]);
+   const [products, setProducts] = useState<Product[]>([]);
+   const [items, setItems] = useState<Product_Variant[]>([]);
+
+   // Lấy danh sách từ localStorage khi component được mount
+   useEffect(() => {
+     const loadViewedProducts = async () => {
+       // Lấy danh sách sản phẩm đã xem từ localStorage
+       const storedProducts = JSON.parse(
+         localStorage.getItem("viewedProducts") || "[]"
+       );
+       storedProducts.map(Number);
+       setViewedProducts(storedProducts);
+
+       // Lấy dữ liệu sản phẩm từ API dựa trên ID
+       const fetchedProducts = await Promise.all(
+         storedProducts.map(async (id: number) => {
+           try {
+             const product = await searchProductBy_Id(id);
+             return product;
+           } catch (error) {
+             console.error(`Failed to fetch product with ID ${id}:`, error);
+             return null;
+           }
+         })
+       );
+
+       const fetchedVariants: any[] = []; // Khởi tạo mảng để lưu kết quả
+
+       for (const id of storedProducts) {
+         try {
+           const variants = await searchVariantByProduct(id);
+           if (variants) {
+             fetchedVariants.push(...variants); // Thêm tất cả các variants vào mảng fetchedVariants
+           }
+         } catch (error) {
+           console.error(`Failed to fetch product with ID ${id}:`, error);
+         }
+       }
+
+       // Loại bỏ các sản phẩm null và cập nhật state
+       setProducts(fetchedProducts.filter((product) => product !== null));
+
+       console.log(fetchedProducts);
+       console.log(fetchedVariants);
+
+       let itemList = await convertToProduct_Variant(
+         fetchedVariants,
+         fetchedProducts
+       );
+       setItems(itemList);
+      };
+
+     loadViewedProducts();
+   }, []);
+
+const convertToProduct_Variant = async (
+  variantList: Variant[],
+  productList: Product[]
+) => {
+  const itemList: Product_Variant[] = [];
+  for (const product of productList) {
+    const item: Product_Variant = {
+      product,
+      variants: [],
+      variants_attributes: [],
+    };
+    // Filter variants by product ID
+    item.variants.push(
+      ...variantList.filter((variant) => variant.products.id === product.id)
+    );
+    for (const variant of item.variants) {
+      const attributes = await searchVariant_AttributeByVariant(variant.id);
+      item.variants_attributes.push(...(attributes ?? [])); // Add attributes to variants_attributes
+    }
+    itemList.push(item);
+  }
+  return itemList;
+};
 
   // Lấy số lượng sản phẩm
-  const productCount = products.length;
+  const productCount = items.length;
   
   // Slider settings
   const settings = {
@@ -66,22 +145,29 @@ const ViewedSlider: React.FC<ViewedSliderProps> = ({ sliderRef }) => {
   };
 
   return (
-    <Box sx={{padding: '30px', borderRadius:'10px',
-                backgroundSize: '100% 100%',
-                backgroundPosition: 'center',
-                backgroundImage: `url("src/assets/Backgroung.png")`}}>
-    <Typography variant="h4" fontWeight="bold" sx={{ color: '#000000', textAlign: 'center' }}>SẢN PHẨM ĐÃ XEM</Typography>
+    <Box
+      sx={{
+        padding: "30px",
+        borderRadius: "10px",
+        backgroundSize: "100% 100%",
+        backgroundPosition: "center",
+        backgroundImage: `url("src/assets/Backgroung.png")`,
+      }}
+    >
+      <Typography
+        variant="h4"
+        fontWeight="bold"
+        sx={{ color: "#000000", textAlign: "center" }}
+      >
+        SẢN PHẨM ĐÃ XEM
+      </Typography>
 
-    <Slider ref={sliderRef} {...settings}>
-        {products.map((product, index) => (
+      <Slider ref={sliderRef} {...settings}>
+        {items.map((item) => (
           <ProductCard
-            key={index} 
-            name={product.name} 
-            price={product.price} 
-            originalPrice={product.originalPrice}
-            image={product.image}
-            details={product.details}            
-            />
+            key={item.product.id}
+            productVariant={item}
+          />
         ))}
       </Slider>
     </Box>

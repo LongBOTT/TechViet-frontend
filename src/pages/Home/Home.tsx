@@ -23,7 +23,7 @@ export const Home = () => {
         <CategoryMenu/>
 
         {/* Hot sales */}
-        <HotSale/>
+        {/* <HotSale/> */}
         
         {/* Phone */}
         <Phone/>

@@ -16,7 +16,7 @@ export const Viewed = () => {
       </Box>
 
       {/* Container chứa Slider */}
-      <Container sx={{ textAlign: 'center', width: '100%' }}>
+      <Container sx={{width: '100%' }}>
         <ViewedSlider sliderRef={sliderRef} /> {/* Truyền ref vào slider */}
       </Container>
 
