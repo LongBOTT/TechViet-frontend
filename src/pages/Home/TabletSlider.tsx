@@ -38,7 +38,7 @@ const [items, setItems] = useState<Product_Variant[]>([]);
 // Lấy danh sách từ localStorage khi component được mount
 useEffect(() => {
   const loadProducts = async () => {
-    const variantList = await searchVariantByCategory(1);
+    const variantList = await searchVariantByCategory(3);
     const productList = await searchProductByVariants(variantList ?? []);
 
     let itemList = await convertToProduct_Variant(
@@ -107,7 +107,7 @@ const productCount = items.length;
           slidesToShow: 2,
           slidesToScroll: 1,
         },
-      },
+      },  
       {
         breakpoint: 480,
         settings: {
