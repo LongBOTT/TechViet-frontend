@@ -305,7 +305,7 @@ export default function Order() {
               resetFilter={resetFilter}
             />
           </Box>
-          <Box sx={{ minWidth: "200px" }}>
+          <Box sx={{ minWidth: "200px"           }}>
             <FilterDropdown
               label="Trạng thái đơn"
               options={StatusOptions}

@@ -34,9 +34,16 @@ const ItemCard: FC<ItemCardProps> = ({ productVariant, onCompareToggle, isInComp
   };
   
   if (productVariant.product.category.name === "ĐIỆN THOẠI") {
-    const variantList = productVariant.variants_attributes.filter(
-      (x) => x.attribute.name === "Dung lượng (Rom)"
-    ); // Các lựa chọn dung lượng
+    const variantList : Variant_Attribute[] = Array.from(
+          new Map(
+            productVariant.variants_attributes
+              ?.filter(
+                (x: Variant_Attribute) =>
+                  x?.attribute?.name === "Dung lượng (Rom)" && x.value // Ensure value exists
+              )
+              ?.map((x: Variant_Attribute) => [x.value, x])
+          ).values()
+        ) // Các lựa chọn dung lượng
 
     const cheapestVariant = productVariant.variants_attributes
       .sort((a, b) => (a.variant.price ?? 0) - (b.variant.price ?? 0))
@@ -67,11 +74,22 @@ const ItemCard: FC<ItemCardProps> = ({ productVariant, onCompareToggle, isInComp
       setPrice(selectedVariant.variant.price);
       setName(productVariant.product.name + " " + selectedVariant.value);
 
-      const attributeColorList = productVariant.variants_attributes.filter(
-        (x) =>
-          x.attribute.name === "Màu sắc" &&
-          x.variant.id == selectedVariant.variant.id
-      ); // Các lựa chọn dung lượng
+      const romVariants =
+        productVariant.variants_attributes.filter(
+          (x) =>
+            x.attribute.name === "Dung lượng (Rom)" &&
+            x.value === selectedVariant.value
+        ) ?? [];
+      console.log(romVariants);
+
+      // Lọc danh sách màu dựa trên các Rom Variant đã chọn
+      const attributeColorList =
+        productVariant.variants_attributes.filter(
+          (x) =>
+            x.attribute.name === "Màu sắc" &&
+            romVariants.some((selected) => selected.variant.id === x.variant.id)
+        ) ?? [];
+        
       if (attributeColorList) {
         setColors([]);
         const colorList: string[] = [];

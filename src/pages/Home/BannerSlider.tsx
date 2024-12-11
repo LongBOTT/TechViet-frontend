@@ -5,10 +5,10 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
 const banners = [
-    { src: "src/assets/banners/banner1.png", alt: "Banner 1" },
-    { src: "src/assets/banners/banner2.png", alt: "Banner 2" },
-    { src: "src/assets/banners/banner3.png", alt: "Banner 3" },
-    { src: "src/assets/banners/banner4.png", alt: "Banner 4" }
+  { src: "src/assets/banners/banner1.png", alt: "Banner 1" },
+  { src: "src/assets/banners/banner2.png", alt: "Banner 2" },
+  { src: "src/assets/banners/banner3.png", alt: "Banner 3" },
+  { src: "src/assets/banners/banner4.png", alt: "Banner 4" }
 ];
 
 interface WatchSliderProps {

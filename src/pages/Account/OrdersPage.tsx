@@ -121,7 +121,7 @@ const OrdersPage: React.FC = () => {
         case 2:
           return order.orderStatus === "Đang giao";
         case 3:
-          return order.orderStatus === "Hoàn tất";
+          return order.orderStatus === "Hoàn thành";
         case 4:
           return order.orderStatus === "Đã huỷ";
         case 5:
@@ -261,7 +261,7 @@ const OrdersPage: React.FC = () => {
         <Tab label="Tất cả" />
         <Tab label="Chờ duyệt" />
         <Tab label="Đang giao" />
-        <Tab label="Hoàn tất" />
+        <Tab label="Hoàn thành" />
         <Tab label="Đã huỷ" />
         <Tab label="Trả hàng" />
       </Tabs>
@@ -377,7 +377,7 @@ const OrdersPage: React.FC = () => {
                       Hủy đơn hàng
                     </Button>
                   )}
-                  {order.orderStatus === "Hoàn tất" && (
+                  {order.orderStatus === "Hoàn thành" && (
                     <Button
                       variant="contained"
                       color="error"
