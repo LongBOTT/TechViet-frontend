@@ -88,8 +88,8 @@ export default function Order() {
         value: 0,
         countColor: "blue",
       },
-      "Đang giao hàng": {
-        label: "Đang giao hàng",
+      "Đang giao": {
+        label: "Đang giao",
         count: 0,
         value: 0,
         countColor: "blue",
@@ -126,8 +126,7 @@ export default function Order() {
     fetchOrders(); // Gọi hàm khi component được tải
   }, []);
 
-  const handleExport = () => console.log("Xuất file");
-  const handleImport = () => console.log("Nhập file");
+
   const handleReset = () => {
     setResetFilter(true);
     setTimeout(() => setResetFilter(false), 0);
@@ -207,18 +206,6 @@ export default function Order() {
         >
           Danh sách đơn hàng
         </Typography>
-        <Box sx={{ display: "flex", marginRight: "10px" }}>
-          <FileButton
-            icon={<CloudUploadIcon />}
-            text="Xuất file"
-            onClick={handleExport}
-          />
-          <FileButton
-            icon={<CloudDownloadIcon />}
-            text="Nhập File"
-            onClick={handleImport}
-          />
-        </Box>
       </Box>
 
       {/* Order Processing Section */}

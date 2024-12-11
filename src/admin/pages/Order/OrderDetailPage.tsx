@@ -13,6 +13,7 @@ import OrderItemsTable from "../../components/Order/OrderItemsTable";
 import OrderInformation from "../../components/Order/OrderInformation";
 import { updateOrderDetail } from "../../../api/orderDetailApi";
 import { updateImeiStatus } from "../../../api/imeiApi";
+import LoadingSnackbar from "../../components/Util/LoadingSnackbar";
 interface ImeiInfo {
   id: number;
   imeiCode: string;
@@ -23,6 +24,9 @@ const OrderDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [orderRequest, setOrderRequest] = useState<OrderRequest | null>(null);
   const [orderDetails, setOrderDetails] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
 
   // Bản đồ trạng thái đơn hàng thành bước
   const stepStatusMap: { [key: string]: number } = {
@@ -96,7 +100,7 @@ const OrderDetailPage: React.FC = () => {
           console.log("orderRequest:", orderRequest);
           console.log("orderDetails:", orderDetails);
         } catch (error) {
-          console.error("Lỗi khi lấy chi tiết phiếu nhập:", error);
+          console.error("Lỗi khi lấy chi tiết đơn hàng:", error);
         }
       };
 
@@ -192,25 +196,6 @@ const OrderDetailPage: React.FC = () => {
     console.log("Chi tiết đơn hàng cập nhật:", orderDetails);
 
     try {
-      // const updatePromises = [];
-
-      // for (const detail of orderDetails) {
-      //   for (const [orderDetailId, imeiInfo] of Object.entries(detail.imeiMap)) {
-      //     const imei = imeiInfo as { id: number; imeiCode: string } | null;
-
-      //     if (imei && imei.id) {
-      //       // Tạo promise cho từng yêu cầu updateOrderDetail và updateImeiStatus
-      //       updatePromises.push(updateOrderDetail(Number(orderDetailId), imei.id));
-      //       updatePromises.push(updateImeiStatus(imei.id));
-      //     }
-      //   }
-      // }
-
-      // // Thực hiện tất cả các API call đồng thời
-      // await Promise.all(updatePromises);
-      // console.log("Cập nhật chi tiết đơn hàng và trạng thái IMEI thành công");
-      // Chuyển đổi payment_method thành enum hợp lệ trước khi gửi
-      // Gọi hàm chuyển đổi trước khi cập nhật payment_method
       if (orderRequest) {
         try {
           orderRequest.payment_method = convertPaymentMethod(
@@ -226,6 +211,7 @@ const OrderDetailPage: React.FC = () => {
       }
       if (orderRequest && orderRequest.id !== undefined) {
         await updateOrder(orderRequest.id, orderRequest);
+        showSnackbar("Cập nhật đơn hàng thành công!");
       } else {
         console.error("Order ID is undefined");
       }
@@ -234,6 +220,13 @@ const OrderDetailPage: React.FC = () => {
     }
   };
 
+  // Hiển thị Snackbar
+  const showSnackbar = (message: string) => {
+    setSnackbarMessage(message);
+    setSnackbarOpen(true);
+  };
+
+  const handleSnackbarClose = () => setSnackbarOpen(false);
   return (
     <Box sx={{ width: "100%", bgcolor: "rgb(249, 249, 249)" }}>
       {/* Header */}
@@ -302,6 +295,12 @@ const OrderDetailPage: React.FC = () => {
       <OrderItemsTable
         orderDetails={orderDetails}
         onImeiUpdate={handleImeiUpdate}
+      />
+        <LoadingSnackbar
+        loading={loading}
+        snackbarOpen={snackbarOpen}
+        snackbarMessage={snackbarMessage}
+        onClose={handleSnackbarClose}
       />
     </Box>
   );

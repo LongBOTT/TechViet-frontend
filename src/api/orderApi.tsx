@@ -86,3 +86,12 @@ export const updateOrder = async (id: number, order: Order) => {
     handleApiError(error, "cập nhật đơn hàng");
   }
 }
+
+export const reportOverview = async () => {
+  try {
+    const response = await axiosInstance.get("/orders/statistics");
+    return response.data;
+  } catch (error: any) {
+    handleApiError(error, "lấy báo cáo tổng quan");
+  }
+}

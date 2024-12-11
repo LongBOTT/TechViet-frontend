@@ -1,32 +1,10 @@
-import * as React from "react";
-import {
-  Box,
-  Typography,
-  Select,
-  MenuItem,
-  List,
-  ListItem,
-  ListItemText,
-  Avatar,
-  Divider,
-  SelectChangeEvent,
-} from "@mui/material";
+import { Box, Typography, List, ListItem, ListItemText, Avatar, Divider } from "@mui/material";
 
-const TopCategories: React.FC = () => {
-  const [timeRange, setTimeRange] = React.useState("7 ngày qua");
+interface TopCategoriesProps {
+  topSellingCategoriesToday: any[]; // Nhận dữ liệu từ props
+}
 
-  const handleTimeRangeChange = (event: SelectChangeEvent<string>) => {
-    setTimeRange(event.target.value as string);
-  };
-
-  const categories = [
-    { id: 1, name: "Điện thoại", quantity: 18 },
-    { id: 2, name: "Lap top", quantity: 11 },
-    { id: 3, name: "Máy tính bảng",  quantity: 5 },
-    { id: 4, name: "Đồng hồ thông minh", quantity: 5 },
-    { id: 5, name: "Phụ kiện",  quantity: 4 },
-  ];
-
+const TopCategories: React.FC<TopCategoriesProps> = ({ topSellingCategoriesToday }) => {
   const categoryColors = ["#01A0F6", "#02C7A1", "#FFB236", "#FF6961", "#5D5FEF"];
 
   return (
@@ -40,31 +18,15 @@ const TopCategories: React.FC = () => {
         boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.1)",
       }}
     >
-      {/* Header */}
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <Typography variant="h6" sx={{ fontWeight: "bold", marginLeft: "10px" }}>
-          TOP THỂ LOẠI
-        </Typography>
-        {/* <Select
-          value={timeRange}
-          onChange={handleTimeRangeChange}
-          size="small"
-          sx={{ width: "150px", marginRight: "10px" }}
-        >
-          <MenuItem value="Hôm nay">Hôm nay</MenuItem>
-          <MenuItem value="Hôm qua">Hôm qua</MenuItem>
-          <MenuItem value="7 ngày qua">7 ngày qua</MenuItem>
-          <MenuItem value="Tháng này">Tháng này</MenuItem>
-        </Select> */}
-      </Box>
+      <Typography variant="h6" sx={{ fontWeight: "bold", marginLeft: "10px" }}>
+        TOP THỂ LOẠI
+      </Typography>
       <Divider sx={{ marginTop: "10px" }} />
-
-      {/* Product List */}
       <List>
-        {categories.map((product, index) => (
+        {topSellingCategoriesToday.map((category, index) => (
           <CategoryItem
-            key={product.id}
-            category={product}
+            key={index}
+            category={{ name: category[0], quantity: category[1] }} // Chuyển dữ liệu về dạng object
             index={index}
             color={categoryColors[index]}
           />
@@ -76,7 +38,6 @@ const TopCategories: React.FC = () => {
 
 interface CategoryItemProps {
   category: {
-    id: number;
     name: string;
     quantity: number;
   };

@@ -1,4 +1,4 @@
-import * as React from "react";
+
 import { Box, Typography, Divider } from "@mui/material";
 import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
@@ -7,10 +7,27 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import StatBox from "../components/Overview/StatBox";
 import SalesOverview from "../components/Overview/Sales";
 import TopProducts from "../components/Overview/TopProducts";
-import WarehouseInfo from "../components/Overview/WarehouseInfo";
 import TopCategories from "../components/Overview/TopCategories";
+import { reportOverview } from "../../api/orderApi"; 
+import { useState, useEffect } from "react";
+import { currencyFormatter } from "../components/Util/Formatter";
 
 export default function Overview() {
+  const [stats, setStats] = useState<any>(null); // Để lưu dữ liệu từ API
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      const data = await reportOverview();
+      setStats(data); // Lưu dữ liệu vào state
+    };
+
+    fetchStats();
+  }, []); // Gọi API khi component mount
+
+  if (!stats) {
+    return <div>Loading...</div>; // Hiển thị khi dữ liệu chưa được tải xong
+  }
+
   return (
     <Box
       sx={{
@@ -29,7 +46,7 @@ export default function Overview() {
           width: "98%",
           bgcolor: "rgb(255, 255, 255)",
           margin: "10px",
-          boxShadow: "0px 2px 5px  rgba(0, 0, 0, 0.1)",
+          boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.1)",
           borderRadius: "10px",
         }}
       >
@@ -52,14 +69,14 @@ export default function Overview() {
           sx={{
             flex: 1,
             display: "flex",
-            boxShadow: "0px 2px 5px  rgba(0, 0, 0, 0.1)",
+            boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.1)",
             borderRadius: "10px",
           }}
         >
           {/* StatBoxes */}
           <StatBox
             label="Doanh thu"
-            value={0}
+            value={currencyFormatter.format(stats.revenue)}
             color="blue"
             icon={<MonetizationOnIcon sx={{ color: "white", fontSize: 30 }} />}
             sx={{ borderBottomLeftRadius: "10px" }}
@@ -67,21 +84,21 @@ export default function Overview() {
 
           <StatBox
             label="Đơn hàng mới"
-            value={2}
+            value={stats.newOrders}
             color="green"
             icon={<AddShoppingCartIcon sx={{ color: "white", fontSize: 30 }} />}
           />
 
           <StatBox
             label="Đơn trả hàng"
-            value={0}
+            value={stats.returnedOrders}
             color="orange"
             icon={<LocalShippingIcon sx={{ color: "white", fontSize: 30 }} />}
           />
 
           <StatBox
             label="Đơn hủy"
-            value={1}
+            value={stats.canceledOrders}
             color="red"
             icon={<CancelIcon sx={{ color: "white", fontSize: 30 }} />}
             sx={{ borderBottomRightRadius: "10px" }}
@@ -89,14 +106,14 @@ export default function Overview() {
         </Box>
       </Box>
 
-      <SalesOverview />
+      <SalesOverview data={stats.revenueLast7Days} />
 
       <Box sx={{ width: "100%", padding: "20px", display: "flex", gap: 2 }}>
         <Box sx={{ flex: 1 }}>
-          <TopProducts />
+          <TopProducts topSellingProductsToday={stats.topSellingProductsToday} />
         </Box>
         <Box sx={{ flex: 1 }}>
-          <TopCategories />
+          <TopCategories topSellingCategoriesToday={stats.topSellingCategoriesToday} />
         </Box>
       </Box>
     </Box>
