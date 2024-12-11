@@ -6,30 +6,21 @@ import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Tooltip, Lege
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 interface ProductData {
-  productName: string;
-  quantitySold: number;
+  name: string;
+  totalQuantity: number;
 }
 
-const BestSellingProductsChart: React.FC = () => {
-  // Dữ liệu mẫu cho biểu đồ
-  const productData: ProductData[] = [
-    { productName: 'Iphone15-xanh-64GB', quantitySold: 6 },
-    { productName: 'SamSung Galaxy S24 FE-Vàng-128GB', quantitySold: 5 },
-    { productName: 'Redmi Note 12T Pro-Vàng-128GB', quantitySold: 3 },
-    { productName: 'Sony Xperia Z5', quantitySold: 2 },
-    { productName: 'OnePlus Nord 2T', quantitySold: 2 },
-    { productName: 'Pixel 7 Pro', quantitySold: 2 },
-    { productName: 'Nokia G50', quantitySold: 1 },
-    { productName: 'Motorola Edge 20', quantitySold: 1 },
-    { productName: 'Asus ROG Phone 6', quantitySold: 1 },
-  ];
+interface BestSellingProductsChartProps {
+  productData: ProductData[]; // Nhận dữ liệu sản phẩm từ props
+}
 
+const BestSellingProductsChart: React.FC<BestSellingProductsChartProps> = ({ productData }) => {
   const chartData = {
-    labels: productData.map(product => product.productName),
+    labels: productData.map(product => product.name),
     datasets: [
       {
         label: 'Số lượng sản phẩm',
-        data: productData.map(product => product.quantitySold),
+        data: productData.map(product => product.totalQuantity),
         backgroundColor: '#42A5F5',
       },
     ],
@@ -48,10 +39,9 @@ const BestSellingProductsChart: React.FC = () => {
         },
       },
       y: {
-       
         ticks: {
           callback: function (value: string | number, index: number, values: any) {
-            return productData[index]?.productName || value; // Hiển thị nhãn sản phẩm đầy đủ
+            return productData[index]?.name || value; // Hiển thị nhãn sản phẩm đầy đủ
           },
           font: {
             size: 12, // Tùy chỉnh kích thước font

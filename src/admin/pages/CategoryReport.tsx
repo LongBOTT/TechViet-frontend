@@ -3,69 +3,58 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import TimeFilterComponent from "../components/Util/TimeFilterComponent";
 import Paper from "@mui/material/Paper";
-import PaymentMethodChart from "../components/Dashboard/PaymentMethodChart";
-import RevenueBarChart from "../components/Dashboard/RevenueBarChart";
 import { TableContainer } from "@mui/material";
 import EntityTable from "../components/Util/EntityTable";
-import BestSellingProductsChart from "../components/Dashboard/BestSellingProductsChart";
-import BestSellingCategorysChart from "../components/Dashboard/BestSellingCategorysChart";
+
+import { getCategorySalesStatisticsByDate } from "../../api/orderApi"; // Import API
+import CategoryReportChart from "../components/Dashboard/BestSellingCategorysChart";
+
 export default function CategoryReport() {
-    const handleRowClick = (order: any) => {};
-    const categoryColumns = [
-        { label: "Tên thể loại", key: "categoryName" },
-        { label: "Số lượng sản phẩm đã bán", key: "productSold" },
-        { label: "Doanh thu", key: "revenue" },
-        { label: "Giá vốn", key: "cost" },
-        { label: "Lợi nhuận", key: "profit" },
-      ];
-      
-      const categoryData = [
-        {
-          categoryName: "Điện thoại",
-          productSold: 150,
-          revenue: 500000000, // 500 triệu
-          cost: 400000000, // 400 triệu
-          profit: 100000000, // 100 triệu
-        },
-        {
-          categoryName: "Máy tính bảng",
-          productSold: 80,
-          revenue: 250000000, // 250 triệu
-          cost: 200000000, // 200 triệu
-          profit: 50000000, // 50 triệu
-        },
-        {
-          categoryName: "Laptop",
-          productSold: 60,
-          revenue: 300000000, // 300 triệu
-          cost: 250000000, // 250 triệu
-          profit: 50000000, // 50 triệu
-        },
-        {
-          categoryName: "Phụ kiện",
-          productSold: 120,
-          revenue: 120000000, // 120 triệu
-          cost: 90000000, // 90 triệu
-          profit: 30000000, // 30 triệu
-        },
-        {
-          categoryName: "Âm thanh",
-          productSold: 90,
-          revenue: 180000000, // 180 triệu
-          cost: 150000000, // 150 triệu
-          profit: 30000000, // 30 triệu
-        },
-        {
-          categoryName: "Đồng hồ thông minh",
-          productSold: 50,
-          revenue: 100000000, // 100 triệu
-          cost: 80000000, // 80 triệu
-          profit: 20000000, // 20 triệu
-        },
-      ];
-      
-  
-      
+  const [startDate, setStartDate] = React.useState<string>("");
+  const [endDate, setEndDate] = React.useState<string>("");
+  const [categoryData, setCategoryData] = React.useState<any[]>([]); // Data for categories
+
+  const handleRowClick = (order: any) => {};
+
+  const categoryColumns = [
+    { label: "Ngày", key: "date" },
+    { label: "Tên thể loại", key: "categoryName" },
+    { label: "Số lượng sản phẩm đã bán", key: "quantitySold" },
+    { label: "Doanh thu", key: "revenue" },
+    { label: "Giá vốn", key: "costPrice" },
+    { label: "Lợi nhuận", key: "profit" },
+  ];
+
+  // Fetch data from API when startDate and endDate are provided
+  React.useEffect(() => {
+    if (startDate && endDate) {
+      const fetchStatistics = async () => {
+        // Fetch data from API
+        const data = await getCategorySalesStatisticsByDate(startDate, endDate);
+
+        // Check if data exists and contains the required categoryStats
+        if (data && data.categoryStats) {
+          const formattedData = data.categoryStats.map((item: any) => ({
+            date: item.orderDate,
+            categoryName: item.categoryName || "Chưa có tên thể loại", // Ensure correct key
+            quantitySold: item.totalQuantity,
+            revenue: item.revenue,
+            costPrice: item.costPrice,
+            profit: item.profit,
+          }));
+          setCategoryData(formattedData); // Set category data to state
+        }
+      };
+      fetchStatistics();
+    }
+  }, [startDate, endDate]);
+
+  // Handle time range changes from TimeFilterComponent
+  const handleTimeChange = (start: string | undefined, end: string | undefined) => {
+    setStartDate(start || ""); // Set startDate
+    setEndDate(end || "");     // Set endDate
+  };
+
   return (
     <Box
       sx={{
@@ -74,7 +63,7 @@ export default function CategoryReport() {
         borderRadius: 1,
         margin: 0,
         padding: 0,
-        backgroundColor: "#f5f5f5", // Màu nền cho bảng điều khiển
+        backgroundColor: "#f5f5f5", // Background color for dashboard
       }}
     >
       {/* Header Section */}
@@ -85,7 +74,7 @@ export default function CategoryReport() {
           width: "100%",
           justifyContent: "space-between",
           alignItems: "center",
-          backgroundColor: "#ffffff", // Màu nền cho header
+          backgroundColor: "#ffffff", // Header background color
           borderBottom: "1px solid #ddd",
           padding: "0 16px",
         }}
@@ -95,11 +84,11 @@ export default function CategoryReport() {
           component="div"
           sx={{ fontWeight: "bold", padding: 1 }}
         >
-          Báo cáo sản phẩm
+          Báo cáo thể loại
         </Typography>
       </Box>
 
-      {/* Content Section */}
+      {/* Time Filter Section */}
       <Box
         sx={{
           padding: "8px",
@@ -114,8 +103,10 @@ export default function CategoryReport() {
         >
           Thời gian
         </Typography>
-        <TimeFilterComponent />
+        <TimeFilterComponent onDateRangeSelect={handleTimeChange} />
       </Box>
+
+      {/* Best Selling Categories Chart Section */}
       <Box
         sx={{
           display: "flex",
@@ -129,9 +120,10 @@ export default function CategoryReport() {
           boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.1)",
         }}
       >
-        <BestSellingCategorysChart/>
+        <CategoryReportChart categoryData={categoryData} />
       </Box>
 
+      {/* Category Data Table Section */}
       <Box
         sx={{
           width: "97%",
@@ -144,7 +136,7 @@ export default function CategoryReport() {
       >
         <TableContainer component={Paper}>
           <EntityTable
-            entities={categoryData}
+            entities={categoryData} // Display category data from API
             loading={false}
             columns={categoryColumns}
             onRowClick={handleRowClick}

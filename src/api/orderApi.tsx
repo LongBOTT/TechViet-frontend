@@ -95,3 +95,47 @@ export const reportOverview = async () => {
     handleApiError(error, "lấy báo cáo tổng quan");
   }
 }
+
+export const getStatistics = async (start: string, end: string) => {
+  try {
+    const response = await axiosInstance.get("/orders/statistics-revenue", {
+      params: {
+        startDate: start,  
+        endDate: end,      
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    handleApiError(error, "lấy báo cáo kết quả kinh doanh");
+  }
+};
+
+
+
+export const getProductSalesStatisticsByDate = async (start: String, end:String) => {
+  try {
+    const response = await axiosInstance.get("/orders/statistics-product-sales",{
+      params: {
+        startDate: start,  
+        endDate: end,      
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    handleApiError(error, "lấy báo cáo kết quả kinh doanh sản phẩm");
+  }
+}
+
+export const getCategorySalesStatisticsByDate = async (start: String, end:String) => {
+  try {
+    const response = await axiosInstance.get("/orders/statistics-category-sales",{
+    params: {
+      startDate: start,  
+      endDate: end,      
+    },
+  });
+    return response.data;
+  } catch (error: any) {
+    handleApiError(error, "lấy báo cáo kết quả kinh doanh thể loại");
+  }
+}

@@ -3,88 +3,55 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import TimeFilterComponent from "../components/Util/TimeFilterComponent";
 import Paper from "@mui/material/Paper";
-import PaymentMethodChart from "../components/Dashboard/PaymentMethodChart";
-import RevenueBarChart from "../components/Dashboard/RevenueBarChart";
 import { TableContainer } from "@mui/material";
 import EntityTable from "../components/Util/EntityTable";
 import BestSellingProductsChart from "../components/Dashboard/BestSellingProductsChart";
+import { getProductSalesStatisticsByDate } from "../../api/orderApi"; // Import API
+
 export default function ProductReport() {
-    const handleRowClick = (order: any) => {};
-    const productColumns = [
-        { label: "Tên sản phẩm", key: "name" },
-        { label: "Số lượng sản phẩm", key: "productNumber" },
-        { label: "Doanh thu", key: "revenue" },
-        { label: "Giá vốn", key: "cost" },
-        { label: "Lợi nhuận", key: "profit" },
-      ];
-      const productDataArray = [
-        {
-          name: "Iphone15-xanh-64GB",
-          productNumber: 6,
-          revenue: 30000000, // 6 * 5 triệu
-          cost: 18000000, // 6 * 3 triệu
-          profit: 12000000, // Doanh thu - Giá vốn
-        },
-        {
-          name: "SamSung Galaxy S24 FE-Vàng-128GB",
-          productNumber: 5,
-          revenue: 25000000, // 5 * 5 triệu
-          cost: 15000000, // 5 * 3 triệu
-          profit: 10000000, // Doanh thu - Giá vốn
-        },
-        {
-          name: "Redmi Note 12T Pro-Vàng-128GB",
-          productNumber: 3,
-          revenue: 15000000, // 3 * 5 triệu
-          cost: 9000000, // 3 * 3 triệu
-          profit: 6000000, // Doanh thu - Giá vốn
-        },
-        {
-          name: "Sony Xperia Z5",
-          productNumber: 2,
-          revenue: 10000000, // 2 * 5 triệu
-          cost: 6000000, // 2 * 3 triệu
-          profit: 4000000, // Doanh thu - Giá vốn
-        },
-        {
-          name: "OnePlus Nord 2T",
-          productNumber: 2,
-          revenue: 10000000, // 2 * 5 triệu
-          cost: 6000000, // 2 * 3 triệu
-          profit: 4000000, // Doanh thu - Giá vốn
-        },
-        {
-          name: "Pixel 7 Pro",
-          productNumber: 2,
-          revenue: 10000000, // 2 * 5 triệu
-          cost: 6000000, // 2 * 3 triệu
-          profit: 4000000, // Doanh thu - Giá vốn
-        },
-        {
-          name: "Nokia G50",
-          productNumber: 1,
-          revenue: 5000000, // 1 * 5 triệu
-          cost: 3000000, // 1 * 3 triệu
-          profit: 2000000, // Doanh thu - Giá vốn
-        },
-        {
-          name: "Motorola Edge 20",
-          productNumber: 1,
-          revenue: 5000000, // 1 * 5 triệu
-          cost: 3000000, // 1 * 3 triệu
-          profit: 2000000, // Doanh thu - Giá vốn
-        },
-        {
-          name: "Asus ROG Phone 6",
-          productNumber: 1,
-          revenue: 5000000, // 1 * 5 triệu
-          cost: 3000000, // 1 * 3 triệu
-          profit: 2000000, // Doanh thu - Giá vốn
-        },
-      ];
-      
-  
-      
+  const [startDate, setStartDate] = React.useState<string>("");
+  const [endDate, setEndDate] = React.useState<string>("");
+  const [productData, setProductData] = React.useState<any[]>([]); // Product data
+
+  const handleRowClick = (order: any) => {};
+
+  React.useEffect(() => {
+    if (startDate && endDate) {
+      const fetchStatistics = async () => {
+        // Lấy dữ liệu từ API
+        const data = await getProductSalesStatisticsByDate(startDate, endDate);
+        
+        // Nếu API trả dữ liệu thành công, xử lý và cập nhật state
+        if (data && data.productStats) {
+          const formattedData = data.productStats.map((item: any) => ({
+            date: item.orderDate,
+            name: item.productName || "Chưa có tên sản phẩm",
+            totalQuantity: item.totalQuantity,
+            revenue: item.revenue,
+            cost: item.costPrice,
+            profit: item.profit,
+          }));
+          setProductData(formattedData); // Cập nhật dữ liệu
+        }
+      };
+      fetchStatistics();
+    }
+  }, [startDate, endDate]);
+
+  const productColumns = [
+    { label: "Ngày", key: "date" },
+    { label: "Tên sản phẩm", key: "name" },
+    { label: "Số lượng sản phẩm", key: "totalQuantity" },
+    { label: "Doanh thu", key: "revenue" },
+    { label: "Giá vốn", key: "cost" },
+    { label: "Lợi nhuận", key: "profit" },
+  ];
+
+  const handleTimeChange = (start: string | undefined, end: string | undefined) => {
+    setStartDate(start || "");  // Cập nhật giá trị startDate mới
+    setEndDate(end || "");      // Cập nhật giá trị endDate mới
+  };
+
   return (
     <Box
       sx={{
@@ -133,8 +100,9 @@ export default function ProductReport() {
         >
           Thời gian
         </Typography>
-        <TimeFilterComponent />
+        <TimeFilterComponent onDateRangeSelect={handleTimeChange} />
       </Box>
+      
       <Box
         sx={{
           display: "flex",
@@ -148,7 +116,8 @@ export default function ProductReport() {
           boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.1)",
         }}
       >
-        <BestSellingProductsChart />
+        {/* Truyền dữ liệu sản phẩm từ state vào biểu đồ */}
+        <BestSellingProductsChart productData={productData} />
       </Box>
 
       <Box
@@ -163,7 +132,7 @@ export default function ProductReport() {
       >
         <TableContainer component={Paper}>
           <EntityTable
-            entities={productDataArray}
+            entities={productData} // Hiển thị dữ liệu sản phẩm từ API
             loading={false}
             columns={productColumns}
             onRowClick={handleRowClick}

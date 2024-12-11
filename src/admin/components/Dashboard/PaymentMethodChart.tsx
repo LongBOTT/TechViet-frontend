@@ -5,11 +5,17 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 // Đăng ký các thành phần cần thiết của Chart.js
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const PaymentMethodChart: React.FC = () => {
-  const totalRevenue = 100; // Tổng doanh thu (triệu)
-  const cashRevenue = 70; // Doanh thu từ tiền mặt (triệu)
-  const transferRevenue = 30; // Doanh thu từ chuyển khoản (triệu)
+interface PaymentMethodChartProps {
+  totalRevenue: number;
+  cashRevenue: number;
+  transferRevenue: number;
+}
 
+const PaymentMethodChart: React.FC<PaymentMethodChartProps> = ({
+  totalRevenue,
+  cashRevenue,
+  transferRevenue,
+}) => {
   const data = {
     labels: ['Tiền mặt', 'Chuyển khoản'],
     datasets: [
@@ -46,7 +52,7 @@ const PaymentMethodChart: React.FC = () => {
       <div style={{ margin: '0 auto', height: '350px', width: '350px' }}>
         <Pie data={data} options={options} />
       </div>
-      <div style={{ display: 'flex', justifyContent: 'center', }}>
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
         {data.labels.map((label, index) => {
           const value = data.datasets[0].data[index] as number;
           const percentage = ((value / totalRevenue) * 100).toFixed(1);
