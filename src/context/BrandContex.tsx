@@ -11,6 +11,7 @@ import {
   searchBrandByCategory_Id,
 } from "../api/brandApi";
 
+
 interface BrandContextType {
   brands: Brand[];
   fetchBrands: () => Promise<void>;
