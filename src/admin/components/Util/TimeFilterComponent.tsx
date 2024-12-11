@@ -65,8 +65,11 @@ const predefinedRanges: { label: string; getDates: () => [Date, Date] }[] = [
     },
   },
 ];
+interface TimeFilterProps {
+  onDateRangeSelect: (startDate: string, endDate: string) => void; // Callback function
+}
 
-const TimeFilterComponent: React.FC = () => {
+const TimeFilterComponent: React.FC<TimeFilterProps> = ({ onDateRangeSelect }) => {
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   const [selectedLabel, setSelectedLabel] = useState<string>("Hôm nay"); // New state for the label
@@ -80,7 +83,10 @@ const TimeFilterComponent: React.FC = () => {
     setAnchorEl(null);
   };
 
-  const handlePredefinedRangeClick = (label: string, getDates: () => [Date, Date]) => {
+  const handlePredefinedRangeClick = (
+    label: string,
+    getDates: () => [Date, Date]
+  ) => {
     const [start, end] = getDates();
     setStartDate(start);
     setEndDate(end);
@@ -113,7 +119,6 @@ const TimeFilterComponent: React.FC = () => {
           onClick={handleOpenPopover}
           fullWidth
           InputProps={{
-            readOnly: true,
             disableUnderline: true, // Removes the underline
           }}
           sx={{
@@ -169,7 +174,9 @@ const TimeFilterComponent: React.FC = () => {
             {predefinedRanges.map((range) => (
               <ListItem key={range.label} disablePadding>
                 <ListItemButton
-                  onClick={() => handlePredefinedRangeClick(range.label, range.getDates)}
+                  onClick={() =>
+                    handlePredefinedRangeClick(range.label, range.getDates)
+                  }
                 >
                   <ListItemText primary={range.label} />
                 </ListItemButton>
@@ -216,6 +223,26 @@ const TimeFilterComponent: React.FC = () => {
                 onClick={() => {
                   setSelectedLabel("Tùy chọn"); // Update label to indicate custom selection
                   handleClosePopover();
+                  // Kiểm tra và chuyển đổi ngày sang định dạng yyyy-mm-dd
+                  if (startDate && endDate) {
+                    if (startDate > endDate) {
+                      console.log(
+                        "Lỗi: Ngày bắt đầu không thể lớn hơn ngày kết thúc."
+                      );
+                    } else {
+                      const startDateStr = startDate
+                        .toISOString()
+                        .split("T")[0]; // Chuyển đổi ngày sang định dạng yyyy-mm-dd
+                      const endDateStr = endDate.toISOString().split("T")[0]; // Chuyển đổi ngày sang định dạng yyyy-mm-dd
+
+                      // Gọi callback function và truyền ngày đã chuyển đổi vào component cha
+                      console.log("Ngày bắt đầu:", startDateStr);
+                      console.log("Ngày kết thúc:", endDateStr);
+                      onDateRangeSelect(startDateStr, endDateStr);
+                    }
+                  } else {
+                    console.log("Chưa chọn đủ ngày bắt đầu và ngày kết thúc.");
+                  }
                 }}
               >
                 Xác nhận

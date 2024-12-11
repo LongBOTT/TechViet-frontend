@@ -7,26 +7,20 @@ ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 interface CategoryData {
   categoryName: string;
-  productSold: number;
+  quantitySold: number;
 }
 
-const CategoryReportChart: React.FC = () => {
-  // Dữ liệu mẫu cho biểu đồ
-  const categoryData: CategoryData[] = [
-    { categoryName: 'Điện thoại', productSold: 150 },
-    { categoryName: 'Máy tính bảng', productSold: 80 },
-    { categoryName: 'Laptop', productSold: 60 },
-    { categoryName: 'Phụ kiện', productSold: 120 },
-    { categoryName: 'Âm thanh', productSold: 90 },
-    { categoryName: 'Đồng hồ thông minh', productSold: 50 },
-  ];
+interface CategoryReportChartProps {
+  categoryData: CategoryData[]; // Dữ liệu thể loại được truyền vào từ props
+}
 
+const CategoryReportChart: React.FC<CategoryReportChartProps> = ({ categoryData }) => {
   const chartData = {
     labels: categoryData.map(category => category.categoryName),
     datasets: [
       {
         label: 'Số lượng sản phẩm đã bán',
-        data: categoryData.map(category => category.productSold),
+        data: categoryData.map(category => category.quantitySold),
         backgroundColor: '#42A5F5',
       },
     ],

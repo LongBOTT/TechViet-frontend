@@ -1,48 +1,41 @@
 import * as React from "react";
-import {
-  Box,
-  Typography,
-  Select,
-  MenuItem,
-  SelectChangeEvent,
-} from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { Bar } from "react-chartjs-2";
 import "chart.js/auto";
+import { currencyFormatter } from "../Util/Formatter";
 
-const SalesOverview: React.FC = () => {
-  const [timeRange, setTimeRange] = React.useState("7 ngày qua");
+interface SalesOverviewProps {
+  data: any; // Receive data from Overview
+}
 
-  const handleTimeRangeChange = (event: SelectChangeEvent<string>) => {
-    setTimeRange(event.target.value as string);
-  };
-
-  const data = {
-    labels: ["22/03", "23/03", "24/03", "25/03", "26/03", "27/03"],
+const SalesOverview: React.FC<SalesOverviewProps> = ({ data }) => {
+  const chartData = {
+    labels: data ? data.map((item: any) => item[0]) : [], // Safely map if data exists
     datasets: [
       {
         label: "Doanh thu",
-        data: [5000000, 15000000, 70000000, 90000000, 45000000, 0],
+        data: data ? data.map((item: any) => item[1]) : [], // Safely map if data exists
         backgroundColor: "rgb(51, 160, 255)",
         borderColor: "rgba(54, 162, 235, 1)",
         borderWidth: 1,
-        barThickness: 50, // Điều chỉnh độ dày của các cột
+        barThickness: 50,
       },
     ],
   };
 
   const options = {
-    maintainAspectRatio: false, // Cho phép điều chỉnh chiều cao của biểu đồ
+    maintainAspectRatio: false,
     responsive: true,
     scales: {
       y: {
-        beginAtZero: true, // Đặt trục Y bắt đầu từ 0
+        beginAtZero: true,
         grid: {
           drawBorder: false,
         } as any,
       },
       x: {
         grid: {
-          display: false, // Ẩn các đường kẻ dọc
+          display: false,
         } as any,
       },
     },
@@ -57,7 +50,7 @@ const SalesOverview: React.FC = () => {
         marginTop: "30px",
         boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.1)",
         borderRadius: "10px",
-        height: "530px", 
+        height: "530px",
       }}
     >
       {/* Header Section */}
@@ -71,7 +64,6 @@ const SalesOverview: React.FC = () => {
           borderRadius: "10px",
         }}
       >
-        {/* Tiêu đề */}
         <Typography
           component="div"
           sx={{
@@ -83,26 +75,9 @@ const SalesOverview: React.FC = () => {
         >
           DOANH THU BÁN HÀNG
         </Typography>
-
-        {/* Dropdown Select thời gian */}
-        {/* <Box>
-          <Select
-            value={timeRange}
-            onChange={handleTimeRangeChange}
-            displayEmpty
-            sx={{ width: "150px" }} // Giảm kích thước của Select
-            size="small" // Giảm kích thước chung của Select
-          >
-            <MenuItem value="Hôm nay">Hôm nay</MenuItem>
-            <MenuItem value="Hôm qua">Hôm qua</MenuItem>
-            <MenuItem value="7 ngày qua">7 ngày qua</MenuItem>
-            <MenuItem value="Tháng này">Tháng này</MenuItem>
-            <MenuItem value="Tháng trước">Tháng trước</MenuItem>
-          </Select>
-        </Box> */}
       </Box>
 
-      {/* Biểu đồ */}
+      {/* Chart */}
       <Box
         sx={{
           height: "400px",
@@ -110,10 +85,10 @@ const SalesOverview: React.FC = () => {
           marginTop: "0px",
         }}
       >
-        <Bar data={data} options={options} />
+        <Bar data={chartData} options={options} />
       </Box>
 
-      {/* Tổng doanh thu */}
+      {/* Total revenue */}
       <Box
         sx={{
           padding: "10px 0",
@@ -123,7 +98,7 @@ const SalesOverview: React.FC = () => {
         }}
       >
         <Typography>
-          Tổng doanh thu: <strong>60,377,388</strong>
+          Tổng doanh thu: <strong>{data ? currencyFormatter.format(data[0][1]) : 0}</strong> {/* Display first value as total */}
         </Typography>
       </Box>
     </Box>
