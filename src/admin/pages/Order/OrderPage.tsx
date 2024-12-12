@@ -139,7 +139,7 @@ export default function Order() {
       const transformedData = transformOrderData(data);
       setTransformedOrder(transformedData);
     } catch (error) {
-      console.error("Lỗi khi lấy dữ liệu phiếu nhập:", error);
+      console.error("Lỗi khi lấy dữ liệu đơn hàng:", error);
     }
   };
 
@@ -149,7 +149,7 @@ export default function Order() {
       const transformedData = transformOrderData(data);
       setTransformedOrder(transformedData);
     } catch (error) {
-      console.error("Lỗi khi lấy dữ liệu phiếu nhập:", error);
+      console.error("Lỗi khi lấy dữ liệu đơn hàng:", error);
     }
   };
   const handleFilterPaymentMethod = async (value: string) => {
@@ -158,7 +158,7 @@ export default function Order() {
       const transformedData = transformOrderData(data);
       setTransformedOrder(transformedData);
     } catch (error) {
-      console.error("Lỗi khi lấy dữ liệu phiếu nhập:", error);
+      console.error("Lỗi khi lấy dữ liệu đơn hàng:", error);
     }
   };
   const StatusOptions = [
