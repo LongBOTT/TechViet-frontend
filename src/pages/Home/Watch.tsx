@@ -16,7 +16,7 @@ export const Watch = () => {
       </Box>
 
       {/* Container chứa Slider */}
-      <Container sx={{ textAlign: 'center' }}>
+      <Container>
         <WatchSlider sliderRef={sliderRef} /> {/* Truyền ref vào slider */}
       </Container>
 

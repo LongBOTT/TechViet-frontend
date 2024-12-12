@@ -56,7 +56,7 @@ const ProductReviews: FC = (): ReactElement => {
           customer: customer,
           rating: newRating,
           comment: newComment,
-          created_at: new Date().toISOString().slice(0, -1),
+          created_at: new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, -1),
         };
         const newRe = await createReview(newReview)  
         setReviews([newRe, ...reviews]);

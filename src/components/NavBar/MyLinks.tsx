@@ -177,7 +177,7 @@ export const links = [
     // ],
   },
   {
-    id: 3,
+    id: 4,
     name: "ĐỒNG HỒ THÔNG MINH",
     submenu: true, icon: Watch,
     link:"/",
@@ -202,7 +202,7 @@ export const links = [
     // ],
   },
   {
-    id: 4,
+    id: 8,
     name: "PHỤ KIỆN",
     submenu: true, icon: Headphones,
     link:"/",
@@ -228,7 +228,7 @@ export const links = [
     // ],
   },
   {
-    id: 5,
+    id: 6,
     name: "ĐIỆN MÁY",
     submenu: true, icon: BroadcastOnHome,
     link:"/",
