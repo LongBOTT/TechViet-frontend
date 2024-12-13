@@ -36,7 +36,7 @@ const ProductReviews: FC = (): ReactElement => {
     const token = localStorage.getItem("phone");
     if (!token) {
       setSeverity("warning")
-      setAlertMessage("Vui lòng đăng nhập và điền thông tin để sử dụng chức năng")
+      setAlertMessage("Vui lòng đăng nhập và điền thông tin để sử dụng chức năng.")
       return
     };
     if (newComment.trim()) {
@@ -58,8 +58,16 @@ const ProductReviews: FC = (): ReactElement => {
           comment: newComment,
           created_at: new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, -1),
         };
-        const newRe = await createReview(newReview)  
-        setReviews([newRe, ...reviews]);
+        const newRe = await createReview(newReview)
+        if (newRe != null) {
+          setReviews([newRe, ...reviews]);
+        } else {
+          setSeverity("warning");
+          setAlertMessage(
+            "Vui lòng mua hàng để bình luận!"
+          );
+          return;
+        }
       }
       
     }

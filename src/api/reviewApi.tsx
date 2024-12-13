@@ -22,6 +22,7 @@ export const createReview = async (review: Review) => {
     return response.data;
   } catch (error: any) {
     handleApiError(error, "tạo mới đánh giá");
+    return null
     throw error;
   }
 };
