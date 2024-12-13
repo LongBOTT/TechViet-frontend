@@ -91,7 +91,7 @@ const TimeFilterComponent: React.FC<TimeFilterProps> = ({ onDateRangeSelect }) =
     setStartDate(start);
     setEndDate(end);
     setSelectedLabel(label); // Set the label for the predefined range
-    handleClosePopover();
+    // handleClosePopover();
   };
 
   const open = Boolean(anchorEl);
