@@ -8,6 +8,7 @@ import EntityTable from "../components/Util/EntityTable";
 
 import { getCategorySalesStatisticsByDate } from "../../api/orderApi"; // Import API
 import CategoryReportChart from "../components/Dashboard/BestSellingCategorysChart";
+import { currencyFormatter } from "../components/Util/Formatter";
 
 export default function CategoryReport() {
   const [startDate, setStartDate] = React.useState<string>("");
@@ -57,9 +58,9 @@ export default function CategoryReport() {
             date: item.orderDate,
             categoryName: item.categoryName || "Chưa có tên thể loại", // Ensure correct key
             quantitySold: item.totalQuantity,
-            revenue: item.revenue,
-            costPrice: item.costPrice,
-            profit: item.profit,
+            revenue: currencyFormatter.format(item.revenue),
+            costPrice: currencyFormatter.format(item.costPrice),
+            profit: currencyFormatter.format(item.profit),
           }));
           setCategoryData(formattedData); // Set category data to state
         }

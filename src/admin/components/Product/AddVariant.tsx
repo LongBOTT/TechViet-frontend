@@ -18,7 +18,6 @@ import EditIcon from "@mui/icons-material/Edit";
 import { VariantRequest } from "../../../types/variant";
 import { VariantAttributeRequest } from "../../../types/variant_attribute";
 
-
 interface AddVariantProps {
   productName: string;
   productCategoryId: number; // ID loại sản phẩm
@@ -71,12 +70,10 @@ const AddVariant: React.FC<AddVariantProps> = ({
     if (file) {
       setFormVariant((prev) => ({
         ...prev,
-        image: "/src/assets/products/"+file.name,
+        image: "/src/assets/products/" + file.name,
       }));
     }
   };
-
-
 
   const handleAddVariant = () => {
     if (!productName) {
@@ -92,9 +89,10 @@ const AddVariant: React.FC<AddVariantProps> = ({
       alert("Vui lòng nhập dung lượng cho phiên bản.");
       return;
     }
-    const variantName = `${productName}-${color}${
-      productCategoryId === 1 ? `-${storage}` : ""
+    const variantName = `${productName} ${color}${
+      productCategoryId === 1 ? ` ${storage}` : ""
     }`;
+
     const newVariant: VariantRequest = {
       ...formVariant,
       id: Date.now(),
@@ -227,10 +225,16 @@ const AddVariant: React.FC<AddVariantProps> = ({
   };
 
   return (
-    <Box sx = {{width:"100%"}}>
+    <Box sx={{ width: "100%" }}>
       <Typography variant="h6">Phiên Bản </Typography>
       <Divider sx={{ my: 2 }} />
-      <Box sx = {{width:"100%"}} display="flex"  gap={2} alignItems="center" flexWrap="wrap">
+      <Box
+        sx={{ width: "100%" }}
+        display="flex"
+        gap={2}
+        alignItems="center"
+        flexWrap="wrap"
+      >
         <TextField
           label="Màu sắc"
           value={color}

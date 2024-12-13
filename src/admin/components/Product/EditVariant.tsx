@@ -184,9 +184,7 @@ const EditVariant: React.FC<EditVariantProps> = ({
     const newVariant: VariantRequest = {
       ...formVariant,
       id: Date.now(), // Unique ID
-      name: `${productName}-${color}${
-        productCategoryId === 1 ? `-${storage}` : ""
-      }`,
+      name: `${productName} ${color}${productCategoryId === 1 ? ` ${storage}` : ""}`,
     };
   
     const newAttributes: VariantAttributeRequest[] = [
