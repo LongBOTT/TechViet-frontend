@@ -377,7 +377,7 @@ const OrdersPage: React.FC = () => {
                       Hủy đơn hàng
                     </Button>
                   )}
-                  {order.orderStatus === "Hoàn thành" && (
+                  {/* {order.orderStatus === "Hoàn thành" && (
                     <Button
                       variant="contained"
                       color="error"
@@ -391,7 +391,7 @@ const OrdersPage: React.FC = () => {
                     >
                       Trả hàng
                     </Button>
-                  )}
+                  )} */}
                 </Box>
               </Grid>
             </Grid>

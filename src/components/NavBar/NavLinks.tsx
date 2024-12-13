@@ -63,7 +63,7 @@ const NavLinks = () => {
   };
 
   const handleMenuItemNavigate = (itemId: number) => {
-    navigate(`${PRODUCT}/${itemId}`);
+    navigate(`${PRODUCT}/:${itemId}`);
     handleClose();
   };
 

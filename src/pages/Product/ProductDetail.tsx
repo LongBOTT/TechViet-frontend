@@ -136,7 +136,19 @@ const ProductDetail: FC = (): ReactElement => {
 
         if (romVariants.length > 0) {
           setSelectedStorage(romVariants[0].value);
+        } else {
+          setImage(
+            itemData.variants_attributes.filter(
+              (x) => x.attribute.name === "Màu sắc"
+            ) ?? []
+          );
+          setSelectedColor(
+            itemData.variants_attributes.filter(
+              (x) => x.attribute.name === "Màu sắc"
+            )[0].value ?? ""
+          );
         }
+
         setColorList(
           itemData.variants_attributes.filter(
             (x) => x.attribute.name === "Màu sắc"
@@ -206,9 +218,7 @@ const ProductDetail: FC = (): ReactElement => {
         setSelectedVariant(variant[0].variant);
         setPrice(variant[0].variant.price);
         setName(variant[0].variant.name);
-    
       }
-
 
   }, [selectedColor]);
 
