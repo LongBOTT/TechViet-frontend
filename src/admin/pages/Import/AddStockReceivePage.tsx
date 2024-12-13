@@ -541,7 +541,7 @@ export default function AddImportPage() {
                 {selectedProducts.map((product) => (
                   <React.Fragment key={product.variantId}>
                     <TableRow>
-                      <TableCell>{product.name}</TableCell>
+                      <TableCell>{product.variantName}</TableCell>
                       <TableCell sx={{ textAlign: "center" }}>
                         <TextField
                           type="number"

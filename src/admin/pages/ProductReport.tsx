@@ -14,8 +14,7 @@ export default function ProductReport() {
   const [productData, setProductData] = React.useState<any[]>([]); // Product data
 
   const handleRowClick = (order: any) => {};
-
-   React.useEffect(() => {
+ React.useEffect(() => {
       const today = new Date();
       
       // Tạo ngày hôm nay với giờ là 00:00 theo múi giờ Việt Nam (UTC+7)
@@ -34,7 +33,6 @@ export default function ProductReport() {
       setEndDate(end.toISOString().split("T")[0]);
     
     }, []);
-    
   React.useEffect(() => {
     if (startDate && endDate) {
       const fetchStatistics = async () => {
