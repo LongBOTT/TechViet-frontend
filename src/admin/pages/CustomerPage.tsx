@@ -8,6 +8,7 @@ import FilterDropdown from "../components/Util/FilterDropdown";
 import SearchBox from "../components/Util/Search";
 import { useEffect, useState } from "react";
 import { getCustomerResponse } from "../../api/customerApi";
+import { currencyFormatter } from "../components/Util/Formatter";
 
 export default function Customer() {
   const [resetFilter, setResetFilter] = useState(false);
@@ -50,7 +51,7 @@ export default function Customer() {
         phone: customer.phone,
         totalOrders: totalOrders,
         totalProducts: totalProducts,
-        total_amount: totalAmount,
+        total_amount: currencyFormatter.format(totalAmount),
       };
     });
   };

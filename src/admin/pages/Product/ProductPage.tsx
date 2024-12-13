@@ -17,10 +17,7 @@ export default function ProductComponent() {
   const [openAddBrandDialog, setOpenAddBrandDialog] = React.useState(false);
   const [currentTab, setCurrentTab] = React.useState("Sản phẩm");
 
-  const handleExport = () => {
-    console.log(`Xuất file của ${currentTab}`);
-  };
-
+ 
   const handleOpenAddDialog = () => {
     if (currentTab === "Sản phẩm") {
       navigate("/Admin/AddProduct"); // Chuyển hướng đến trang /add-product khi tab là "Sản phẩm"
@@ -31,9 +28,6 @@ export default function ProductComponent() {
     }
   };
 
-  const handleImport = () => {
-    console.log(`Nhập file của ${currentTab}`);
-  };
 
   const tabs = [
     {
@@ -91,8 +85,8 @@ export default function ProductComponent() {
         </Typography>
         <Box sx={{ marginLeft: "auto", marginRight: "10px" }}>
           <EntityActions
-            onExport={handleExport}
-            onImport={handleImport}
+            // onExport={handleExport}
+            // onImport={handleImport}
             onOpenAddDialog={handleOpenAddDialog}
             entityName={currentTab}
           />

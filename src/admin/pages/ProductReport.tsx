@@ -7,6 +7,7 @@ import { TableContainer } from "@mui/material";
 import EntityTable from "../components/Util/EntityTable";
 import BestSellingProductsChart from "../components/Dashboard/BestSellingProductsChart";
 import { getProductSalesStatisticsByDate } from "../../api/orderApi"; // Import API
+import { currencyFormatter } from "../components/Util/Formatter";
 
 export default function ProductReport() {
   const [startDate, setStartDate] = React.useState<string>("");
@@ -14,8 +15,7 @@ export default function ProductReport() {
   const [productData, setProductData] = React.useState<any[]>([]); // Product data
 
   const handleRowClick = (order: any) => {};
-
-   React.useEffect(() => {
+ React.useEffect(() => {
       const today = new Date();
       
       // Tạo ngày hôm nay với giờ là 00:00 theo múi giờ Việt Nam (UTC+7)
@@ -34,7 +34,6 @@ export default function ProductReport() {
       setEndDate(end.toISOString().split("T")[0]);
     
     }, []);
-    
   React.useEffect(() => {
     if (startDate && endDate) {
       const fetchStatistics = async () => {
@@ -47,9 +46,9 @@ export default function ProductReport() {
             date: item.orderDate,
             name: item.productName || "Chưa có tên sản phẩm",
             totalQuantity: item.totalQuantity,
-            revenue: item.revenue,
-            cost: item.costPrice,
-            profit: item.profit,
+            revenue: currencyFormatter.format(item.revenue),
+            cost: currencyFormatter.format(item.costPrice),
+            profit: currencyFormatter.format(item.profit),
           }));
           setProductData(formattedData); // Cập nhật dữ liệu
         }
