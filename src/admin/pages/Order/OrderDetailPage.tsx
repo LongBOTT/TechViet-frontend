@@ -28,15 +28,7 @@ const OrderDetailPage: React.FC = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
-  const stepStatusMap: { [key: string]: number } = {
-    "Chờ duyệt": 0,
-    "Đang giao": 1,
-    "Hoàn thành": 2,
-    "Đã hủy": 3,
-    "Trả hàng": 4,
-    
-  };
-
+  
   function transformOrderDataToRequests(orderData: any) {
     const transformedOrderRequest: OrderRequest = {
       id: orderData.id,
@@ -117,15 +109,16 @@ const OrderDetailPage: React.FC = () => {
     );
   }
 
-  const activeStep = stepStatusMap[orderRequest.orderStatus] || 0;
-  const isCancelled = orderRequest.orderStatus === "Đã hủy";
-  const steps = [
-    "Chờ duyệt",
-    "Đang giao",
-    isCancelled ? "Đã hủy" : "Hoàn thành",
-    "Trả hàng"
-  ];
-
+  const stepStatusMap: { [key: string]: number } = {
+    "Chờ duyệt": 0,
+    "Đang giao": 1,
+    "Hoàn thành": 2,  // Cả "Hoàn thành" và "Đã hủy" đều có chỉ số 2
+    "Đã hủy": 2,
+    "Trả hàng": 3,    // Trạng thái "Trả hàng" có chỉ số 3
+  };
+  
+  const activeStep = stepStatusMap[orderRequest.orderStatus] || 0;  
+  
   const formattedDate = new Intl.DateTimeFormat("vi-VN", {
     year: "numeric",
     month: "2-digit",
@@ -140,11 +133,30 @@ const OrderDetailPage: React.FC = () => {
   }).format(new Date(orderRequest.orderDate));
 
   const handleUpdateOrderStatus = (newStatus: string) => {
-    if (orderRequest) {
-      setOrderRequest((prev) =>
-        prev ? { ...prev, orderStatus: newStatus } : null
+    // Kiểm tra trạng thái hiện tại và cho phép thay đổi trạng thái chỉ khi thỏa điều kiện
+    if (
+      newStatus === "Trả hàng" &&
+      orderRequest?.orderStatus !== "Hoàn thành"
+    ) {
+      // Nếu trạng thái hiện tại không phải "Hoàn thành", không cho phép trả hàng
+      showSnackbar(
+        "Chỉ được phép chọn 'Trả hàng' khi đơn hàng ở trạng thái 'Hoàn thành'"
       );
+      return;
     }
+
+    if (newStatus === "Đã hủy" && orderRequest?.orderStatus !== "Chờ duyệt") {
+      // Nếu trạng thái hiện tại không phải "Chờ duyệt", không cho phép hủy đơn
+      showSnackbar(
+        "Chỉ được phép hủy đơn khi đơn hàng ở trạng thái 'Chờ duyệt'"
+      );
+      return;
+    }
+
+    // Cập nhật trạng thái nếu thỏa điều kiện
+    setOrderRequest((prev) =>
+      prev ? { ...prev, orderStatus: newStatus } : null
+    );
   };
 
   const handleUpdatePaymentStatus = (newPaymentStatus: string) => {
@@ -226,7 +238,10 @@ const OrderDetailPage: React.FC = () => {
           if (imeiMapItem.imeiId && imeiMapItem.imeiCode !== "0") {
             try {
               // Gọi updateOrderDetail với orderDetailId và imeiId
-              await updateOrderDetail(imeiMapItem.orderDetailId, imeiMapItem.imeiId);
+              await updateOrderDetail(
+                imeiMapItem.orderDetailId,
+                imeiMapItem.imeiId
+              );
             } catch (error) {
               console.error("Lỗi khi cập nhật order detail:", error);
             }
@@ -295,10 +310,10 @@ const OrderDetailPage: React.FC = () => {
       <OrderStatus
         orderId={orderRequest.id || 0}
         activeStep={activeStep}
-        isCancelled={isCancelled}
-        steps={steps}
+        orderStatus={orderRequest.orderStatus} // Truyền trạng thái đơn hàng
         formatOrderId={(id) => `ORD${id.toString().padStart(4, "0")}`}
       />
+
       <OrderInformation
         orderDetail={orderRequest}
         formattedDate={formattedDate}
@@ -318,6 +333,7 @@ const OrderDetailPage: React.FC = () => {
         handleFilterPaymentStatus={handleUpdatePaymentStatus}
         currencyFormatter={currencyFormatter}
       />
+
       <OrderItemsTable
         orderDetails={orderDetails}
         onImeiUpdate={handleImeiUpdate}
