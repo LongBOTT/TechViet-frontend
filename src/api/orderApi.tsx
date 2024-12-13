@@ -32,7 +32,7 @@ export const getAllOrders = async () => {
     const response = await axiosInstance.get("/orders");
     return response.data;
   } catch (error: any) {
-    handleApiError(error, "lấy danh sách sản phẩm và phiên bản");
+    handleApiError(error, "lấy danh sách đơn hàng");
   }
 };
 
@@ -43,7 +43,7 @@ export const getOrdersByKeyword = async (keyword: string) => {
     );
     return response.data;
   } catch (error: any) {
-    handleApiError(error, "lấy danh sách sản phẩm và phiên bản");
+    handleApiError(error, "lấy danh sách đơn hàng");
   }
 };
 export const getOrderResponseById = async (id: number) => {
@@ -53,7 +53,7 @@ export const getOrderResponseById = async (id: number) => {
     );
     return response.data;
   } catch (error: any) {
-    handleApiError(error, "lấy danh sách sản phẩm và phiên bản");
+    handleApiError(error, "lấy danh sách đơn hàng");
   }
 };
 export const getOrderByStatus = async (status: string) => {
@@ -63,7 +63,7 @@ export const getOrderByStatus = async (status: string) => {
     );
     return response.data;
   } catch (error: any) {
-    handleApiError(error, "lấy danh sách sản phẩm và phiên bản");
+    handleApiError(error, "lấy danh sách đơn hàng");
   }
 };
 
@@ -74,7 +74,7 @@ export const getOrderByPaymentMethod = async (paymentMethod: string) => {
     );
     return response.data;
   } catch (error: any) {
-    handleApiError(error, "lấy danh sách sản phẩm và phiên bản");
+    handleApiError(error, "lấy danh sách đơn hàng");
   }
 };
 

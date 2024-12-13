@@ -1,4 +1,3 @@
-// pages/OrderDetailPage.tsx
 import React, { useState, useEffect } from "react";
 import { Box, Typography, Button } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -14,6 +13,7 @@ import OrderInformation from "../../components/Order/OrderInformation";
 import { updateOrderDetail } from "../../../api/orderDetailApi";
 import { updateImeiStatus } from "../../../api/imeiApi";
 import LoadingSnackbar from "../../components/Util/LoadingSnackbar";
+
 interface ImeiInfo {
   id: number;
   imeiCode: string;
@@ -28,17 +28,17 @@ const OrderDetailPage: React.FC = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
-  // Bản đồ trạng thái đơn hàng thành bước
   const stepStatusMap: { [key: string]: number } = {
     "Chờ duyệt": 0,
-    "Chuẩn bị hàng": 1,
-    "Đang giao": 2,
-    "Hoàn thành": 3,
-    "Hủy đơn": 4,
+    "Đang giao": 1,
+    "Hoàn thành": 2,
+    "Đã hủy": 3,
+    "Trả hàng": 4,
+    
   };
+
   function transformOrderDataToRequests(orderData: any) {
     const transformedOrderRequest: OrderRequest = {
-      // Thông tin tổng quan của đơn hàng
       id: orderData.id,
       customer: orderData.customer,
       orderDate: orderData.orderDate,
@@ -51,7 +51,6 @@ const OrderDetailPage: React.FC = () => {
       phone: orderData.phone || orderData.customer.phone,
     };
 
-    // Tạo transformedOrderDetail
     const variantMap: { [key: number]: any } = {};
 
     orderData.orderDetailResponseList.forEach((detail: any) => {
@@ -64,21 +63,23 @@ const OrderDetailPage: React.FC = () => {
           quantity: 0,
           price: detail.price,
           total: detail.total_amount,
-          imeiMap: {},
-          imeis: detail.imeis, // Lấy danh sách imeis của phần tử đầu tiên có cùng variantId
+          imeiMap: [],
+          imeis: detail.imeis,
         };
       }
 
-      // Cộng dồn quantity
       variantMap[variantId].quantity += detail.quantity;
 
-      // Thêm imei vào imeiMap, lấy id và imeiCode tương ứng
-      variantMap[variantId].imeiMap[detail.id] = detail.imei
-        ? { id: detail.imei.id, imeiCode: detail.imei.imeiCode }
-        : null;
+      if (detail.imei) {
+        variantMap[variantId].imeiMap.push({
+          orderDetailId: detail.id,
+          variantId: detail.variant.id,
+          imeiId: detail.imei.id,
+          imeiCode: detail.imei.imeiCode,
+        });
+      }
     });
 
-    // Chuyển đổi đối tượng variantMap thành mảng
     const transformedOrderDetails = Object.values(variantMap);
 
     return {
@@ -97,8 +98,8 @@ const OrderDetailPage: React.FC = () => {
 
           setOrderRequest(orderRequest);
           setOrderDetails(orderDetails);
-          console.log("orderRequest:", orderRequest);
-          console.log("orderDetails:", orderDetails);
+          console.log("orderRequest", orderRequest);
+          console.log("orderDetails", orderDetails);
         } catch (error) {
           console.error("Lỗi khi lấy chi tiết đơn hàng:", error);
         }
@@ -116,16 +117,13 @@ const OrderDetailPage: React.FC = () => {
     );
   }
 
-  // Xác định chỉ số bước hiện tại từ trạng thái đơn hàng
   const activeStep = stepStatusMap[orderRequest.orderStatus] || 0;
-  const isCancelled = orderRequest.orderStatus === "Hủy đơn";
-
-  // Các bước trạng thái đơn hàng
+  const isCancelled = orderRequest.orderStatus === "Đã hủy";
   const steps = [
     "Chờ duyệt",
-    "Chuẩn bị hàng",
     "Đang giao",
-    isCancelled ? "Hủy đơn" : "Hoàn thành",
+    isCancelled ? "Đã hủy" : "Hoàn thành",
+    "Trả hàng"
   ];
 
   const formattedDate = new Intl.DateTimeFormat("vi-VN", {
@@ -141,7 +139,6 @@ const OrderDetailPage: React.FC = () => {
     hour12: false,
   }).format(new Date(orderRequest.orderDate));
 
-  // Hàm cập nhật trạng thái đơn hàng
   const handleUpdateOrderStatus = (newStatus: string) => {
     if (orderRequest) {
       setOrderRequest((prev) =>
@@ -150,7 +147,6 @@ const OrderDetailPage: React.FC = () => {
     }
   };
 
-  // Hàm cập nhật trạng thái thanh toán
   const handleUpdatePaymentStatus = (newPaymentStatus: string) => {
     if (orderRequest) {
       setOrderRequest((prev) =>
@@ -159,28 +155,43 @@ const OrderDetailPage: React.FC = () => {
     }
   };
 
-  // Thêm hàm cập nhật IMEI vào OrderDetailPage
   const handleImeiUpdate = (
-    orderDetailId: number,
+    variantId: number,
     selectedImeis: Array<{ id: number; imei: string }>
   ) => {
     setOrderDetails((prevDetails) =>
       prevDetails.map((detail) => {
-        if (detail.variantId === orderDetailId) {
-          // Cập nhật imeiMap với các IMEI được chọn
-          detail.imeiMap = selectedImeis.reduce((map, imei) => {
-            map[orderDetailId] = { id: imei.id, imeiCode: imei.imei };
-            return map;
-          }, {} as { [key: number]: { id: number; imeiCode: string } | null });
+        if (detail.variantId === variantId) {
+          // Tạo danh sách imeiCode đã chọn
+          const selectedImeiCodes = selectedImeis.map((imei) => imei.imei);
+
+          // Duyệt qua imeiMap để tìm phần tử đầu tiên có imeiCode là '0'
+          for (let imeiMapItem of detail.imeiMap) {
+            // Nếu imeiCode là '0' và chưa được cập nhật
+            if (imeiMapItem.imeiCode === "0") {
+              // Kiểm tra xem imeiCode hiện tại không có trong danh sách đã chọn
+              if (!selectedImeiCodes.includes(imeiMapItem.imeiCode)) {
+                // Lấy phần tử cuối cùng trong selectedImeis
+                const lastSelectedImei =
+                  selectedImeis[selectedImeis.length - 1];
+
+                // Cập nhật imeiId và imeiCode từ phần tử cuối cùng trong selectedImeis
+                imeiMapItem.imeiId = lastSelectedImei.id;
+                imeiMapItem.imeiCode = lastSelectedImei.imei;
+                break; // Dừng vòng lặp sau khi đã cập nhật phần tử đầu tiên có imeiCode = '0'
+              }
+            }
+          }
         }
-        return detail;
+        return detail; // Trả về detail đã được cập nhật
       })
     );
   };
+
   const onGoBack = () => {
     navigate("/Admin/order");
   };
-  // Hàm chuyển đổi chuỗi tiếng Việt thành enum PaymentMethod
+
   const convertPaymentMethod = (method: string): PaymentMethod => {
     switch (method) {
       case "Tiền mặt":
@@ -191,24 +202,39 @@ const OrderDetailPage: React.FC = () => {
         throw new Error("Phương thức thanh toán không hợp lệ");
     }
   };
+
   const onSave = async () => {
     console.log("Lưu đơn hàng với chi tiết cập nhật:", orderRequest);
     console.log("Chi tiết đơn hàng cập nhật:", orderDetails);
 
     try {
+      // Cập nhật payment_method nếu có
       if (orderRequest) {
         try {
           orderRequest.payment_method = convertPaymentMethod(
             orderRequest.payment_method as unknown as string
           );
         } catch (error) {
-          if (error instanceof Error) {
-            console.error(error.message);
-          } else {
-            console.error("Unknown error", error);
+          console.error(error instanceof Error ? error.message : error);
+        }
+      }
+
+      // Duyệt qua orderDetails và imeiMap để gọi hàm updateOrderDetail
+      for (const detail of orderDetails) {
+        for (const imeiMapItem of detail.imeiMap) {
+          // Kiểm tra imeiId và gọi hàm updateOrderDetail nếu có
+          if (imeiMapItem.imeiId && imeiMapItem.imeiCode !== "0") {
+            try {
+              // Gọi updateOrderDetail với orderDetailId và imeiId
+              await updateOrderDetail(imeiMapItem.orderDetailId, imeiMapItem.imeiId);
+            } catch (error) {
+              console.error("Lỗi khi cập nhật order detail:", error);
+            }
           }
         }
       }
+
+      // Cập nhật thông tin đơn hàng sau khi đã xử lý imei
       if (orderRequest && orderRequest.id !== undefined) {
         await updateOrder(orderRequest.id, orderRequest);
         showSnackbar("Cập nhật đơn hàng thành công!");
@@ -220,16 +246,15 @@ const OrderDetailPage: React.FC = () => {
     }
   };
 
-  // Hiển thị Snackbar
   const showSnackbar = (message: string) => {
     setSnackbarMessage(message);
     setSnackbarOpen(true);
   };
 
   const handleSnackbarClose = () => setSnackbarOpen(false);
+
   return (
     <Box sx={{ width: "100%", bgcolor: "rgb(249, 249, 249)" }}>
-      {/* Header */}
       <Box
         sx={{
           height: 64,
@@ -280,9 +305,10 @@ const OrderDetailPage: React.FC = () => {
         formattedTime={formattedTime}
         StatusOptions={[
           { value: "Chờ duyệt", label: "Chờ duyệt" },
-          { value: "Chuẩn bị hàng", label: "Chuẩn bị hàng" },
           { value: "Đang giao", label: "Đang giao" },
           { value: "Hoàn thành", label: "Hoàn thành" },
+          { value: "Đã hủy", label: "Hủy đơn" },
+          { value: "Trả hàng", label: "Trả hàng" },
         ]}
         PaymentStatusOptions={[
           { value: "Chưa thanh toán", label: "Chưa thanh toán" },
@@ -296,7 +322,7 @@ const OrderDetailPage: React.FC = () => {
         orderDetails={orderDetails}
         onImeiUpdate={handleImeiUpdate}
       />
-        <LoadingSnackbar
+      <LoadingSnackbar
         loading={loading}
         snackbarOpen={snackbarOpen}
         snackbarMessage={snackbarMessage}

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import {
   Box,
   Paper,
@@ -13,7 +13,6 @@ import {
   TextField,
   Chip,
 } from "@mui/material";
-
 import { currencyFormatter } from "../Util/Formatter";
 
 interface OrderItemsTableProps {
@@ -23,7 +22,7 @@ interface OrderItemsTableProps {
     quantity: number;
     price: number;
     total: number;
-    imeiMap: { [key: number]: { id: number; imeiCode: string } | null };
+    imeiMap: { orderDetailId: number; imeiId: number; imeiCode: string }[];
     imeis: Array<{
       id: number;
       imei: string;
@@ -32,7 +31,7 @@ interface OrderItemsTableProps {
     }>;
   }>;
   onImeiUpdate: (
-    orderDetailId: number,
+    variantId: number,
     selectedImeis: Array<{ id: number; imei: string }>
   ) => void;
 }
@@ -42,22 +41,23 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
   onImeiUpdate,
 }) => {
   const [selectedImeis, setSelectedImeis] = useState<{
-    [key: number]: Array<{ id: number; imei: string }>;
+    [variantId: number]: Array<{ id: number; imei: string }>;
   }>({});
 
   const handleImeiChange = (
-    orderDetailId: number,
+    variantId: number,
     newValue: Array<{ id: number; imei: string }>
   ) => {
+    // Cập nhật selectedImeis với các IMEI đã chọn
     setSelectedImeis((prev) => ({
       ...prev,
-      [orderDetailId]: newValue,
+      [variantId]: newValue, // Cập nhật danh sách IMEI cho variantId này
     }));
 
-    // Gọi hàm onImeiUpdate để cập nhật state trong component cha
-    onImeiUpdate(orderDetailId, newValue);
-  };
+    // Gọi hàm onImeiUpdate để cập nhật imeiMap trong component cha
+    onImeiUpdate(variantId, newValue);
 
+  };
   return (
     <Box
       sx={{
@@ -91,49 +91,72 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
             </TableRow>
           </TableHead>
           <TableBody>
-            {orderDetails.map((detail, index) => (
-              <React.Fragment key={index}>
-                <TableRow>
-                  <TableCell sx={{ textAlign: "center" }}>
-                    {detail.variantName}
-                  </TableCell>
-                  <TableCell sx={{ textAlign: "center" }}>
-                    {detail.quantity}
-                  </TableCell>
-                  <TableCell sx={{ textAlign: "center" }}>
-                    {currencyFormatter.format(detail.price)}
-                  </TableCell>
-                  <TableCell sx={{ textAlign: "center" }}>
-                    {currencyFormatter.format(detail.total)}
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell colSpan={4}>
-                    <Autocomplete
-                      multiple
-                      options={detail.imeis || []} // Sử dụng [] nếu detail.imeis là null hoặc undefined
-                      getOptionLabel={(option) => option.imei}
-                      value={selectedImeis[detail.variantId] || []}
-                      onChange={(event, newValue) =>
-                        handleImeiChange(detail.variantId, newValue)
-                      }
-                      renderInput={(params) => (
-                        <TextField {...params} placeholder="Nhập số IMEI" />
+            {orderDetails.map((detail, index) => {
+              // Kiểm tra trong imeiMap có imeiCode = '0' không
+              const hasEmptyImeiCode = detail.imeiMap.some(
+                (item) => item.imeiCode === "0"
+              );
+
+              return (
+                <React.Fragment key={index}>
+                  <TableRow>
+                    <TableCell sx={{ textAlign: "center" }}>
+                      {detail.variantName}
+                    </TableCell>
+                    <TableCell sx={{ textAlign: "center" }}>
+                      {detail.quantity}
+                    </TableCell>
+                    <TableCell sx={{ textAlign: "center" }}>
+                      {currencyFormatter.format(detail.price)}
+                    </TableCell>
+                    <TableCell sx={{ textAlign: "center" }}>
+                      {currencyFormatter.format(detail.total)}
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell colSpan={4}>
+                      {!hasEmptyImeiCode ? (
+                        // Nếu có imeiCode = '0', chỉ hiển thị IMEI dưới dạng Chip
+                        <Box>
+                          {detail.imeiMap
+                            .filter((item) => item.imeiCode !== "0")
+                            .map((item) => (
+                              <Chip
+                                label={item.imeiCode}
+                                key={item.imeiId}
+                                sx={{ margin: "0.2rem" }}
+                              />
+                            ))}
+                        </Box>
+                      ) : (
+                        // Nếu không có imeiCode = '0', hiển thị Autocomplete để chọn IMEI mới
+                        <Autocomplete
+                          multiple
+                          options={detail.imeis || []}
+                          getOptionLabel={(option) => option.imei}
+                          value={selectedImeis[detail.variantId] || []} // Hiển thị tất cả các IMEI đã chọn cho variantId này
+                          onChange={(event, newValue) =>
+                            handleImeiChange(detail.variantId, newValue)
+                          } // Cập nhật khi chọn hoặc bỏ chọn IMEI
+                          renderInput={(params) => (
+                            <TextField {...params} placeholder="Nhập số IMEI" />
+                          )}
+                          renderTags={(value, getTagProps) =>
+                            value.map((option, index) => (
+                              <Chip
+                                label={option.imei}
+                                {...getTagProps({ index })}
+                                key={option.id}
+                              />
+                            ))
+                          }
+                        />
                       )}
-                      renderTags={(value, getTagProps) =>
-                        value.map((option, index) => (
-                          <Chip
-                            label={option.imei}
-                            {...getTagProps({ index })}
-                            key={option.id}
-                          />
-                        ))
-                      }
-                    />
-                  </TableCell>
-                </TableRow>
-              </React.Fragment>
-            ))}
+                    </TableCell>
+                  </TableRow>
+                </React.Fragment>
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>

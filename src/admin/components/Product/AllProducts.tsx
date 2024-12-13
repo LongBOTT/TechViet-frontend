@@ -77,7 +77,7 @@ const AllProducts: React.FC = () => {
 
   // Xử lý khi người dùng bấm vào hàng sản phẩm
   const handleRowClick = (product: any) => {
-    navigate(`/EditProduct/${product.id}`); // Chuyển hướng đến trang chỉnh sửa sản phẩm
+    navigate(`/Admin/EditProduct/${product.id}`); // Chuyển hướng đến trang chỉnh sửa sản phẩm
   };
 
   // Trạng thái đặt lại bộ lọc

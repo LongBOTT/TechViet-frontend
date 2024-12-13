@@ -20,9 +20,6 @@ const OrderStatusData: React.FC<OrderStatusDataProps> = ({ orderId, activeStep, 
         <Typography variant="h6" sx={{ fontWeight: "bold", marginBottom: "10px" }}>
           {formatOrderId(orderId)}
         </Typography>
-        <Button variant="outlined" startIcon={<PrintIcon />}>
-          In đơn hàng
-        </Button>
       </Box>
       <Box sx={{ width: "50%", marginTop: 2, marginRight: "20px" }}>
         <Stepper activeStep={activeStep} alternativeLabel>

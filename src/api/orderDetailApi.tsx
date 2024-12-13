@@ -31,8 +31,7 @@ export const searchOrderDetailBy_OrderId = async (id: number) => {
 export const updateOrderDetail = async (id: number, imeiId: number) => {
   try {
     const response = await axiosInstance.put(
-      `/order-details/${id}`,
-      { imeiId } // Gửi dưới dạng JSON object
+      `/order-details/${id}/${imeiId}` // Truyền trực tiếp qua URL
     );
     return response.data;
   } catch (error: any) {
@@ -40,4 +39,5 @@ export const updateOrderDetail = async (id: number, imeiId: number) => {
     throw error;
   }
 };
+
 

@@ -69,6 +69,7 @@ export default function Order() {
     });
   };
   const transformOrderProcessingData = (orders: any[]) => {
+    // Định nghĩa các trạng thái
     const statusMap = {
       "Chờ duyệt": {
         label: "Chờ duyệt",
@@ -76,14 +77,8 @@ export default function Order() {
         value: 0,
         countColor: "blue",
       },
-      "Chờ thanh toán": {
-        label: "Chờ thanh toán",
-        count: 0,
-        value: 0,
-        countColor: "blue",
-      },
-      "Chuẩn bị hàng": {
-        label: "Chuẩn bị hàng",
+      "Chưa thanh toán": {
+        label: "Chưa thanh toán",
         count: 0,
         value: 0,
         countColor: "blue",
@@ -95,21 +90,31 @@ export default function Order() {
         countColor: "blue",
       },
     };
-
+  
+    // Duyệt qua tất cả đơn hàng
     orders.forEach((order) => {
+      // Xử lý trạng thái đơn hàng (orderStatus)
       const status = order.orderStatus as keyof typeof statusMap;
       if (statusMap[status]) {
         statusMap[status].count += 1;
         statusMap[status].value += order.total_amount;
       }
+  
+      // Xử lý tình trạng thanh toán (payment_status)
+      if (order.payment_status === "Chưa thanh toán") {
+        // Nếu payment_status là "Chưa thanh toán", cộng vào cột "Chưa thanh toán"
+        statusMap["Chưa thanh toán"].count += 1;
+        statusMap["Chưa thanh toán"].value += order.total_amount;
+      }
     });
-
+  
     // Chuyển đổi giá trị tiền thành chuỗi có định dạng
     return Object.values(statusMap).map((status) => ({
       ...status,
       value: currencyFormatter.format(status.value),
     }));
   };
+  
   const fetchOrders = async () => {
     try {
       const data = await getAllOrders(); // Gọi API để lấy dữ liệu
@@ -163,7 +168,6 @@ export default function Order() {
   };
   const StatusOptions = [
     { value: "Chờ duyệt", label: "Chờ duyệt" },
-    { value: "Chuẩn bị hàng", label: "Chuẩn bị hàng" },
     { value: "Đang giao", label: "Đang giao" },
     { value: "Hoàn thành", label: "Hoàn thành" },
     { value: "Đã hủy", label: "Đã hủy" },
