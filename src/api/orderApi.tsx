@@ -87,7 +87,15 @@ export const updateOrder = async (id: number, order: Order) => {
     throw error; // Quăng lỗi để xử lý ở phía gọi hàm
   }
 }
-
+export const updateReturnOrder = async (variantId: number,imeiId: number) => {
+  try {
+    const response = await axiosInstance.put(`/variants/returnOrder/${variantId}/${imeiId}`);
+    return response.data;
+  } catch (error: any) {
+    handleApiError(error, "cập nhật đơn trả hàng đổi trạng thái imei thành có thể bán và tăng số lượng variant lên");
+    throw error; // Quăng lỗi để xử lý ở phía gọi hàm
+  }
+}
 export const reportOverview = async () => {
   try {
     const response = await axiosInstance.get("/orders/statistics");

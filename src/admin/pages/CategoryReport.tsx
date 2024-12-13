@@ -25,6 +25,25 @@ export default function CategoryReport() {
     { label: "Lợi nhuận", key: "profit" },
   ];
 
+   React.useEffect(() => {
+      const today = new Date();
+      
+      // Tạo ngày hôm nay với giờ là 00:00 theo múi giờ Việt Nam (UTC+7)
+      const localDate = new Date(today.toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" }));
+    
+      // Đặt thời gian là 00:00:00 cho start
+      const start = new Date(localDate.getFullYear(), localDate.getMonth(), localDate.getDate());
+      
+      // Cộng thêm một ngày vào startDate
+      start.setDate(start.getDate() + 1); // Cộng một ngày
+      
+      const end = new Date(start); // Kết thúc ngày là ngày cộng thêm một ngày
+    
+      // Cập nhật state
+      setStartDate(start.toISOString().split("T")[0]);
+      setEndDate(end.toISOString().split("T")[0]);
+    
+    }, []);
   // Fetch data from API when startDate and endDate are provided
   React.useEffect(() => {
     if (startDate && endDate) {

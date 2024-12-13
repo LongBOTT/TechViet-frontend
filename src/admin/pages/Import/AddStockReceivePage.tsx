@@ -46,6 +46,7 @@ import { currencyFormatter } from "../../components/Util/Formatter";
 import { createStockReceive } from "../../../api/stock_receiveApi";
 import { createStockReceiveDetail } from "../../../api/stock_receive_detailApi";
 import { checkImeiExists, createImei } from "../../../api/imeiApi";
+import LoadingSnackbar from "../../components/Util/LoadingSnackbar";
 
 export default function AddImportPage() {
   const navigate = useNavigate();
@@ -87,13 +88,20 @@ export default function AddImportPage() {
   );
   const totalItems = selectedProducts.length;
 
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const showSnackbar = (message: string) => {
+    setSnackbarMessage(message);
+    setSnackbarOpen(true);
+  };
+  const handleSnackbarClose = () => setSnackbarOpen(false);
   const onSave = async () => {
     if (selectedProducts.length === 0) {
-      alert("Vui lòng chọn ít nhất một sản phẩm trước khi lưu.");
+      showSnackbar("Vui lòng chọn ít nhất một sản phẩm trước khi lưu.");
       return;
     }
     if (stockReceiveRequest.supplierId === 0) {
-      alert("Vui lòng chọn nhà cung cấp trước khi lưu.");
+      showSnackbar("Vui lòng chọn nhà cung cấp trước khi lưu.");
       return;
     }
     for (const product of selectedProducts) {
@@ -101,7 +109,7 @@ export default function AddImportPage() {
         product.warrantyId !== 0 &&
         product.imeis.length !== product.quantity
       ) {
-        alert(
+        showSnackbar(
           `Phiên bản ${product.variantName} có số lượng IMEI không khớp với số lượng phiên bản`
         );
         return;
@@ -110,7 +118,7 @@ export default function AddImportPage() {
       for (const imei of product.imeis) {
         const exists = await checkImeiExists(imei);
         if (exists) {
-          alert(`IMEI ${imei} đã tồn tại trong hệ thống.`);
+          showSnackbar(`IMEI ${imei} đã tồn tại trong hệ thống.`);
           return; // Dừng quá trình lưu nếu IMEI đã tồn tại
         }
       }
@@ -133,7 +141,6 @@ export default function AddImportPage() {
         quantity: product.quantity,
         price: product.price,
       }));
-  
 
       // Gọi API để lưu chi tiết phiếu nhập và nhận lại `id` thực tế
       const savedDetails = await Promise.all(
@@ -153,13 +160,12 @@ export default function AddImportPage() {
         }
         return [];
       });
-   
+
       // Gọi API để lưu từng IMEI vào database
       if (imeiRequests.length > 0) {
         await Promise.all(imeiRequests.map((imei) => createImei(imei)));
-     
       }
-      alert("Lưu thành công");
+      showSnackbar("Lưu thành công");
       navigate("/Admin/import");
     } catch (error) {
       console.error("Lỗi khi lưu dữ liệu:", error);
@@ -323,7 +329,7 @@ export default function AddImportPage() {
       );
       if (existingProduct) {
         // Nếu sản phẩm đã tồn tại, hiển thị thông báo
-        alert("Phiên bản đã được chọn!");
+        showSnackbar("Phiên bản đã được chọn!");
         return prevProducts;
       }
       // Nếu sản phẩm chưa tồn tại, thêm vào danh sách với quantity mặc định là 1
@@ -694,7 +700,7 @@ export default function AddImportPage() {
                                     );
 
                                     if (imeiExists) {
-                                      alert(
+                                      showSnackbar(
                                         "IMEI này đã tồn tại trong hệ thống. Vui lòng nhập IMEI khác."
                                       );
                                     } else {
@@ -834,6 +840,12 @@ export default function AddImportPage() {
           </Box>
         </Box>
       </Box>
+      <LoadingSnackbar
+        loading={loading}
+        snackbarOpen={snackbarOpen}
+        snackbarMessage={snackbarMessage}
+        onClose={handleSnackbarClose}
+      />
     </Box>
   );
 }

@@ -9,12 +9,13 @@ interface SalesOverviewProps {
 }
 
 const SalesOverview: React.FC<SalesOverviewProps> = ({ data }) => {
+  // Kiểm tra dữ liệu hợp lệ trước khi sử dụng
   const chartData = {
-    labels: data ? data.map((item: any) => item[0]) : [], // Safely map if data exists
+    labels: data && Array.isArray(data) ? data.map((item: any) => item[0]) : [], // Kiểm tra nếu data là mảng và có giá trị
     datasets: [
       {
         label: "Doanh thu",
-        data: data ? data.map((item: any) => item[1]) : [], // Safely map if data exists
+        data: data && Array.isArray(data) ? data.map((item: any) => item[1]) : [], // Kiểm tra lại mảng data
         backgroundColor: "rgb(51, 160, 255)",
         borderColor: "rgba(54, 162, 235, 1)",
         borderWidth: 1,
@@ -23,6 +24,7 @@ const SalesOverview: React.FC<SalesOverviewProps> = ({ data }) => {
     ],
   };
 
+  // Thiết lập các tùy chọn cho biểu đồ
   const options = {
     maintainAspectRatio: false,
     responsive: true,
@@ -98,7 +100,12 @@ const SalesOverview: React.FC<SalesOverviewProps> = ({ data }) => {
         }}
       >
         <Typography>
-          Tổng doanh thu: <strong>{data ? currencyFormatter.format(data[0][1]) : 0}</strong> {/* Display first value as total */}
+          Tổng doanh thu:{" "}
+          <strong>
+            {data && Array.isArray(data) && data.length > 0
+              ? currencyFormatter.format(data[0][1]) // Hiển thị tổng doanh thu từ phần tử đầu tiên của data
+              : 0}
+          </strong>
         </Typography>
       </Box>
     </Box>

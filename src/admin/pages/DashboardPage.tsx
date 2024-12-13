@@ -26,6 +26,46 @@ export default function Dashboard() {
 
 
   React.useEffect(() => {
+    const today = new Date();
+    
+    // Tạo ngày hôm nay với giờ là 00:00 theo múi giờ Việt Nam (UTC+7)
+    const localDate = new Date(today.toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" }));
+  
+    // Đặt thời gian là 00:00:00 cho start
+    const start = new Date(localDate.getFullYear(), localDate.getMonth(), localDate.getDate());
+    
+    // Cộng thêm một ngày vào startDate
+    start.setDate(start.getDate() + 1); // Cộng một ngày
+    
+    const end = new Date(start); // Kết thúc ngày là ngày cộng thêm một ngày
+  
+    // Cập nhật state
+    setStartDate(start.toISOString().split("T")[0]);
+    setEndDate(end.toISOString().split("T")[0]);
+  
+  }, []);
+  
+// 2. Cập nhật API khi startDate và endDate thay đổi
+React.useEffect(() => {
+  if (startDate && endDate) {
+    const fetchStatistics = async () => {
+      try {
+        const data = await getStatistics(startDate, endDate);
+        console.log("API Data:", data);
+        setStatistics(data);
+        processStatisticsData(data);
+      } catch (error) {
+        console.error("Error fetching statistics:", error);
+      }
+    };
+    fetchStatistics();
+  }
+}, [startDate, endDate]);  // Đảm bảo chỉ gọi khi startDate hoặc endDate thay đổi
+
+
+
+  // Fetch statistics after startDate and endDate are set
+  React.useEffect(() => {
     if (startDate && endDate) {
       const fetchStatistics = async () => {
         const data = await getStatistics(startDate, endDate);

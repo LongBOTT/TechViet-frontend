@@ -90,7 +90,7 @@ export default function Order() {
         countColor: "blue",
       },
     };
-  
+
     // Duyệt qua tất cả đơn hàng
     orders.forEach((order) => {
       // Xử lý trạng thái đơn hàng (orderStatus)
@@ -99,22 +99,26 @@ export default function Order() {
         statusMap[status].count += 1;
         statusMap[status].value += order.total_amount;
       }
-  
+
       // Xử lý tình trạng thanh toán (payment_status)
-      if (order.payment_status === "Chưa thanh toán") {
+      if (
+        order.payment_status === "Chưa thanh toán" &&
+        order.orderStatus !== "Đã hủy" &&
+        order.orderStatus !== "Trả hàng"
+      ) {
         // Nếu payment_status là "Chưa thanh toán", cộng vào cột "Chưa thanh toán"
         statusMap["Chưa thanh toán"].count += 1;
         statusMap["Chưa thanh toán"].value += order.total_amount;
       }
     });
-  
+
     // Chuyển đổi giá trị tiền thành chuỗi có định dạng
     return Object.values(statusMap).map((status) => ({
       ...status,
       value: currencyFormatter.format(status.value),
     }));
   };
-  
+
   const fetchOrders = async () => {
     try {
       const data = await getAllOrders(); // Gọi API để lấy dữ liệu
@@ -130,7 +134,6 @@ export default function Order() {
   useEffect(() => {
     fetchOrders(); // Gọi hàm khi component được tải
   }, []);
-
 
   const handleReset = () => {
     setResetFilter(true);
@@ -171,6 +174,7 @@ export default function Order() {
     { value: "Đang giao", label: "Đang giao" },
     { value: "Hoàn thành", label: "Hoàn thành" },
     { value: "Đã hủy", label: "Đã hủy" },
+    { value: "Trả hàng", label: "Trả hàng" },
   ];
 
   const PaymentMethodOptions = [
@@ -296,7 +300,7 @@ export default function Order() {
               resetFilter={resetFilter}
             />
           </Box>
-          <Box sx={{ minWidth: "200px"           }}>
+          <Box sx={{ minWidth: "200px" }}>
             <FilterDropdown
               label="Trạng thái đơn"
               options={StatusOptions}

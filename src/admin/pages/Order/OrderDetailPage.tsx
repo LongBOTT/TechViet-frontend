@@ -3,7 +3,11 @@ import { Box, Typography, Button } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import SaveIcon from "@mui/icons-material/Save";
 import { useNavigate, useParams } from "react-router-dom";
-import { getOrderResponseById, updateOrder } from "../../../api/orderApi";
+import {
+  getOrderResponseById,
+  updateOrder,
+  updateReturnOrder,
+} from "../../../api/orderApi";
 import { currencyFormatter } from "../../components/Util/Formatter";
 import OrderStatus from "../../components/Order/OrderStatusData";
 import { OrderRequest, PaymentMethod } from "../../../types/order";
@@ -27,8 +31,7 @@ const OrderDetailPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-
-  
+  const [resetFilter, setResetFilter] = useState(false);
   function transformOrderDataToRequests(orderData: any) {
     const transformedOrderRequest: OrderRequest = {
       id: orderData.id,
@@ -112,13 +115,13 @@ const OrderDetailPage: React.FC = () => {
   const stepStatusMap: { [key: string]: number } = {
     "Chờ duyệt": 0,
     "Đang giao": 1,
-    "Hoàn thành": 2,  // Cả "Hoàn thành" và "Đã hủy" đều có chỉ số 2
+    "Hoàn thành": 2, // Cả "Hoàn thành" và "Đã hủy" đều có chỉ số 2
     "Đã hủy": 2,
-    "Trả hàng": 3,    // Trạng thái "Trả hàng" có chỉ số 3
+    "Trả hàng": 3, // Trạng thái "Trả hàng" có chỉ số 3
   };
-  
-  const activeStep = stepStatusMap[orderRequest.orderStatus] || 0;  
-  
+
+  const activeStep = stepStatusMap[orderRequest.orderStatus] || 0;
+
   const formattedDate = new Intl.DateTimeFormat("vi-VN", {
     year: "numeric",
     month: "2-digit",
@@ -133,26 +136,27 @@ const OrderDetailPage: React.FC = () => {
   }).format(new Date(orderRequest.orderDate));
 
   const handleUpdateOrderStatus = (newStatus: string) => {
-    // Kiểm tra trạng thái hiện tại và cho phép thay đổi trạng thái chỉ khi thỏa điều kiện
+    // Nếu đang chuyển từ "Chờ duyệt" sang "Đang giao"
     if (
-      newStatus === "Trả hàng" &&
-      orderRequest?.orderStatus !== "Hoàn thành"
+      newStatus === "Đang giao" &&
+      orderRequest?.orderStatus === "Chờ duyệt"
     ) {
-      // Nếu trạng thái hiện tại không phải "Hoàn thành", không cho phép trả hàng
-      showSnackbar(
-        "Chỉ được phép chọn 'Trả hàng' khi đơn hàng ở trạng thái 'Hoàn thành'"
+      // Duyệt qua các chi tiết đơn hàng và kiểm tra xem có phần tử nào trong imeiMap có imeiCode là '0' không
+      const incompleteImei = orderDetails.some((detail) =>
+        detail.imeiMap.some(
+          (imeiItem: { imeiCode: string }) => imeiItem.imeiCode === "0"
+        )
       );
-      return;
-    }
 
-    if (newStatus === "Đã hủy" && orderRequest?.orderStatus !== "Chờ duyệt") {
-      // Nếu trạng thái hiện tại không phải "Chờ duyệt", không cho phép hủy đơn
-      showSnackbar(
-        "Chỉ được phép hủy đơn khi đơn hàng ở trạng thái 'Chờ duyệt'"
-      );
-      return;
+      if (incompleteImei) {
+        showSnackbar(
+          "Vui lòng nhập đầy đủ IMEI cho các sản phẩm trước khi chuyển sang trạng thái 'Đang giao'"
+        );
+        setResetFilter(true);
+        return; // Không cho phép chuyển trạng thái nếu còn thiếu IMEI
+      }
     }
-
+    setResetFilter(false);
     // Cập nhật trạng thái nếu thỏa điều kiện
     setOrderRequest((prev) =>
       prev ? { ...prev, orderStatus: newStatus } : null
@@ -231,6 +235,36 @@ const OrderDetailPage: React.FC = () => {
         }
       }
 
+      // Cập nhật thông tin đơn hàng
+      if (orderRequest && orderRequest.id !== undefined) {
+        await updateOrder(orderRequest.id, orderRequest);
+        // Kiểm tra nếu trạng thái đơn hàng là "Trả hàng"
+        if (orderRequest?.orderStatus === "Trả hàng") {
+          try {
+            // Duyệt qua từng orderDetail trong orderDetails
+            for (const detail of orderDetails) {
+              // Duyệt qua từng imeiMap của orderDetail
+              for (const imeiMapItem of detail.imeiMap) {
+                const { variantId, imeiId } = imeiMapItem; // Lấy variantId và imeiId từ imeiMap
+
+                // Gọi API để cập nhật trạng thái của đơn hàng
+                await updateReturnOrder(variantId, imeiId);
+              }
+            }
+          } catch (error) {
+            console.error("Lỗi khi cập nhật đơn trả hàng:", error);
+            showSnackbar("Đã xảy ra lỗi khi cập nhật đơn trả hàng.");
+          }
+        }
+        showSnackbar("Cập nhật đơn hàng thành công!");
+      } else {
+        console.error("Order ID is undefined");
+      }
+    } catch (error) {
+      console.error("Error updating product:", error);
+    }
+
+    if (orderRequest?.orderStatus === "Đang giao") {
       // Duyệt qua orderDetails và imeiMap để gọi hàm updateOrderDetail
       for (const detail of orderDetails) {
         for (const imeiMapItem of detail.imeiMap) {
@@ -248,16 +282,6 @@ const OrderDetailPage: React.FC = () => {
           }
         }
       }
-
-      // Cập nhật thông tin đơn hàng sau khi đã xử lý imei
-      if (orderRequest && orderRequest.id !== undefined) {
-        await updateOrder(orderRequest.id, orderRequest);
-        showSnackbar("Cập nhật đơn hàng thành công!");
-      } else {
-        console.error("Order ID is undefined");
-      }
-    } catch (error) {
-      console.error("Error updating product:", error);
     }
   };
 
@@ -318,13 +342,23 @@ const OrderDetailPage: React.FC = () => {
         orderDetail={orderRequest}
         formattedDate={formattedDate}
         formattedTime={formattedTime}
-        StatusOptions={[
-          { value: "Chờ duyệt", label: "Chờ duyệt" },
-          { value: "Đang giao", label: "Đang giao" },
-          { value: "Hoàn thành", label: "Hoàn thành" },
-          { value: "Đã hủy", label: "Hủy đơn" },
-          { value: "Trả hàng", label: "Trả hàng" },
-        ]}
+        StatusOptions={(() => {
+          if (orderRequest.orderStatus === "Chờ duyệt") {
+            // Nếu trạng thái là "Chờ duyệt", cho phép chọn "Đang giao", "Hoàn thành", "Hủy đơn"
+            return [
+              { value: "Đang giao", label: "Đang giao" },
+              { value: "Hoàn thành", label: "Hoàn thành" },
+              { value: "Đã hủy", label: "Hủy đơn" },
+            ];
+          } else if (orderRequest.orderStatus === "Đang giao") {
+            // Nếu trạng thái là "Đang giao", chỉ cho phép chọn "Hoàn thành"
+            return [{ value: "Hoàn thành", label: "Hoàn thành" }];
+          } else if (orderRequest.orderStatus === "Hoàn thành") {
+            // Nếu trạng thái là "Hoàn thành", chỉ cho phép chọn "Trả hàng"
+            return [{ value: "Trả hàng", label: "Trả hàng" }];
+          }
+          return []; // Trả về mảng rỗng nếu không có trạng thái phù hợp
+        })()}
         PaymentStatusOptions={[
           { value: "Chưa thanh toán", label: "Chưa thanh toán" },
           { value: "Đã thanh toán", label: "Đã thanh toán" },
@@ -332,6 +366,7 @@ const OrderDetailPage: React.FC = () => {
         handleFilterOrderStatus={handleUpdateOrderStatus}
         handleFilterPaymentStatus={handleUpdatePaymentStatus}
         currencyFormatter={currencyFormatter}
+        resetFilter={resetFilter}
       />
 
       <OrderItemsTable

@@ -1,5 +1,5 @@
 // components/OrderInformation.tsx
-import React from "react";
+import React, { useState } from "react";
 import { Box, Grid, Typography } from "@mui/material";
 import FilterDropdown from "../../components/Util/FilterDropdown";
 
@@ -12,6 +12,7 @@ interface OrderInformationProps {
   handleFilterOrderStatus: (value: string) => void;
   handleFilterPaymentStatus: (value: string) => void;
   currencyFormatter: any;
+  resetFilter: boolean;
 }
 
 const OrderInformation: React.FC<OrderInformationProps> = ({
@@ -23,7 +24,9 @@ const OrderInformation: React.FC<OrderInformationProps> = ({
   handleFilterOrderStatus,
   handleFilterPaymentStatus,
   currencyFormatter,
+  resetFilter,
 }) => {
+
   return (
     <Box
       sx={{
@@ -103,11 +106,12 @@ const OrderInformation: React.FC<OrderInformationProps> = ({
                     label="Trạng thái đơn"
                     options={StatusOptions}
                     onFilterChange={handleFilterOrderStatus}
-                    selectedValue={orderDetail.orderStatus}
+                    selectedValue={orderDetail.orderStatus}  
+                    resetFilter={resetFilter}
                   />
                 </Box>
               </Grid>
-              <Grid item xs={6}>
+              <Grid item xs={6}> 
                 <Typography>
                   <strong>Trạng thái thanh toán:</strong>
                 </Typography>
