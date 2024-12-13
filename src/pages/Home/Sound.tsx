@@ -16,7 +16,7 @@ export const Sound = () => {
       </Box>
 
       {/* Container chứa Slider */}
-      <Container sx={{ textAlign: 'center' }}>
+      <Container>
         <SoundSlider sliderRef={sliderRef} /> {/* Truyền ref vào slider */}
       </Container>
 

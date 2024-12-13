@@ -16,7 +16,7 @@ export const Other = () => {
       </Box>
 
       {/* Container chứa Slider */}
-      <Container sx={{ textAlign: 'center' }}>
+      <Container>
         <OtherSlider sliderRef={sliderRef} /> {/* Truyền ref vào slider */}
       </Container>
 
